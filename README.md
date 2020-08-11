@@ -21,7 +21,7 @@ back end - optional (maybe python)
 - Data import and export as .sqlite 
 - Automatic label compare between users
 - Calculate agreement score between users (http://dfreelon.org/utils/recalfront/recal2/)
-- Facilitate label disagreement resolution
+- Facilitate label disagreement resolution. Including comments on documents
 - Modify labels -> rename, parent/child associations 
 - modified labels should be automatically propagated
 - user edit access levels-> creating labels etc
