@@ -24,5 +24,5 @@ back end - optional (maybe python)
 - Facilitate label disagreement resolution
 - Modify labels -> rename, parent/child associations 
 - modified labels should be automatically propagated
-- user edit access -> creating labels etc
+- user edit access levels-> creating labels etc
 
