@@ -8,4 +8,14 @@ Technologies: Web based. Accessible from windows and MacOS
 Lanuages: front end - HTML CSS Javascript back end - optional (maybe python)
 
 
+# Desired Features
+
+- User accounts (sign in/out)
+- Shared projects (data sets) between users
+- Create predefined labels in the project
+- Each user can assign a predfined label to each document
+- Data import and export as .sqlite 
+- Automatic label compare between users
+- Calculate agreement score between users 
+- Facilitate label disagreement resolution
 
