@@ -15,7 +15,7 @@ back end - optional (maybe python)
 ### Desired Features
 
 - User accounts (sign in/out)
-- Shared projects (data sets) between users
+- Shared projects (datasets) between users
 - Create predefined labels in the project
 - Each user can assign a predfined label to each document
 - Data import and export as .sqlite 
