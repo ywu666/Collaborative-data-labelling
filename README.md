@@ -5,7 +5,11 @@ Web based tool to label text documents, for machine learning tasks. Supervised m
 
 Technologies: Web based. Accessible from windows and MacOS
 
-Lanuages: front end - HTML CSS Javascript back end - optional (maybe python)
+Lanuages: 
+
+front end - HTML CSS Javascript
+
+back end - optional (maybe python)
 
 
 ### Desired Features
