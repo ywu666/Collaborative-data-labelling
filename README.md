@@ -25,4 +25,5 @@ back end - optional (maybe python)
 - Modify labels -> rename, parent/child associations 
 - modified labels should be automatically propagated
 - user edit access levels-> creating labels etc
+- Update db often
 
