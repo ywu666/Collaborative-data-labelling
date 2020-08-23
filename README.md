@@ -1,4 +1,5 @@
 # Collaborative_content_coding
+[![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 Backend Status: [![Build Status](https://travis-ci.com/saddboys/Collaborative_content_coding.svg?branch=master)](https://travis-ci.com/saddboys/Collaborative_content_coding)
 ## Project Requirements
 Web based tool to label text documents, for machine learning tasks. Supervised machine learning with text requires manual labels to be assigned to many documents by human coders. This tool will facilitate human coders to privately (still online) assign predefined labels to a set of documents and then compare their labels with other coders to give an agreed label. 
