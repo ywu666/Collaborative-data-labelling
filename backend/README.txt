@@ -5,5 +5,4 @@ Flask CORS
 
 If you have pip installed, run:
 
-pip install flask
-pip install flask_cors
+pip install -r requirements.txt
