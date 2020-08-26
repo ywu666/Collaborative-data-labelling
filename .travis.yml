@@ -3,7 +3,7 @@ python:
   - "3.8"
 # command to install dependencies
 install:
-  - pip install -r backend/requirements.txt
+  - pip install -r backend/1requirements.txt
 # command to run tests
 script:
   - pytest

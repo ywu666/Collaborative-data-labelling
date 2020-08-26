@@ -1,0 +1,19 @@
+version: '3'
+services:
+  server:
+    build: ./backend
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    command: flask run
+#  redis:
+#    image: "redis:alpine"
+  client:
+    build: ./app
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    command: npm run start
