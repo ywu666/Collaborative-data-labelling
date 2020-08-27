@@ -6,4 +6,4 @@ node_modules/
 .vscode/ 
 .vscode/* 
 .DS_Store
-.env
+*.env
