@@ -6,5 +6,5 @@ class Document:
         self.user_and_labels = {}
 
     def add_user_and_label(self, user, label):
-        self.user_and_labels.update({user.email, label})
+        self.user_and_labels.update({user.email: label})
         # push changes to mongodb
