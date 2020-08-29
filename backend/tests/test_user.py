@@ -1,6 +1,7 @@
 from model.user import User
 
 
+# Tests whether or not setting up a user works
 def test_setup_user():
     my_user = User("David", "Chen", "dchen@testmail.com", [])
     first_name = my_user.first_name == "David"

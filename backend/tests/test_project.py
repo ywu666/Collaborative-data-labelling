@@ -1,6 +1,7 @@
 from model.project import Project
 
 
+# Tests whether setting up a a project works
 def test_setup_project():
     name = "test_project"
     preset_labels = []
