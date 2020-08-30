@@ -75,14 +75,14 @@ const ProjectPage: React.FC = () => {
           <strong>{name}</strong>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
-              {labels.map((label) =>
-                <IonButton slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
+              {labels.map((label, i) =>
+                <IonButton key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
               )}
             </div>
           </IonModal>      
           <IonList>
             {documents.map((doc, i) =>
-              <IonItem>
+              <IonItem key={i}>
                 <IonLabel>{doc.title}</IonLabel>
                 {isNullOrUndefined(doc.tag) || doc.tag === ""
                   ? <IonButton slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
