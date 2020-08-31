@@ -11,6 +11,7 @@ interface ContainerProps {
 
 const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
     const [showNewTag, setShowNewTag] = useState(false);
+    const [newTag, setNewTag] = useState<string>();
 
   return (
     <div className="container">
@@ -43,8 +44,9 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
             },
             {
                 text: 'Confirm',
-                handler: () => {
+                handler: (alertData) => {
                     // add to database here
+                    tags.push(alertData.newTag)
                 }
             }
         ]}
