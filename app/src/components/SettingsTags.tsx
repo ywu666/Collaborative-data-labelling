@@ -30,6 +30,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
         isOpen={showNewTag}
         onDidDismiss={() => setShowNewTag(false)}
         header={'Enter new name:'}
+        message={''}
         inputs={[
             { 
             name: 'newTag',
@@ -45,8 +46,14 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
             {
                 text: 'Confirm',
                 handler: (alertData) => {
-                    // add to database here
-                    tags.push(alertData.newTag)
+                    // test if name is valid, can add more
+                    if (alertData.newTag.length > 0) {
+                        // add to database here
+                        tags.push(alertData.newTag);
+                    } else {
+                        alert('Name is invalid');
+                        return false;
+                    }
                 }
             }
         ]}
