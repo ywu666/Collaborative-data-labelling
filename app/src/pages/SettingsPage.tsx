@@ -9,7 +9,10 @@ import {
     IonGrid,
     IonRow,
     IonCol,
+    IonButton,
+    IonIcon,
   } from '@ionic/react';
+  import { arrowBackOutline } from 'ionicons/icons';
   import React from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
@@ -21,22 +24,25 @@ import {
   
     const tags: string[] = ["One", "Two", "Three"];
   
-  
+  //add the proper header component that will be common to all pages
     return (
-      <IonPage> 
+      <IonPage>
         <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
             <IonMenuButton />
           </IonButtons>
-          <IonTitle>{name}</IonTitle>
+          <IonTitle>Temporary Header</IonTitle>
         </IonToolbar>
       </IonHeader>
 
-            <IonContent class="main">
+        <IonContent class="main">
+
+            <IonButton class="back-button" color="light"><IonIcon slot="icon-only" icon={arrowBackOutline}></IonIcon></IonButton>
+
                 <IonGrid>
                     <IonRow class="ion-justify-content-center">
-                        <IonCol  size="6">
+                        <IonCol size="6">
                             <SettingsTags tags={tags} />
                         </IonCol>
                     </IonRow>
