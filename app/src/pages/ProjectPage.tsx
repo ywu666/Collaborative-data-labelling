@@ -55,7 +55,7 @@ const ProjectPage: React.FC = () => {
   }
 
   const changeTag = (i:number, label:string) => {
-    //TODO: connect with backend to update tags s
+    //TODO: connect with backend to update tags /
     documents[i].tag = label
     setShowModal(false)
   }
