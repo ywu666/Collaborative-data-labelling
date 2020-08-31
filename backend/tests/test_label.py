@@ -1,4 +1,4 @@
-from model.label import Label
+from backend.model.label import Label
 
 
 # Tests whether or not setting up a label works
