@@ -1,8 +1,5 @@
 import {
-    IonItem,
     IonButton,
-    IonList,
-    IonListHeader,
     IonAlert,
   } from '@ionic/react';
 import React, {useState} from 'react';
@@ -45,7 +42,10 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
                 role: 'cancel'
             },
             {
-                text: 'Confirm'
+                text: 'Confirm',
+                handler: () => {
+                    // add to database here
+                }
             }
         ]}
         />

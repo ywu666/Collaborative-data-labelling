@@ -6,6 +6,9 @@ import {
     IonMenuButton,
     IonTitle,
     IonToolbar,
+    IonGrid,
+    IonRow,
+    IonCol,
   } from '@ionic/react';
   import React from 'react';
   import { useParams } from 'react-router';
@@ -30,10 +33,16 @@ import {
         </IonToolbar>
       </IonHeader>
 
-        <IonContent class="main">
-          <SettingsTags tags={tags}/>
-        </IonContent>
-      </IonPage>
+            <IonContent class="main">
+                <IonGrid>
+                    <IonRow class="ion-justify-content-center">
+                        <IonCol  size="6">
+                            <SettingsTags tags={tags} />
+                        </IonCol>
+                    </IonRow>
+                </IonGrid>
+            </IonContent>
+        </IonPage>
     );
   };
   
