@@ -22,6 +22,7 @@ import {
   const SettingsPage: React.FC = () => {
     const { project } = useParams<{ project: string }>();
   
+    // test tags data only! pass this in from database
     const tags: string[] = ["One", "Two", "Three"];
   
   //add the proper header component that will be common to all pages
