@@ -17,7 +17,7 @@ class TestProject(unittest.TestCase):
         assert(my_proj.name == name)
 
     # Test persistence of new project in database
-    def test_create_project_persisted(selfN):
+    def test_create_project_persisted(self):
         my_proj = Project("New Project", [], [])
         my_proj.add_project()
         col = mongoDBInterface.get_col("Test", "projects")
