@@ -12,14 +12,9 @@ import { useParams } from 'react-router';
 import ExploreContainer from '../components/ExploreContainer';
 import './Page.css';
 import { LoginInput } from '../components/LoginInput';
-import { css } from 'glamor';
-import "../components/ExploreContainer.css"
-const container = css({
-  
-  // justifyContent: 'center',
-});
+import "../components/Login.css"
 
-const Page: React.FC = () => {
+const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
 
   return (
@@ -41,7 +36,7 @@ const Page: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <div className="container">
-        <LoginInput {...container} />
+        <LoginInput />
         </div>
       </IonContent>
      
@@ -49,4 +44,4 @@ const Page: React.FC = () => {
   );
 };
 
-export default Page;
+export default LoginPage;
