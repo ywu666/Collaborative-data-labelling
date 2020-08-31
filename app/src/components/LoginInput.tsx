@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { IonLabel, IonToast } from "@ionic/react";
 import { SubmittableEmailInput } from './SubmittableEmailInput';
-import { userActions } from '../actions/userActions';
-import { useDispatch, useSelector } from 'react-redux';
+
 export enum LOGIN_STATUS {
     NONE,
     PENDING,
@@ -10,18 +9,11 @@ export enum LOGIN_STATUS {
     FAILED,
   }
 
-const LoginSuccess: React.FC<{ email: string }> = ({ email }) => {
-    return (
-      <div>
-        <IonLabel>login</IonLabel>
-      </div>
-    );
-  };
 
 export const LoginInput: React.FC<{}> = () => {
   //  const loggingIn = useSelector((state: { authentication: { loggingIn: any; }; }) => state.authentication.loggingIn);
     //const dispatch = useDispatch();
-    const [user, setUser] = useState({
+    const [] = useState({
       email: '',
       password: ''
     })
