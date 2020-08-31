@@ -20,7 +20,7 @@ import {
   import './SettingsPage.css';
   
   const SettingsPage: React.FC = () => {
-    const { name } = useParams<{ name: string }>();
+    const { project } = useParams<{ project: string }>();
   
     const tags: string[] = ["One", "Two", "Three"];
   
@@ -36,11 +36,19 @@ import {
         </IonToolbar>
       </IonHeader>
 
-        <IonContent class="main">
+        <IonContent>
 
-            <IonButton class="back-button" color="light"><IonIcon slot="icon-only" icon={arrowBackOutline}></IonIcon></IonButton>
+            <IonButton class="back-button" color="light">
+                <IonIcon slot="icon-only" icon={arrowBackOutline}></IonIcon>
+            </IonButton>
 
                 <IonGrid>
+                <IonRow class="ion-justify-content-center">
+                    <h1>Settings</h1>
+                    </IonRow>
+                    <IonRow class="ion-justify-content-center">
+                    <h1>{project}(project name)</h1>
+                    </IonRow>
                     <IonRow class="ion-justify-content-center">
                         <IonCol size="6">
                             <SettingsTags tags={tags} />
