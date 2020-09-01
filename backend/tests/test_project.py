@@ -27,6 +27,7 @@ class TestProject(unittest.TestCase):
 
         assert (db_names.__contains__("New_Project"))
 
+    # Tests setting predefined labels
     def test_set_labels(self):
         my_proj = Project("New_Project", [], [])
 
@@ -37,6 +38,7 @@ class TestProject(unittest.TestCase):
         assert (col.find_one({"name": "Bug"}))
         assert (col.find_one({"name": "Comment"}))
 
+    # Tests adding a single document
     def test_add_document(self):
         my_proj = Project("New_Project", [], [])
 

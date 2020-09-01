@@ -13,12 +13,14 @@ class TestDocument(unittest.TestCase):
         my_document = Document(1, "data")
         assert(my_document.identifier == 1 and my_document.data == "data")
 
+    # Tests that document is persisted to db when added
     def test_add_document(self):
         my_document = Document(3, "data")
         col = mongoDBInterface.get_col("Test", "documents")
         my_document.add_new_document()
         assert (col.find_one({"identifier": 3}))
 
+    # Tests that an entry is placed in hashmap when user labels a document
     def test_add_user_and_label(self):
         my_document = Document(4, "test data")
         # Need to put document in database
