@@ -11,7 +11,6 @@ import React from 'react';
 import { useParams } from 'react-router';
 import './Page.css';
 import { LoginInput } from '../components/LoginInput';
-import '../components/Login.css';
 
 const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();

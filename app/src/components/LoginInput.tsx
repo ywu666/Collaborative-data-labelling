@@ -1,40 +1,49 @@
-import React, { useState } from 'react';
-import { IonToast } from '@ionic/react';
+import React, { useState, useEffect } from "react";
+import { IonLabel, IonToast } from "@ionic/react";
 import { SubmittableEmailInput } from './SubmittableEmailInput';
-
+import { userActions } from '../actions/userActions';
+import { useDispatch, useSelector } from 'react-redux';
 export enum LOGIN_STATUS {
-  NONE,
-  PENDING,
-  SUCCESS,
-  FAILED,
-}
+    NONE,
+    PENDING,
+    SUCCESS,
+    FAILED,
+  }
+
+const LoginSuccess: React.FC<{ email: string }> = ({ email }) => {
+    return (
+      <div>
+        <IonLabel>login</IonLabel>
+      </div>
+    );
+  };
 
 export const LoginInput: React.FC<{}> = () => {
   //  const loggingIn = useSelector((state: { authentication: { loggingIn: any; }; }) => state.authentication.loggingIn);
-  //const dispatch = useDispatch();
-  const [] = useState({
-    email: '',
-    password: '',
-  });
+    //const dispatch = useDispatch();
+    const [user, setUser] = useState({
+      email: '',
+      password: ''
+    })
 
-  const [email, setEmail] = useState<string>();
-  const [password, setPassword] = useState<string>();
+    const [email, setEmail] = useState<string>();
+    const [password, setPassword] = useState<string>();
+    
+    const [loginError, setLoginError] = useState<string>();
 
-  const [loginError, setLoginError] = useState<string>();
-
-  const handleLogin = async (inputEmail: string, password: string) => {
-    try {
-      //await hit backend , persist later
-      if (inputEmail && password) {
-        //dispatch(userActions.login(user.email, user.password));
+    const handleLogin = async (inputEmail: string, password: string) => {
+      try {
+        //await hit backend , persist later
+        if (inputEmail && password) {
+          //dispatch(userActions.login(user.email, user.password));
+        }
+      } catch (e) {
+        setEmail("");
+        setLoginError(e.message);
       }
-    } catch (e) {
-      setEmail('');
-      setLoginError(e.message);
-    }
-  };
+    };
 
-  return (
+    return (
     <React.Fragment>
       <IonToast isOpen={!!loginError} message={loginError} duration={2000} />
       <SubmittableEmailInput
