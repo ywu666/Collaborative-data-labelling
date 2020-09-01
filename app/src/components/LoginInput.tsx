@@ -1,41 +1,40 @@
-import React, { useState } from "react";
-import { IonLabel, IonToast } from "@ionic/react";
+import React, { useState } from 'react';
+import { IonToast } from '@ionic/react';
 import { SubmittableEmailInput } from './SubmittableEmailInput';
 
 export enum LOGIN_STATUS {
-    NONE,
-    PENDING,
-    SUCCESS,
-    FAILED,
-  }
-
+  NONE,
+  PENDING,
+  SUCCESS,
+  FAILED,
+}
 
 export const LoginInput: React.FC<{}> = () => {
   //  const loggingIn = useSelector((state: { authentication: { loggingIn: any; }; }) => state.authentication.loggingIn);
-    //const dispatch = useDispatch();
-    const [] = useState({
-      email: '',
-      password: ''
-    })
+  //const dispatch = useDispatch();
+  const [] = useState({
+    email: '',
+    password: '',
+  });
 
-    const [email, setEmail] = useState<string>();
-    const [password, setPassword] = useState<string>();
-    
-    const [loginError, setLoginError] = useState<string>();
+  const [email, setEmail] = useState<string>();
+  const [password, setPassword] = useState<string>();
 
-    const handleLogin = async (inputEmail: string, password: string) => {
-      try {
-        //await hit backend , persist later
-        if (inputEmail && password) {
-          //dispatch(userActions.login(user.email, user.password));
-        }
-      } catch (e) {
-        setEmail("");
-        setLoginError(e.message);
+  const [loginError, setLoginError] = useState<string>();
+
+  const handleLogin = async (inputEmail: string, password: string) => {
+    try {
+      //await hit backend , persist later
+      if (inputEmail && password) {
+        //dispatch(userActions.login(user.email, user.password));
       }
-    };
+    } catch (e) {
+      setEmail('');
+      setLoginError(e.message);
+    }
+  };
 
-    return (
+  return (
     <React.Fragment>
       <IonToast isOpen={!!loginError} message={loginError} duration={2000} />
       <SubmittableEmailInput
