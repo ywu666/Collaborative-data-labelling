@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { IonLabel, IonToast } from "@ionic/react";
+import { IonToast } from "@ionic/react";
 import { SubmittableEmailInput } from './SubmittableEmailInput';
 
 export enum LOGIN_STATUS {
