@@ -18,22 +18,22 @@ class TestProject(unittest.TestCase):
 
     # Test persistence of new project in database
     def test_create_project_persisted(self):
-        my_proj = Project("New Project", [], [])
-        my_proj.add_project()
-        col = mongoDBInterface.get_col("Test", "projects")
-        assert (col.find(my_proj.__dict__))
+        my_proj = Project("New_Project", [], [])
+        my_proj.create_project()
+        client = mongoDBInterface.get_db_client()
+        db_names = client.list_database_names()
 
-    def test_update_labels(self):
-        col = mongoDBInterface.get_col("Test", "projects")
+        assert (db_names.__contains__("New_Project"))
 
-        my_proj = Project("New Project", [], [])
-        my_proj.add_project()
+    def test_set_labels(self):
+        my_proj = Project("New_Project", [], [])
 
-        updated_labels = [Label("Bug").__dict__, Label("Comment").__dict__]
-        my_proj.set_labels(my_proj._id, updated_labels)
+        predefined_labels = [Label("Bug"), Label("Comment")]
+        my_proj.set_labels(predefined_labels)
 
-        updated_project = col.find_one({"_id": my_proj._id})
-        assert (updated_project["preset_labels"] == updated_labels)
+        col = mongoDBInterface.get_col("New_Project", "labels")
+        assert (col.find_one({"name": "Bug"}))
+        assert (col.find_one({"name": "Comment"}))
 
 
 if __name__ == '__main__':
