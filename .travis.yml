@@ -6,5 +6,5 @@ install:
   - pip install -r backend/requirements.txt
 # command to run tests
 script:
-  - cd backend
-  - python -m pytest
+#  - cd backend
+  - python -m pytest ./backend/tests
