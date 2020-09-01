@@ -20,17 +20,17 @@ class TestDocument(unittest.TestCase):
         assert (col.find_one({"identifier": 3}))
 
     def test_add_user_and_label(self):
-        my_document = Document(2, "test data")
+        my_document = Document(4, "test data")
         # Need to put document in database
         my_document.add_new_document()
 
         user = User("User 1", "Last name", "testingDoc@testmail.com", [])
         label = Label("Document")
 
-        my_document.add_user_and_label(2, user, label.__dict__)
+        my_document.add_user_and_label(4, user, label)
 
         col = mongoDBInterface.get_col("Test", "documents")
-        document_in_database = col.find_one({"identifier": 2})
+        document_in_database = col.find_one({"identifier": 4})
 
         assert (user.email in document_in_database["user_and_labels"])
         assert (document_in_database["user_and_labels"][user.email] == label.__dict__)
