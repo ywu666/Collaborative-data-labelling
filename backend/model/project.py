@@ -22,8 +22,12 @@ class Project:
         self.documents.append(document)
 
         # link with DB and push there when appending something
+        col = self.get_db_collection("documents")
 
+        for d in self.documents:
+            if not col.find_one(d.__dict__):
+                col.insert_one(d.__dict__)
 
-    def get_db_collection(self, proj, col):
-        col = mongoDBInterface.get_col(proj, col)
+    def get_db_collection(self, col):
+        col = mongoDBInterface.get_col(self.name, col)
         return col
