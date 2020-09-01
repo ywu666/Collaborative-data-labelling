@@ -11,12 +11,7 @@ import React from 'react';
 import { useParams } from 'react-router';
 import './Page.css';
 import { LoginInput } from '../components/LoginInput';
-import { css } from 'glamor';
-import "../components/ExploreContainer.css"
-const container = css({
-  
-  // justifyContent: 'center',
-});
+import "../components/Login.css"
 
 const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -40,7 +35,7 @@ const LoginPage: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <div className="container">
-          <LoginInput />
+        <LoginInput />
         </div>
       </IonContent>
      
