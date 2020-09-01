@@ -4,6 +4,7 @@ from typing import List
 from bson import ObjectId
 
 from backend import mongoDBInterface
+from backend.model.document import Document
 from backend.model.label import Label
 from backend.model.project import Project
 
@@ -34,6 +35,15 @@ class TestProject(unittest.TestCase):
         col = mongoDBInterface.get_col("New_Project", "labels")
         assert (col.find_one({"name": "Bug"}))
         assert (col.find_one({"name": "Comment"}))
+
+    def test_add_document(self):
+        my_proj = Project("New_Project", [], [])
+
+        document = Document(1, "data")
+        my_proj.add_document(document)
+
+        col = mongoDBInterface.get_col("New_Project", "documents")
+        assert (col.find_one({"identifier": 1}))
 
 
 if __name__ == '__main__':
