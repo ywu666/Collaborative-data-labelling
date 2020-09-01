@@ -18,7 +18,7 @@ Technologies: Web based. Accessible from windows and MacOS
 
 Lanuages: 
 
-front end - HTML CSS Javascript
+front end - HTML CSS Javascript, ionic, material ui
 
 back end - optional (maybe python)
 
