@@ -1,9 +1,6 @@
 import Page from './pages/Page';
-<<<<<<< HEAD
 import ProjectPage from './pages/ProjectPage';
-=======
 import SettingsPage from './pages/SettingsPage';
->>>>>>> added settings page to router
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -32,16 +29,12 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-<<<<<<< HEAD
-        <IonSplitPane contentId="main">
           <IonRouterOutlet id="main">
             <Route path="/project/:name" component={ProjectPage} exact />
             <Route path="/page/:name" component={Page} exact />
             <Redirect from="/" to="/page/Inbox" exact />
-=======
-        <IonRouterOutlet id="main">
+
             <Route path="/page/Settings" component={SettingsPage} exact />
->>>>>>> added settings page to router
           </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>
