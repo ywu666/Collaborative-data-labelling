@@ -1,4 +1,3 @@
-import pprint
 import unittest
 
 from backend import mongoDBInterface
@@ -14,6 +13,7 @@ class TestUser(unittest.TestCase):
         email = my_user.email == "dchen@testmail.com"
         assert (first_name & last_name & email)
 
+    # Tests if created user is persisted to database
     def test_create_user_persist(self):
         my_user = User("User", "User", "user@testmail.com", [])
 

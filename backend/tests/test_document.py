@@ -35,6 +35,11 @@ class TestDocument(unittest.TestCase):
         assert (user.email in document_in_database["user_and_labels"])
         assert (document_in_database["user_and_labels"][user.email] == label.__dict__)
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        col = mongoDBInterface.get_col("Test", "documents")
+        col.drop()
+
 
 if __name__ == '__main__':
     unittest.main()

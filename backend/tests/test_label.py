@@ -13,9 +13,15 @@ class LabelTest(unittest.TestCase):
     # Tests if data is persisted to database when new label created
     def test_new_lable_persisted(self):
         my_label = Label("New Label")
-        col = mongoDBInterface.get_col("Test", "lables")
+        my_label.add_new_label()
+
+        col = mongoDBInterface.get_col("Test", "labels")
         assert (col.find(my_label.__dict__))
 
+    @classmethod
+    def setUpClass(cls) -> None:
+        col = mongoDBInterface.get_col("Test", "labels")
+        col.drop()
 
 if __name__ == '__main__':
     unittest.main()
