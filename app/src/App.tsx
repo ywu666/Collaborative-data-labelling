@@ -1,4 +1,3 @@
-import Page from './pages/Page';
 import ProjectPage from './pages/ProjectPage';
 import SettingsPage from './pages/SettingsPage';
 import React from 'react';
@@ -24,6 +23,7 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import LoginPage from './pages/LoginPage';
 
 const App: React.FC = () => {
   return (
@@ -31,7 +31,7 @@ const App: React.FC = () => {
       <IonReactRouter>
           <IonRouterOutlet id="main">
             <Route path="/project/:name" component={ProjectPage} exact />
-            <Route path="/page/:name" component={Page} exact />
+            <Route path="/auth" component={LoginPage} exact />
             <Redirect from="/" to="/page/Inbox" exact />
 
             <Route path="/page/Settings" component={SettingsPage} exact />
