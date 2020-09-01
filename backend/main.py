@@ -35,16 +35,16 @@ def upload_file():
                 return response
             if file:
                 documents_to_import = file.readlines()
-                documents = []
-
-                for d in documents_to_import:
-                    if isnumeric(d[0]):
-                        documents.append(Document(int(d[0]), d[1]))
 
                 # Find project database and populate document collection
                 project = Project(project_id, [], [])
-                project.add_documents(documents)  # need to write method for multidoc population
-
+                for d in documents_to_import:
+                    if isnumeric(d[0]):
+                        project.add_document(Document(int(d[0]), d[1]))
+                
+                response = {'status_code': 200,
+                            'message': 'Documents imported successfully'}
+                return make_response(response)
         else:
             response = {'status_code': 400,
                         'message': 'No project id provided'}
