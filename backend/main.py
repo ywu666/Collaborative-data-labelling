@@ -22,6 +22,7 @@ os.makedirs(uploads_dir, exist_ok=True)
 def hello():
     return "hello world"
 
+#Endpoint to allow adding of labels to a document
 @app.route('/addlabel', methods=['Post'])
 def addLabel():
     if 'projectID' in request.json:
@@ -29,6 +30,14 @@ def addLabel():
     else:
         response = {'status_code': 400,
                     'message': "Missing projectID"}
+        response = make_response(response)
+        return response
+
+    if 'documentID' in request.json:
+        documentID = int(request.json['documentID'])
+    else:
+        response = {'status_code': 400,
+                    'message': "Missing documentID"}
         response = make_response(response)
         return response
 
