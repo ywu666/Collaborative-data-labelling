@@ -11,7 +11,7 @@ import React from 'react';
 import { useParams } from 'react-router';
 import './Page.css';
 import { LoginInput } from '../components/LoginInput';
-import "../components/Login.css"
+import '../components/Login.css';
 
 const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -27,18 +27,16 @@ const LoginPage: React.FC = () => {
         </IonToolbar>
       </IonHeader>
 
-    
-      <IonContent >
+      <IonContent>
         <IonHeader collapse="condense">
           <IonToolbar>
             <IonTitle size="large">{name}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <div className="container">
-        <LoginInput />
+          <LoginInput />
         </div>
       </IonContent>
-     
     </IonPage>
   );
 };
