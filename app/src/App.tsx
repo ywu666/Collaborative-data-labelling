@@ -1,5 +1,5 @@
-import Page from './pages/Page';
 import ProjectPage from './pages/ProjectPage';
+import SettingsPage from './pages/SettingsPage';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -23,18 +23,19 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import LoginPage from './pages/LoginPage';
 
 const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        <IonSplitPane contentId="main">
           <IonRouterOutlet id="main">
             <Route path="/project/:name" component={ProjectPage} exact />
-            <Route path="/page/:name" component={Page} exact />
+            <Route path="/auth" component={LoginPage} exact />
             <Redirect from="/" to="/page/Inbox" exact />
+
+            <Route path="/page/Settings" component={SettingsPage} exact />
           </IonRouterOutlet>
-        </IonSplitPane>
       </IonReactRouter>
     </IonApp>
   );
