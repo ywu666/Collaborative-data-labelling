@@ -1,0 +1,62 @@
+.header {
+    text-align: center;
+  }
+  
+  ion-modal.auto-height {
+    --height: auto;
+    --width: auto;
+  }
+  
+  ion-modal.auto-height .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+    padding: 26px;
+  }
+  
+  ion-modal.auto-height .inner-content {
+    max-height: 80vh;
+    overflow: auto;
+    padding: 10px;
+  }
+  
+  ion-modal.auto-height ion-button {
+    margin: 8px;
+  }
+  
+  .container {
+    text-align: center;
+    position: relative;
+    left: 0;
+    right: 0;
+    top: 0;
+    transform: none;
+  }
+  
+  .container strong {
+    font-size: 26px;
+    line-height: 50px;
+  }
+  
+  .container p {
+    font-size: 16px;
+    line-height: 22px;
+    color: #8c8c8c;
+    margin: 0;
+  }
+  
+  .container a {
+    text-decoration: none;
+  }
+  
+  .pageTitle{
+      padding: 20px;
+      font-size: 40px;
+      text-align: center;
+  }
+
+  .createProject{
+    width: 200px;
+    margin-left: 42%;
+    margin-top: 20px;
+  }
