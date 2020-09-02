@@ -15,8 +15,7 @@ def test_setup_user():
 # def test_create_user_persist():
 #     my_user = User("User", "User", "user@testmail.com", [])
 #
-#     my_user.add_user()
-#     col = mongoDBInterface.get_col("Test", "Users")
+#     col = mongoDBInterface.get_col("Users", "users")
 #     assert (col.find(my_user.__dict__))
 #
 #

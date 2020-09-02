@@ -16,7 +16,6 @@ def test_setup_project():
 # # Test persistence of new project in database
 # def test_create_project_persisted():
 #     my_proj = Project("New_Project", [], [])
-#     my_proj.create_project()
 #     client = mongoDBInterface.get_db_client()
 #     db_names = client.list_database_names()
 #
