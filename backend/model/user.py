@@ -11,7 +11,9 @@ class User:
         self.email = email
         self.permissions = permissions
 
-    def add_user(self):
-        col = mongoDBInterface.get_col("Test", "users")
-        print(self.__dict__)
-        col.insert_one(self.__dict__)
+        # Create database just for users if does not exist
+        my_client = mongoDBInterface.get_db_client()
+        if not my_client.list_database_names().__contains__("Users"):
+            mongoDBInterface.get_db_client()["Users"].create_collection("users")
+            mongoDBInterface.get_col("Users", "users")
+        mongoDBInterface.get_col("Users", "users").insert_one(self.__dict__)

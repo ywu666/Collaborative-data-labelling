@@ -13,13 +13,9 @@ class Document:
         self.data = data
         self.user_and_labels = {}
 
-    def add_new_document(self):
-        col = get_db_collection("Test", "documents")
-        col.insert_one(self.__dict__)
-
-    def add_user_and_label(self, identifier, user, label):
+    def add_user_and_label(self, project_name, identifier, user, label):
         self.user_and_labels.update({user.email: label.__dict__})
 
         # push changes to mongodb
-        col = get_db_collection("Test", "documents")
+        col = get_db_collection(project_name, "documents")
         col.find_one_and_update({"identifier": identifier}, {"$set": self.__dict__})
