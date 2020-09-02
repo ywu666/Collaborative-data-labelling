@@ -9,6 +9,7 @@ class Project:
         self.documents = documents
         self.name = name
 
+    def create_project_database(self):
         my_client = mongoDBInterface.get_db_client()
         if not my_client.list_database_names().__contains__(self.name):
             mongoDBInterface.create_db_for_proj(self.name)
@@ -28,4 +29,3 @@ class Project:
         for d in self.documents:
             if not col.find_one(d.__dict__):
                 col.insert_one(d.__dict__)
-

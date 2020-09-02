@@ -11,6 +11,7 @@ class User:
         self.email = email
         self.permissions = permissions
 
+    def create_user_db(self):
         # Create database just for users if does not exist
         my_client = mongoDBInterface.get_db_client()
         if not my_client.list_database_names().__contains__("Users"):
