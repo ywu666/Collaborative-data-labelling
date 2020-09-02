@@ -24,12 +24,9 @@ def hello():
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        print(request.form)
-        print(request.files)
 
         if 'projectName' in request.form:
-            project_id = str(request.form['projectName'])
-            print(project_id)
+            project_name = str(request.form['projectName'])
 
             if 'inputFile' not in request.files:
                 response = {'status_code': 400,
@@ -45,25 +42,21 @@ def upload_file():
                 return response
             if file:
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(uploads_dir, filename))
-
                 filelocation = os.path.join(uploads_dir, filename)
+                file.save(filelocation)
 
                 with open(filelocation) as csv_file:
                     csv_reader = csv.reader(csv_file, delimiter=",")
-                    line_count = 0
+                    is_first_line = True
 
                     for row in csv_reader:
-                        if line_count == 0:
-                            line_count += 1
+                        if is_first_line:
+                            is_first_line = False
                         else:
-                            print("current row: ", int(row[0]))
                             document = Document(int(row[0]), row[1])
                             # Find project database and populate document collection
-                            project = Project(project_id, [], [])
+                            project = Project(project_name, [], [])
                             project.add_document(document)
-
-                            line_count += 1
 
                 # Delete file when done
                 os.remove(filelocation)
