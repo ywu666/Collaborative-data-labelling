@@ -43,6 +43,10 @@ import {
     "tag2",
     "tag3",
   ]
+
+  /**
+   * Temporary project data to display UI 
+   */
   const projectData = [
     {
         title: "Project1",
@@ -57,21 +61,6 @@ import {
 ];
   
   const ProjectPage: React.FC = () => {
-    const { name } = useParams<{ name: string }>();
-    const [showModal, setShowModal] = useState(false);
-    const [labelIndex, setLabelIndex] = useState(-1);
-    const [documents] = useState(sampleDoc); //TODO: get documents via project id
-  
-    const renderLabelModal = (i:number) => {
-      setShowModal(true)
-      setLabelIndex(i)
-    }
-  
-    const changeTag = (i:number, label:string) => {
-      //TODO: connect with backend to update tags /
-      documents[i].tag = label
-      setShowModal(false)
-    }
   
     return (
       <IonPage>
@@ -100,6 +89,8 @@ import {
             ))}
         </div>
 
+        {/**will add an onclick function which will parse the new project name information to the system
+         */}
         <form className="createProject">
             <IonItem>
                 <IonLabel position="floating">New Project</IonLabel>
