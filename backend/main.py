@@ -9,6 +9,8 @@ from werkzeug.utils import secure_filename
 from backend.model.document import Document
 from backend.model.project import Project
 from backend.model.label import Label
+from backend.model.user import  User
+from backend.model.document import Document
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -33,19 +35,19 @@ def addLabel():
         response = make_response(response)
         return response
 
-    if 'documentID' in request.json:
-        documentID = int(request.json['documentID'])
+    if 'identifier' in request.json:
+        identifier = int(request.json['identifier'])
     else:
         response = {'status_code': 400,
-                    'message': "Missing documentID"}
+                    'message': "Missing identifier"}
         response = make_response(response)
         return response
 
-    if 'userID' in request.json:
-        userID = int(request.json['userID'])
+    if 'email' in request.json:
+        email = int(request.json['email'])
     else:
         response = {'status_code': 400,
-                    'message': "Missing userID"}
+                    'message': "Missing email"}
         response = make_response(response)
         return response
 
@@ -57,8 +59,19 @@ def addLabel():
         response = make_response(response)
         return response
 
-    ### Check user permisisions for project ###
-    ### Add to DB ###
+    # # Check user permisisions for project #
+    # label = Label(label)
+    #
+    # # Get Document from id
+    # document = Document()
+    #
+    # # Get User from id
+    # first_name = "temp"
+    # last_name = "temp"
+    # permissions = []
+    # user = User(first_name, last_name, email, permissions)
+    #
+    # document.add_user_and_label(user, label)
 
     response = {'status_code': 200,
                 'message': "Added label succesfully"}
