@@ -15,36 +15,9 @@ import {
   } from '@ionic/react';
   import { add, arrowBack} from 'ionicons/icons';
   import React, { useState } from 'react';
-  import { useParams } from 'react-router';
   import './MainPage.css';
     
-  interface Document {
-    title: string;
-    tag: string;
-  }
-  
-  const sampleDoc: Document[] = [
-    {
-      title: "first doc",
-      tag: "",
-    },
-    {
-      title: "second doc",
-      tag: "tag1",
-    },
-    {
-      title: "long title doc: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      tag: "tag1",
-    },
-  ]
-  
-  const labels: string[] = [
-    "tag1",
-    "tag2",
-    "tag3",
-  ]
-
-  /**
+  /*
    * Temporary project data to display UI 
    */
   const projectData = [
@@ -60,7 +33,7 @@ import {
     },
 ];
   
-  const ProjectPage: React.FC = () => {
+  const MainPage: React.FC = () => {
   
     return (
       <IonPage>
@@ -109,4 +82,4 @@ import {
     );
   };
   
-  export default ProjectPage;
+  export default MainPage;
