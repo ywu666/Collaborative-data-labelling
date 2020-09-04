@@ -18,7 +18,9 @@ def presetLabels():
     #make sure project id is passed
     if 'projectName' in request.form:
         project_name = str(request.form['projectName'])
-        labels = get_col(project_name, "labels")
+        labels_col = get_col(project_name, "labels")
+        labels_cursor = labels_col.find({"name: <label>"})
+        labels = list(labels_cursor)
         if (request.method == 'GET'):
             return labels
         #identify if passed label is already in the preset list
