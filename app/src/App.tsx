@@ -1,5 +1,6 @@
 import ProjectPage from './pages/ProjectPage';
 import SettingsPage from './pages/SettingsPage';
+import MainPage from './pages/MainPage';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -32,8 +33,12 @@ const App: React.FC = () => {
           <IonRouterOutlet id="main">
             <Route path="/project/:name" component={ProjectPage} exact />
             <Route path="/auth" component={LoginPage} exact />
-            <Redirect from="/" to="/page/Inbox" exact />
-
+            <Route path="/" component={MainPage} exact />
+            {/** I don't understand the purpose of this route and it doesn't redirect to anything
+             * currently, for now I'm putting the MainPage as root,
+             * idea brought up by Chuyang
+             * 
+             * <Redirect from="/" to="/page/Inbox" exact />**/}
             <Route path="/page/Settings" component={SettingsPage} exact />
           </IonRouterOutlet>
       </IonReactRouter>

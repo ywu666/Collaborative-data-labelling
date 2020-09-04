@@ -9,9 +9,11 @@ import {
   IonItem,
   IonLabel,
   IonIcon,
-  IonModal
+  IonModal,
+  IonTextarea,
+  IonInput
 } from '@ionic/react';
-import { add, arrowBack } from 'ionicons/icons';
+import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
@@ -92,7 +94,16 @@ const ProjectPage: React.FC = () => {
             )}
           </IonList>
         </div>
+        <form className="uploadFile">
+            <IonItem>
+            <input type="file" />
+            </IonItem>
+            <IonButton className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
+                upload
+            </IonButton>
+        </form>
       </IonContent>
+
     </IonPage>
   );
 };
