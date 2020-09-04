@@ -1,6 +1,7 @@
 from flask import Flask, request, make_response
 from flask_cors import CORS
 from model.project import Project
+from mongoDBInterface import get_col
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -17,13 +18,13 @@ def presetLabels():
     #make sure project id is passed
     if 'projectName' in request.form:
         project_name = str(request.form['projectName'])
-        #dont know how to access the labels from the db
-        labels = db.get_col(project_name, "Labels")
-        label = request.json['label']
+        labels = get_col(project_name, "labels")
         if (request.method == 'GET'):
             return labels
         #identify if passed label is already in the preset list
         if 'label' in request.form:
+            label = request.json['label']
+            project = Project(project_name, [], [])
             if label in labels:
                 label_present = True
             if (request.method == 'POST'):
@@ -32,11 +33,13 @@ def presetLabels():
                 else:
                     response = {'status_code': 200, 'message':"Added label successfully"}
                     labels.append(label)
+                    project.set_labels(labels)
                 response = make_response(response)
                 return response
             if(request.method == 'DELETE'):
                 if label_present:
                     labels.remove(label)
+                    project.set_labels(labels)
                     response = {'status_code': 200, 'message': "Label deleted successfully"}
                 else:
                     response = {'status_code': 400, 'message': "Label was not set"}
