@@ -1,4 +1,6 @@
-from backend import mongoDBInterface
+from bson import ObjectId
+
+import mongoDBInterface
 
 
 def get_db_collection(proj, col):
@@ -8,14 +10,23 @@ def get_db_collection(proj, col):
 
 class Document:
 
-    def __init__(self, identifier, data):
-        self.identifier = identifier
+    def __init__(self, data, comments, user_and_labels):
         self.data = data
-        self.user_and_labels = {}
+        self.comments = comments
+        self.user_and_labels = user_and_labels
 
-    def add_user_and_label(self, project_name, identifier, user, label):
-        self.user_and_labels.update({user.email: label.__dict__})
+    def add_user_and_label(self, project_name, _id, user, label):
+        self.user_and_labels.append({user.email: label.__dict__})
 
-        # push changes to mongodb
+    def upload(self, project_name):
         col = get_db_collection(project_name, "documents")
-        col.find_one_and_update({"identifier": identifier}, {"$set": self.__dict__})
+        col.insert_one(self.__dict__)
+
+    def update(self, project_name, _id):
+        col = get_db_collection(project_name, "documents")
+        col.update_one(
+            {"_id": ObjectId(_id)},
+            {"$set": self.__dict__}
+        )
+
+

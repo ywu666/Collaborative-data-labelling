@@ -1,7 +1,7 @@
-from backend import mongoDBInterface
-from backend.model.document import Document
-from backend.model.label import Label
-from backend.model.user import User
+import mongoDBInterface
+from model.document import Document
+from model.label import Label
+from model.user import User
 
 
 # tests whether or not setting up a document works

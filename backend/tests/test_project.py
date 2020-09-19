@@ -1,8 +1,7 @@
-from backend import mongoDBInterface
-from backend.model.document import Document
-from backend.model.label import Label
-from backend.model.project import Project
-
+import mongoDBInterface
+from model.document import Document
+from model.label import Label
+from model.project import Project
 
 # Tests whether setting up a a project works
 def test_setup_project():

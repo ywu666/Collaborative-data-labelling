@@ -1,5 +1,5 @@
-from backend import mongoDBInterface
-from backend.model.label import Label
+import mongoDBInterface
+from model.label import Label
 
 
 # Tests whether or not setting up a label works
