@@ -48,3 +48,9 @@ ion-modal.auto-height ion-button {
 .container a {
   text-decoration: none;
 }
+
+.uploadFile{
+  width: 200px;
+  margin-left: 42%;
+  margin-top: 20px;
+}

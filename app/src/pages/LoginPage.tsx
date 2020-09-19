@@ -9,10 +9,10 @@ import {
 } from '@ionic/react';
 import React from 'react';
 import { useParams } from 'react-router';
-import ExploreContainer from '../components/ExploreContainer';
-import './Page.css';
-
-const Page: React.FC = () => {
+//import './Page.css';
+import { LoginInput } from '../components/LoginInput';
+import './LoginPage.css';
+const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
 
   return (
@@ -32,10 +32,12 @@ const Page: React.FC = () => {
             <IonTitle size="large">{name}</IonTitle>
           </IonToolbar>
         </IonHeader>
-        <ExploreContainer name={name} />
+        <div className="login-container">
+          <LoginInput />
+        </div>
       </IonContent>
     </IonPage>
   );
 };
 
-export default Page;
+export default LoginPage;
