@@ -6,6 +6,6 @@ install:
   - pip install -r backend/requirements.txt
 # command to run tests
 env:
-  - env PYTHONPATH=backend/
+  - PYTHONPATH=backend/
 script:
   - python -m pytest ./backend/tests
