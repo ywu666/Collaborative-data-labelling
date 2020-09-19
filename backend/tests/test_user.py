@@ -1,4 +1,3 @@
-import mongoDBInterface
 from model.user import User
 
 

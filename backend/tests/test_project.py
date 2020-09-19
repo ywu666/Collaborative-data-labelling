@@ -1,4 +1,3 @@
-import mongoDBInterface
 from model.document import Document
 from model.label import Label
 from model.project import Project

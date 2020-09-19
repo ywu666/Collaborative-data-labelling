@@ -1,4 +1,3 @@
-import mongoDBInterface
 from model.label import Label
 
 
