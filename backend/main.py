@@ -2,11 +2,15 @@ import os
 
 import csv
 from flask import Flask, request, make_response
+from flask import Flask, request, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 
 from backend.model.document import Document
 from backend.model.project import Project
+from backend.model.label import Label
+from backend.model.user import  User
+from backend.model.document import Document
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -19,6 +23,60 @@ os.makedirs(uploads_dir, exist_ok=True)
 @app.route('/hello', methods=['Get'])
 def hello():
     return "hello world"
+
+#Endpoint to allow adding of labels to a document
+@app.route('/addlabel', methods=['Post'])
+def addLabel():
+    if 'projectID' in request.json:
+        projectID = int(request.json['projectID'])
+    else:
+        response = {'status_code': 400,
+                    'message': "Missing projectID"}
+        response = make_response(response)
+        return response
+
+    if 'identifier' in request.json:
+        identifier = int(request.json['identifier'])
+    else:
+        response = {'status_code': 400,
+                    'message': "Missing identifier"}
+        response = make_response(response)
+        return response
+
+    if 'email' in request.json:
+        email = int(request.json['email'])
+    else:
+        response = {'status_code': 400,
+                    'message': "Missing email"}
+        response = make_response(response)
+        return response
+
+    if 'label' in request.json:
+        label = Label(request.json['label'])
+    else:
+        response = {'status_code': 400,
+                    'message': "Missing label"}
+        response = make_response(response)
+        return response
+
+    # # Check user permisisions for project #
+    # label = Label(label)
+    #
+    # # Get Document from id
+    # document = Document()
+    #
+    # # Get User from id
+    # first_name = "temp"
+    # last_name = "temp"
+    # permissions = []
+    # user = User(first_name, last_name, email, permissions)
+    #
+    # document.add_user_and_label(user, label)
+
+    response = {'status_code': 200,
+                'message': "Added label succesfully"}
+    response = make_response(response)
+    return response
 
 
 @app.route('/upload', methods=['GET', 'POST'])
