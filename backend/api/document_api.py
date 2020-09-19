@@ -41,10 +41,9 @@ def get_document():
     if 'document_id' in request.json:
         identifier = request.json['document_id']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing content"}
+        response = {'message': "Missing content"}
         response = make_response(response)
-        return response
+        return response, 400
 
     col = get_db_collection(project, "documents")
     doc = col.find_one({'_id': ObjectId(identifier)}, {'_id': 0})

@@ -32,21 +32,26 @@ def preset_labels():
 
             if request.method == 'POST':
                 if label_present:
-                    response = {'status_code': 400, 'message': "Label already set"}
+                    response = {'message': "Label already set"}
+                    response = make_response(response)
+                    return response, 400
                 else:
 
                     labels_col.insert_one({"name": label})
-                    response = {'status_code': 200, 'message': "Added label successfully"}
-                response = make_response(response)
-                return response
+                    response = {'message': "Added label successfully"}
+                    response = make_response(response)
+                    return response, 200
+
             if request.method == 'DELETE':
                 if label_present:
                     labels_col.delete_one({"name": label})
-                    response = {'status_code': 200, 'message': "Label deleted successfully"}
+                    response = {'message': "Label deleted successfully"}
+                    response = make_response(response)
+                    return response, 200
                 else:
-                    response = {'status_code': 400, 'message': "Label was not set"}
-                response = make_response(response)
-                return response
+                    response = {'message': "Label was not set"}
+                    response = make_response(response)
+                    return response, 400
         else:
             response = {'message': 'No label value provided'}
             response = make_response(response)
