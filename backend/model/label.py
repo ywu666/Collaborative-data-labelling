@@ -1,4 +1,4 @@
-from backend import mongoDBInterface
+import mongoDBInterface
 
 
 class Label:

@@ -1,7 +1,7 @@
 import json
 from pprint import pprint
 
-from backend import mongoDBInterface
+import mongoDBInterface
 
 
 class User:

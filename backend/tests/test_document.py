@@ -1,13 +1,13 @@
-from backend import mongoDBInterface
-from backend.model.document import Document
-from backend.model.label import Label
-from backend.model.user import User
+
+from model.document import Document
+from model.label import Label
+from model.user import User
 
 
 # tests whether or not setting up a document works
 def test_setup_document():
-    my_document = Document(1, "data")
-    assert (my_document.identifier == 1 and my_document.data == "data")
+    my_document = Document("data", [], [])
+    assert (my_document.data == "data")
 
 
 # # Tests that an entry is placed in hashmap when user labels a document

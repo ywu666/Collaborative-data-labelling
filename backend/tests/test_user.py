@@ -1,5 +1,4 @@
-from backend import mongoDBInterface
-from backend.model.user import User
+from model.user import User
 
 
 # Tests whether or not setting up a user works
