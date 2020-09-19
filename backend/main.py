@@ -1,6 +1,7 @@
 import os
 
 import csv
+from bson import ObjectId
 from flask import Flask, request, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -56,7 +57,7 @@ def upload_file():
                         if is_first_line:
                             is_first_line = False
                         else:
-                            document = Document(int(row[0]), row[1])
+                            document = Document(ObjectId(row[0]), [], row[1])
                             # Find project database and populate document collection
                             project = Project(project_name, [], [])
                             project.add_document(document)
