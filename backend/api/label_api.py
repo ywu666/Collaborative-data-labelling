@@ -53,4 +53,3 @@ def presetLabels():
                     'message': 'No project id provided'}
         response = make_response(response)
         return response
->>>>>>> 8647623... refactored latest merge

@@ -95,10 +95,6 @@ def add_label():
 
     return '', 204
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 8647623... refactored latest merge
 if __name__ == '__main__':
     project = "New_Project"
     identifier = "5f6578baa50829d1e7115498"
