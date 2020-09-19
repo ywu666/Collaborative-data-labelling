@@ -136,6 +136,7 @@ def set_label_for_user():
 
     return '', 204
 
+
 if __name__ == '__main__':
     project = "New_Project"
     col = get_db_collection(project, "documents")
