@@ -13,17 +13,15 @@ def create_document():
     if 'project' in request.json:
         project = request.json['project']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing project"}
+        response = {'message': "Missing project"}
         response = make_response(response)
-        return response
+        return response, 400
     if 'content' in request.json:
         content = request.json['content']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing content"}
+        response = {'message': "Missing content"}
         response = make_response(response)
-        return response
+        return response, 400
 
     doc = Document(content, [], [])
     doc.data = content
@@ -37,12 +35,11 @@ def get_document():
     if 'project' in request.json:
         project = request.json['project']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing project"}
+        response = {'message': "Missing project"}
         response = make_response(response)
-        return response
-    if 'id' in request.json:
-        identifier = request.json['id']
+        return response, 400
+    if 'document_id' in request.json:
+        identifier = request.json['document_id']
     else:
         response = {'status_code': 400,
                     'message': "Missing content"}
@@ -50,7 +47,6 @@ def get_document():
         return response
 
     col = get_db_collection(project, "documents")
-    print(identifier)
     doc = col.find_one({'_id': ObjectId(identifier)}, {'_id': 0})
     response = {'document': doc}
     response = make_response(response)
@@ -59,48 +55,89 @@ def get_document():
 
 # Endpoint to allow adding of labels to a document
 @document_api.route('/document/label', methods=['Post'])
-def add_label():
+def set_label_for_user():
     if 'project' in request.json:
         project = request.json['project']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing projectID"}
+        response = {'message': "Missing projectID"}
         response = make_response(response)
-        return response
-    if 'id' in request.json:
-        identifier = request.json['id']
+        return response, 400
+    if 'document_id' in request.json:
+        identifier = request.json['document_id']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing identifier"}
+        response = {'message': "Missing identifier"}
         response = make_response(response)
-        return response
+        return response, 400
 
     if 'email' in request.json:
         email = request.json['email']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing email"}
+        response = {'message': "Missing email"}
         response = make_response(response)
-        return response
+        return response, 400
 
-    if 'label' in request.json:
-        label = request.json['label']
+    if 'label_id' in request.json:
+        label_id = request.json['label_id']
     else:
-        response = {'status_code': 400,
-                    'message': "Missing label"}
+        response = {'message': "Missing label"}
         response = make_response(response)
-        return response
+        return response, 400
 
-    doc = Document(identifier)
+
+
+    # get user obj
+    user_col = get_db_collection(project, "users")
+    user = user_col.find_one({'email': email})
+    if user is None:
+        response = {'message': "Invalid User Email"}
+        response = make_response(response)
+        return response, 400
+
+    # get label obj
+    label_col = get_db_collection(project, "labels")
+    label = label_col.find_one({'_id': ObjectId(label_id)})
+    if label is None:
+        response = {'message': "Invalid Label"}
+        response = make_response(response)
+        return response, 400
+
+    col = get_db_collection(project, "documents")
+
+    # if the label already exists for the user
+    if col.find_one({'_id': ObjectId(identifier), "user_and_labels": {'$elemMatch': {"email": email}}}) is not None:
+        col.update_one({'_id': ObjectId(identifier), "user_and_labels": {'$elemMatch': {"email": email}}},
+                       {'$set': {
+                           "user_and_labels.$.label": ObjectId(label_id)}
+                       })
+    else:
+        # if the label assignment does not exist for the user
+        col.update_one({'_id': ObjectId(identifier)},
+                       {'$push': {
+                           "user_and_labels": {
+                               "email": email,
+                               "label": ObjectId(label_id)}
+                           }
+                       })
 
     return '', 204
 
 if __name__ == '__main__':
-    project = "New_Project"
+    col = get_db_collection("New_Project", "documents")
     identifier = "5f6578baa50829d1e7115498"
-    col = get_db_collection(project, "documents")
-    doc = col.find_one({'_id': ObjectId(identifier)})
-    print(doc)
+    email = "cche381@aucklanduni.ac.nz"
+    label_ = "5f4f0b3d3aac88555576f0aa"
+    col.update_one({'_id': ObjectId(identifier), "user_and_labels": {'$elemMatch': {"email": email}}},
+                   {'$set': {
+                       "user_and_labels.$.label": "abdbsgwasd"}
+                   })
+
+    '''col.update_one({'_id': ObjectId(identifier)},
+                   {'$push': {
+                       "user_and_labels": {
+                           "email": email,
+                           "label": "test"}
+                       }
+                   })'''
 
 
 

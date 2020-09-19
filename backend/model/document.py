@@ -15,9 +15,6 @@ class Document:
         self.comments = comments
         self.user_and_labels = user_and_labels
 
-    def add_user_and_label(self, project_name, _id, user, label):
-        self.user_and_labels.append({user.email: label.__dict__})
-
     def upload(self, project_name):
         col = get_db_collection(project_name, "documents")
         col.insert_one(self.__dict__)
