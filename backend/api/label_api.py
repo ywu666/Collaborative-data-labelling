@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, make_response
 
 from model.project import Project
@@ -7,49 +6,52 @@ from mongoDBInterface import get_col
 label_api = Blueprint('label_api', __name__)
 
 
-#endpoint to add/delete/get preset labels
-@label_api.route('/presetlabels', methods=['POST', 'GET', 'DELETE'])
-def presetLabels():
-    label_present = False
-    #make sure project id is passed
-    if 'projectName' in request.form:
-        project_name = str(request.form['projectName'])
+# endpoint to add/delete/get preset labels
+@label_api.route('/label/preset', methods=['POST', 'GET', 'DELETE'])
+def preset_labels():
+    # make sure project id is passed
+    if 'project_name' in request.json:
+        project_name = str(request.json['project_name'])
         labels_col = get_col(project_name, "labels")
-        labels_cursor = labels_col.find({"name: <label>"})
+        labels_cursor = labels_col.find({})
         labels = list(labels_cursor)
-        if (request.method == 'GET'):
-            return labels
-        #identify if passed label is already in the preset list
-        if 'label' in request.form:
+        for l in labels:
+            l['_id'] = str(l['_id'])
+
+        if request.method == 'GET':
+            response = {"labels": labels}
+            response = make_response(response)
+            return response, 200
+        # identify if passed label is already in the preset list
+        if 'label' in request.json:
             label = request.json['label']
-            project = Project(project_name, [], [])
-            if label in labels:
+            if labels_col.find_one({"name": label}) is not None:
                 label_present = True
-            if (request.method == 'POST'):
+            else:
+                label_present = False
+
+            if request.method == 'POST':
                 if label_present:
-                    response = {'status_code': 400, 'message':"Label already set"}
+                    response = {'status_code': 400, 'message': "Label already set"}
                 else:
-                    response = {'status_code': 200, 'message':"Added label successfully"}
-                    labels.append(label)
-                    project.set_labels(labels)
+
+                    labels_col.insert_one({"name": label})
+                    response = {'status_code': 200, 'message': "Added label successfully"}
                 response = make_response(response)
                 return response
-            if(request.method == 'DELETE'):
+            if request.method == 'DELETE':
                 if label_present:
-                    labels.remove(label)
-                    project.set_labels(labels)
+                    labels_col.delete_one({"name": label})
                     response = {'status_code': 200, 'message': "Label deleted successfully"}
                 else:
                     response = {'status_code': 400, 'message': "Label was not set"}
                 response = make_response(response)
                 return response
         else:
-            response = {'status_code': 400,
-                    'message': 'No label value provided'}
+            response = {'message': 'No label value provided'}
             response = make_response(response)
-            return response
+            return response, 400
     else:
-        response = {'status_code': 400,
-                    'message': 'No project id provided'}
+        response = {'message': 'No project id provided'}
         response = make_response(response)
-        return response
+        return response, 400
