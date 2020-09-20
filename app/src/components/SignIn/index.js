@@ -23,11 +23,13 @@ class SignInFormBase extends Component {
     }
 
     onSubmit = event => {
+        console.log("button click")
         const { email, password } = this.state;
-
+        console.log(" staet Signed In!")
         this.props.firebase
             .doSignInWithEmailAndPassword(email, password)
             .then(() => {
+                
                 this.setState({ ...INITIAL_STATE });
 
                 console.log("Signed In!")
@@ -36,12 +38,14 @@ class SignInFormBase extends Component {
             })
             .catch(error => {
                 this.setState({ error });
+                console.log("Error");
             });
 
         event.preventDefault();
     };
 
     onChange = event => {
+        console.log("change")
         this.setState({ [event.target.name]: event.target.value });
     };
 
@@ -51,7 +55,7 @@ class SignInFormBase extends Component {
         const isInvalid = password === '' || email === '';
 
         return (
-            <form onSubmit={this.onSubmit}>
+            <div >
                 <input
                     name="email"
                     value={email}
@@ -66,12 +70,12 @@ class SignInFormBase extends Component {
                     type="password"
                     placeholder="Password"
                 />
-                <button disabled={isInvalid} type="submit">
+                <button disabled={isInvalid} onClick={this.onSubmit}>
                     Sign In
                 </button>
 
                 {error && <p>{error.message}</p>}
-            </form>
+            </div>
         );
     }
 }
