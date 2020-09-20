@@ -101,8 +101,6 @@ def set_label_for_user():
         response = make_response(response)
         return response, 400
 
-
-
     # get user obj
     user_col = get_db_collection(project, "users")
     user = user_col.find_one({'email': email})
