@@ -1,3 +1,4 @@
+import firebase_admin
 from flask import Blueprint
 
 
