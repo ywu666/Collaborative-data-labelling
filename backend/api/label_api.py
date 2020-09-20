@@ -10,8 +10,8 @@ label_api = Blueprint('label_api', __name__)
 @label_api.route('/label/preset', methods=['POST', 'GET', 'DELETE'])
 def preset_labels():
     # make sure project id is passed
-    if 'project_name' in request.json:
-        project_name = str(request.json['project_name'])
+    if 'project' in request.json:
+        project_name = str(request.json['project'])
         labels_col = get_col(project_name, "labels")
         labels_cursor = labels_col.find({})
         labels = list(labels_cursor)
