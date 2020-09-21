@@ -16,7 +16,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
-  
+
 interface Document {
   title: string;
   tag: string;
@@ -71,7 +71,7 @@ const ProjectPage: React.FC = () => {
       </IonHeader>
 
       <IonContent>
-        <div className="container">        
+        <div className="container">
           <strong>{name}</strong>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
@@ -79,7 +79,7 @@ const ProjectPage: React.FC = () => {
                 <IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
               )}
             </div>
-          </IonModal>      
+          </IonModal>
           <IonList>
             {documents.map((doc, i) =>
               <IonItem key={i}>
