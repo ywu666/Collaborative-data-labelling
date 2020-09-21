@@ -64,15 +64,18 @@ const ProjectPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar className="header">
-          <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
+          <IonButton slot="start" routerLink="/" routerDirection="back">
+            <IonIcon icon={arrowBack}/>
+            </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton slot="end">Log out</IonButton>
+          <IonButton slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
         <div className="container">        
-          <strong>{name}</strong>
+          <h1>{name}</h1>
+          <IonButton slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
               {labels.map((label, i) =>

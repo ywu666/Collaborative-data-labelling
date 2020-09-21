@@ -12,7 +12,7 @@ import {
     IonButton,
     IonIcon,
   } from '@ionic/react';
-  import { arrowBackOutline } from 'ionicons/icons';
+  import { arrowBack } from 'ionicons/icons';
   import React from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
@@ -29,26 +29,23 @@ import {
     return (
       <IonPage>
         <IonHeader>
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonMenuButton />
-            </IonButtons>
-            <IonTitle>Temporary Header</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <IonToolbar className="header">
+          <IonButton slot="start" routerLink={"/project/" + project} routerDirection="back">
+            <IonIcon icon={arrowBack}/>
+            </IonButton>
+          <IonTitle slot="end">User</IonTitle>
+          <IonButton slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+        </IonToolbar>
+      </IonHeader>
 
         <IonContent>
-
-          <IonButton class="back-button" color="light">
-            <IonIcon slot="icon-only" icon={arrowBackOutline}></IonIcon>
-          </IonButton>
 
           <IonGrid>
             <IonRow class="ion-justify-content-center">
               <h1>Settings</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
-              <h1>{project}(project name)</h1>
+              <h1>{project}</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
