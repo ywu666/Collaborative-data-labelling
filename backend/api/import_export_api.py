@@ -61,9 +61,10 @@ def upload_file():
             return response, 400
 
 
+# Endpoint for exporting documents with labels for project
 @import_export_api.route('/project/export', methods=['GET'])
 def export_documents():
-    # need project name
+    # Check request params
     if 'project' in request.json:
         project = request.json['project']
     else:
@@ -72,15 +73,16 @@ def export_documents():
         return response, 400
 
     # get all documents
-    project = "New_Project"
     doc_col = get_db_collection(project, "documents")
     documents = doc_col.find(projection={'comments': 0})
 
-    docs_to_write = []
+    docs_to_write = [["ID", "BODY", "LABEL"]]
+
+    # Generate data in correct format for export
     for d in documents[0:6]:
         id_as_string = str(d['_id'])
 
-        # get final labels
+        # Find final label id
         user_and_labels = d['user_and_labels']
         final_label_id = None
         if len(user_and_labels) > 1:
@@ -101,22 +103,7 @@ def export_documents():
 
         docs_to_write.append([id_as_string, d['data'], final_label])
 
-        # make dictionary
-        # docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
-
-    # write to csv
-    # with open('export.csv', 'w', newline='') as csv_file:
-    #     fieldnames = ["ID", "BODY", "LABEL"]
-    #     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-    #
-    #     writer.writeheader()
-    #     writer.writerows(docs_to_write)
-    #
-    # return send_file('export.csv', as_attachment=True)
-
-    # CODE FOR NON-FILE VERSION
-    docs_to_write.append(["ID", "BODY", "LABEL"])
-
+    # Generator lets system create csv file without storing it locally
     def generate_csv():
         for doc in docs_to_write:
             yield ','.join(doc) + '\r\n'
