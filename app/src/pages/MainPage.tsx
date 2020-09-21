@@ -37,8 +37,11 @@ import {
     function onLogout() {
       firebase.auth().signOut().then(function() {
         localStorage.clear();
-        console.log("Sign-out successful." + localStorage.getItem('user-token'))
-      }).catch(function(error) {
+        console.log(
+          'Sign-out successful.' + localStorage.getItem('user-token')
+        );
+      })
+      .catch(function (error) {
         // An error happened.
       });
     }
@@ -52,10 +55,7 @@ import {
           </IonToolbar>
         </IonHeader>
 
-        <IonHeader className="pageTitle">PROJECTS</IonHeader>
-  
-        <IonContent>
-            
+      <IonContent>
         <div className="container">
             {projectData.map((name, index) => (
                 <IonCard key={index} routerLink={"/project/" + name}>
@@ -74,21 +74,23 @@ import {
         {/**will add an onclick function which will parse the new project name information to the system
          */}
         <form className="createProject">
-            <IonItem>
-                <IonLabel position="floating">New Project</IonLabel>
+          <IonItem>
+            <IonLabel position="floating">New Project</IonLabel>
             <IonInput />
-            </IonItem>
-            <IonButton className="ion-margin-top" type="submit" expand="block"><IonIcon icon={add}/>
-                Create
-            </IonButton>
+          </IonItem>
+          <IonButton
+            fill="outline"
+            className="ion-margin-top"
+            type="submit"
+            expand="block"
+          >
+            <IonIcon icon={add} />
+            Create
+          </IonButton>
         </form>
-        
-        </IonContent>
+      </IonContent>
+    </IonPage>
+  );
+};
 
-        
-
-      </IonPage>
-    );
-  };
-  
-  export default MainPage;
+export default MainPage;

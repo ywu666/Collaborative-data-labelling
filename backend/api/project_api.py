@@ -5,7 +5,7 @@ import mongoDBInterface
 project_api = Blueprint('project_api', __name__)
 
 
-@project_api.route("/project/create", methods=['POST'])
+@project_api.route("/projects", methods=['POST'])
 def create_project():
     if 'project' in request.json:
         project = request.json['project']
@@ -26,7 +26,7 @@ def create_project():
         return response, 400
 
 
-@project_api.route("/project/names", methods=['GET'])
+@project_api.route("/projects", methods=['GET'])
 def get_projects():
     my_client = mongoDBInterface.get_db_client()
     names = my_client.list_database_names()
@@ -37,19 +37,12 @@ def get_projects():
     return response, 200
 
 
-@project_api.route("/project/delete", methods=['DELETE'])
-def delete_project():
-    if 'project' in request.json:
-        project = request.json['project']
-    else:
-        response = {'message': "Missing projectID"}
-        response = make_response(response)
-        return response, 400
-
+@project_api.route("/projects/<project_name>", methods=['DELETE'])
+def delete_project(project_name):
     my_client = mongoDBInterface.get_db_client()
     names = my_client.list_database_names()
-    if project in names:
-        my_client.drop_database(project)
+    if project_name in names:
+        my_client.drop_database(project_name)
         response = {'message': "Deleted project"}
         response = make_response(response)
         return response, 204
