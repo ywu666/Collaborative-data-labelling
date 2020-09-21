@@ -95,7 +95,8 @@ class SignInFormBase extends Component {
     render() {
         const { email, password, error } = this.state;
 
-        const isInvalid = password === '' || email === '';
+        const isInvalid = email === '' || password === '';
+
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -133,7 +134,7 @@ class SignInFormBase extends Component {
                         </div>
                         <CardActions>
                             <div {...inputBoxStyling}>
-                                <Button color="primary" onClick={this.onSubmit}>
+                                <Button color="primary" disabled={isInvalid} onClick={this.onSubmit}>
                                     Sign In
                                 </Button>
                             </div>

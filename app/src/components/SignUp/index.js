@@ -126,7 +126,7 @@ class SignUpFormBase extends Component {
                 />
                 </div>
                 <CardActions>
-                <Button disabled={isInvalid} type="submit">
+                <Button color="primary" disabled={isInvalid} type="submit">
                     Sign Up
                 </Button>
                 </CardActions>
