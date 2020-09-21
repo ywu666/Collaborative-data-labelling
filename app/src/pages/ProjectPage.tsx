@@ -13,7 +13,7 @@ import {
   IonTextarea,
   IonInput
 } from '@ionic/react';
-import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
+import { add, arrowBack, arrowUpOutline, arrowDownOutline} from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
@@ -102,8 +102,12 @@ const ProjectPage: React.FC = () => {
                 upload
             </IonButton>
         </form>
+        <form className="downloadFile">
+            <IonButton className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowDownOutline}/>
+                download
+            </IonButton>
+        </form>
       </IonContent>
-
     </IonPage>
   );
 };
