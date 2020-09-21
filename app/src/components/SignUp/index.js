@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { withFirebase} from '../Firebase';
 import { compose } from 'recompose';
-
+import { Redirect } from "react-router-dom";
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -17,6 +17,7 @@ const INITIAL_STATE = {
     passwordOne: '',
     passwordTwo: '',
     error: null,
+    redirect: null
 };
 
 class SignUpFormBase extends Component {
@@ -32,7 +33,7 @@ class SignUpFormBase extends Component {
             .doCreateUserWithEmailAndPassword(email, passwordOne)
             .then(authUser => {
                 this.setState({ ...INITIAL_STATE });
-                console.log("Signed Up!")
+                this.setState({ redirect: "/auth" });
             })
             .catch(error => {
                 this.setState({ error });
@@ -59,7 +60,9 @@ class SignUpFormBase extends Component {
             passwordOne === '' ||
             email === '' ||
             username === '';
-
+            if (this.state.redirect) {
+                return <Redirect to={this.state.redirect} />
+            }
         return (
             <form onSubmit={this.onSubmit}>
                 <input
