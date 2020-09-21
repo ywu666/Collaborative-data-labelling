@@ -13,7 +13,7 @@ os.makedirs(uploads_dir, exist_ok=True)
 import_export_api = Blueprint('import_export_api', __name__)
 
 
-@import_export_api.route('/project/upload', methods=['GET', 'POST'])
+@import_export_api.route('/projects/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
 
