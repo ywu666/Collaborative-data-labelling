@@ -4,7 +4,7 @@ import { compose } from 'recompose';
 import { css } from 'glamor';
 import { Redirect } from "react-router-dom";
 import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
-
+import Typography from '@material-ui/core/Typography';
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -20,15 +20,6 @@ const lightPadding = css({
     maxWidth: '400px',
 
     display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-        textAlign: 'center',
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: '50%',
-        transform: 'translateY(-50%)',
-        display: 'flex',
 });
 
 const inputBoxStyling = css({
@@ -88,9 +79,16 @@ class SignUpFormBase extends Component {
                 return <Redirect to={this.state.redirect} />
             }
         return (
-            <Card>
+            <Card >
+                 <CardContent>
                 <form onSubmit={this.onSubmit}>
-                <div {...lightPadding}>
+                <Typography variant="h5" component="h2">
+                        Sign In
+                    </Typography>
+                    <Typography color="textSecondary">
+                        Verify your password.
+                    </Typography>
+                    <div {...lightPadding}>
                 <div {...inputBoxStyling}>
                 <TextField
                     name="username"
@@ -137,6 +135,7 @@ class SignUpFormBase extends Component {
                 {error && <p>{error.message}</p>}
                 </div>
             </form>
+            </CardContent>
            </Card>
            
         );

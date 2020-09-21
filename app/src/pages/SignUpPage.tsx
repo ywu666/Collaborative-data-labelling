@@ -10,8 +10,8 @@ import {
   import React from 'react';
   import { useParams } from 'react-router';
   import './LoginPage.css';
-  import SignUpPage from "../components/SignUp";
-  const LoginPage: React.FC = () => {
+  import SignUp from "../components/SignUp";
+  const SignUpPage: React.FC = () => {
     const { name } = useParams<{ name: string }>();
   
     return (
@@ -31,13 +31,14 @@ import {
               <IonTitle size="large">{name}</IonTitle>
             </IonToolbar>
           </IonHeader>
+       
           <div className="login-container">
-            <SignUpPage />
+            <SignUp />
           </div>
         </IonContent>
       </IonPage>
     );
   };
   
-  export default LoginPage;
+  export default SignUpPage;
   

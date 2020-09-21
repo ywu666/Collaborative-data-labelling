@@ -48,9 +48,9 @@ import {
       <IonPage>
         <IonHeader>
           <IonToolbar className="header">
-            <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
+            <IonButton fill="clear" slot="start"><IonIcon icon={arrowBack}/></IonButton>
     <IonTitle slot="end">User1</IonTitle>
-            <IonButton onClick={onLogout} slot="end">Log out</IonButton>
+            <IonButton fill="clear" onClick={onLogout} slot="end">Log out</IonButton>
           </IonToolbar>
         </IonHeader>
 
@@ -78,7 +78,7 @@ import {
                 <IonLabel position="floating">New Project</IonLabel>
             <IonInput />
             </IonItem>
-            <IonButton className="ion-margin-top" type="submit" expand="block"><IonIcon icon={add}/>
+            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={add}/>
                 Create
             </IonButton>
         </form>
