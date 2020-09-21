@@ -72,12 +72,12 @@ def export_documents():
         return response, 400
 
     # get all documents
-    # project = "New_Project"
+    project = "New_Project"
     doc_col = get_db_collection(project, "documents")
     documents = doc_col.find(projection={'comments': 0})
 
     docs_to_write = []
-    for d in documents:
+    for d in documents[0:6]:
         id_as_string = str(d['_id'])
 
         # get final labels
@@ -99,28 +99,27 @@ def export_documents():
         else:
             final_label = ''
 
-        # docs_to_write.append([id_as_string, d['data'], final_label])
+        docs_to_write.append([id_as_string, d['data'], final_label])
 
         # make dictionary
-        docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
-
-    # CODE FOR NON-FILE VERSION
-    # docs_to_write.append(["ID", "BODY", "LABEL"])
-    def generate_csv():
-        for doc in docs_to_write:
-            yield ','.join(doc) + '\n'
-
+        # docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
 
     # write to csv
-    with open('export.csv', 'w', newline='') as csv_file:
-        fieldnames = ["ID", "BODY", "LABEL"]
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    # with open('export.csv', 'w', newline='') as csv_file:
+    #     fieldnames = ["ID", "BODY", "LABEL"]
+    #     writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    #
+    #     writer.writeheader()
+    #     writer.writerows(docs_to_write)
+    #
+    # return send_file('export.csv', as_attachment=True)
 
-        writer.writeheader()
-        writer.writerows(docs_to_write)
+    # CODE FOR NON-FILE VERSION
+    docs_to_write.append(["ID", "BODY", "LABEL"])
 
-    # return Response(generate_csv(), mimetype='text/csv', headers={"Content-Disposition": "attachment; "
-    #                                                                                      "filename=export.csv"})
+    def generate_csv():
+        for doc in docs_to_write:
+            yield ','.join(doc) + '\r\n'
 
-    return send_file('export.csv', as_attachment=True)
-
+    return Response(generate_csv(), mimetype='text/csv',
+                    headers={"Content-Disposition": "attachment;filename=export.csv"})
