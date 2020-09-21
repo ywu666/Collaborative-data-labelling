@@ -25,7 +25,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import LoginPage from './pages/LoginPage';
-import SignUpPage from './components/SignUp';
+import SignUpPage from './pages/SignUpPage';
 
 const App: React.FC = () => {
   return (
