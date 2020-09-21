@@ -1,5 +1,5 @@
 import firebase_admin
-from api import document_api, label_api, project_api, user_api
+from api import document_api, label_api, project_api, user_api, import_export_api
 from firebase_admin import auth
 from firebase_admin import credentials
 from flask import Flask
@@ -10,6 +10,7 @@ app.register_blueprint(document_api.document_api)
 app.register_blueprint(label_api.label_api)
 app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
+app.register_blueprint(import_export_api.import_export_api)
 
 cred = credentials.Certificate("collaborative-content-coding-firebase-adminsdk-dpj86-0d9f3ad3d8.json")
 default_app = firebase_admin.initialize_app(cred)
