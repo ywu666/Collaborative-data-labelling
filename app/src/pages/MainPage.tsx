@@ -63,7 +63,7 @@ import {
                     <IonCardTitle>
                             {name}
                     </IonCardTitle>
-                    {/** current project backend api
+                    {/** current project backend api does not have project description
                     <IonCardContent >
                             {name.description}
                     </IonCardContent>
