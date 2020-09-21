@@ -2,7 +2,6 @@
 import csv
 import os
 
-import mongoDBInterface
 from bson import ObjectId
 from flask import Blueprint, request, make_response
 from model.document import Document, get_db_collection
@@ -74,10 +73,9 @@ def export_documents():
 
     # get all documents
     doc_col = get_db_collection(project, "documents")
-    documents = doc_col.find()
-    # documents.
+    documents = doc_col.find(projection={'comments': 0})
 
-    doc_dict = []
+    docs_to_write = []
     for d in documents[0:5]:
         # filter info we want: id, document, final label?
 
@@ -101,10 +99,16 @@ def export_documents():
             # print(label['name'])
 
         # make dictionary
-        doc_dict.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
+        docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
 
-    print(doc_dict)
-    # create csv
     # write to csv
+    with open('export.csv', 'w', newline='') as csv_file:
+        fieldnames = ["ID", "BODY", "LABEL"]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
 
-    return '', 200
+        writer.writeheader()
+        writer.writerows(docs_to_write)
+
+    response = {'message': "Documents exported successfully!"}
+    response = make_response(response)
+    return response, 200
