@@ -79,7 +79,7 @@ def export_documents():
     docs_to_write = [["ID", "BODY", "LABEL"]]
 
     # Generate data in correct format for export
-    for d in documents[0:6]:
+    for d in documents:
         id_as_string = str(d['_id'])
 
         # Find final label id
