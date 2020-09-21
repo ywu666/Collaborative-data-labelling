@@ -83,7 +83,7 @@ class SignUpFormBase extends Component {
                  <CardContent>
                 <form onSubmit={this.onSubmit}>
                 <Typography variant="h5" component="h2">
-                        Sign In
+                        Sign Up
                     </Typography>
                     <Typography color="textSecondary">
                         Verify your password.
