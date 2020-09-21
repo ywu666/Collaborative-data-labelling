@@ -9,6 +9,7 @@ from firebase_admin import credentials
 from flask import Flask, request, make_response
 from flask_cors import CORS
 
+from api import document_api, label_api, project_api, user_api
 
 app = Flask(__name__)
 app.register_blueprint(document_api.document_api)
