@@ -64,6 +64,47 @@ def upload_file():
 
 @import_export_api.route('/project/export', methods=['GET'])
 def export_documents():
-    
+    # need project name
+    if 'project' in request.json:
+        project = request.json['project']
+    else:
+        response = {'message': "Missing projectID"}
+        response = make_response(response)
+        return response, 400
+
+    # get all documents
+    doc_col = get_db_collection(project, "documents")
+    documents = doc_col.find()
+    # documents.
+
+    doc_dict = []
+    for d in documents[0:5]:
+        # filter info we want: id, document, final label?
+
+        # get final labels
+        user_and_labels = d['user_and_labels']
+        final_label_id = None
+        final_label = None
+        if len(user_and_labels) > 1:
+            final_label_id = user_and_labels[0]['label']
+            for item in user_and_labels:
+                # check that label is the same
+                if item['label'] != final_label_id:
+                    final_label_id = None
+                    break
+
+        # Get label name
+        if final_label_id is not None:
+            label_col = get_db_collection(project, 'labels')
+            final_label = label_col.find_one({"_id": ObjectId(final_label_id)})
+            final_label = final_label['name']
+            # print(label['name'])
+
+        # make dictionary
+        doc_dict.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
+
+    print(doc_dict)
+    # create csv
+    # write to csv
 
     return '', 200
