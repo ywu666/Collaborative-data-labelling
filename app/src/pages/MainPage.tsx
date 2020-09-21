@@ -48,9 +48,8 @@ import {
       <IonPage>
         <IonHeader>
           <IonToolbar className="header">
-            <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
-    <IonTitle slot="end">User1</IonTitle>
-            <IonButton onClick={onLogout} slot="end">Log out</IonButton>
+            <IonTitle slot="end">User1</IonTitle>
+            <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
           </IonToolbar>
         </IonHeader>
 
@@ -60,7 +59,7 @@ import {
             
         <div className="container">
             {projectData.map((name, index) => (
-                <IonCard key={index}>
+                <IonCard key={index} routerLink={"/project/" + name.title}>
                     <IonCardTitle>
                             {name.title}
                     </IonCardTitle>
