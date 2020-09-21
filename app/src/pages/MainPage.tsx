@@ -58,11 +58,7 @@ import {
             
         <div className="container">
             {projectData.map((name, index) => (
-<<<<<<< HEAD
                 <IonCard key={index} routerLink={"/project/" + name}>
-=======
-                <IonCard key={index} routerLink={"/project/" + name.title}>
->>>>>>> upstream/master
                     <IonCardTitle>
                             {name}
                     </IonCardTitle>
