@@ -1,6 +1,7 @@
 from bson import ObjectId
 from flask import Blueprint, request, make_response
 
+from api.methods import JSONEncoder
 from model.document import Document, get_db_collection
 from model.label import Label
 from mongoDBInterface import get_col
@@ -42,9 +43,7 @@ def get_document_ids():
     col = get_db_collection(project, "documents")
     docs = col.find({}, {'_id': 1})
     docs = list(docs)
-    for d in docs:
-        d['_id'] = str(d['_id'])
-        print(d['_id'])
+
     return {"document_ids": docs}, 200
 
 
@@ -66,6 +65,7 @@ def get_document():
 
     col = get_db_collection(project, "documents")
     doc = col.find_one({'_id': ObjectId(identifier)}, {'_id': 0})
+    doc = JSONEncoder().encode(doc)
     response = {'document': doc}
     response = make_response(response)
     return response, 200
