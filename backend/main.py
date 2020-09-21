@@ -8,13 +8,6 @@ from bson import ObjectId
 from firebase_admin import credentials
 from flask import Flask, request, make_response
 from flask_cors import CORS
-from werkzeug.utils import secure_filename
-
-from api import document_api, label_api, project_api, user_api
-from model.document import Document
-from model.label import Label
-from model.project import Project
-from mongoDBInterface import get_col
 
 
 app = Flask(__name__)
