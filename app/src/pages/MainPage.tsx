@@ -16,7 +16,9 @@ import {
   import { add, arrowBack} from 'ionicons/icons';
   import React, { useState } from 'react';
   import './MainPage.css';
-    
+  import app from 'firebase/app';
+  import 'firebase/auth';
+  import firebase from "firebase";
   /*
    * Temporary project data to display UI 
    */
@@ -34,14 +36,21 @@ import {
 ];
   
   const MainPage: React.FC = () => {
-  
+    function onLogout() {
+      firebase.auth().signOut().then(function() {
+        localStorage.clear();
+        console.log("Sign-out successful." + localStorage.getItem('user-token'))
+      }).catch(function(error) {
+        // An error happened.
+      });
+    }
     return (
       <IonPage>
         <IonHeader>
           <IonToolbar className="header">
             <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
-            <IonTitle slot="end">Gay User</IonTitle>
-            <IonButton slot="end">Log out</IonButton>
+    <IonTitle slot="end">User1</IonTitle>
+            <IonButton onClick={onLogout} slot="end">Log out</IonButton>
           </IonToolbar>
         </IonHeader>
 

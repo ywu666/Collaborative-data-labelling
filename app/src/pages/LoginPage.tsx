@@ -9,9 +9,8 @@ import {
 } from '@ionic/react';
 import React from 'react';
 import { useParams } from 'react-router';
-//import './Page.css';
-import { LoginInput } from '../components/LoginInput';
 import './LoginPage.css';
+import SignInPage from "../components/SignIn";
 const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
 
@@ -33,7 +32,7 @@ const LoginPage: React.FC = () => {
           </IonToolbar>
         </IonHeader>
         <div className="login-container">
-          <LoginInput />
+          <SignInPage />
         </div>
       </IonContent>
     </IonPage>

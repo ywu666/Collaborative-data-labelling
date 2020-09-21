@@ -10,8 +10,6 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
-  IonTextarea,
-  IonInput
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
