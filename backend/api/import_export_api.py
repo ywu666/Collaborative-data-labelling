@@ -3,7 +3,7 @@ import csv
 import os
 
 from bson import ObjectId
-from flask import Blueprint, request, make_response
+from flask import Blueprint, request, make_response, Response, send_file
 from model.document import Document, get_db_collection
 from model.project import Project
 from werkzeug.utils import secure_filename
@@ -72,17 +72,17 @@ def export_documents():
         return response, 400
 
     # get all documents
+    # project = "New_Project"
     doc_col = get_db_collection(project, "documents")
     documents = doc_col.find(projection={'comments': 0})
 
     docs_to_write = []
-    for d in documents[0:5]:
-        # filter info we want: id, document, final label?
+    for d in documents:
+        id_as_string = str(d['_id'])
 
         # get final labels
         user_and_labels = d['user_and_labels']
         final_label_id = None
-        final_label = None
         if len(user_and_labels) > 1:
             final_label_id = user_and_labels[0]['label']
             for item in user_and_labels:
@@ -96,10 +96,20 @@ def export_documents():
             label_col = get_db_collection(project, 'labels')
             final_label = label_col.find_one({"_id": ObjectId(final_label_id)})
             final_label = final_label['name']
-            # print(label['name'])
+        else:
+            final_label = ''
+
+        # docs_to_write.append([id_as_string, d['data'], final_label])
 
         # make dictionary
         docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
+
+    # CODE FOR NON-FILE VERSION
+    # docs_to_write.append(["ID", "BODY", "LABEL"])
+    def generate_csv():
+        for doc in docs_to_write:
+            yield ','.join(doc) + '\n'
+
 
     # write to csv
     with open('export.csv', 'w', newline='') as csv_file:
@@ -109,6 +119,8 @@ def export_documents():
         writer.writeheader()
         writer.writerows(docs_to_write)
 
-    response = {'message': "Documents exported successfully!"}
-    response = make_response(response)
-    return response, 200
+    # return Response(generate_csv(), mimetype='text/csv', headers={"Content-Disposition": "attachment; "
+    #                                                                                      "filename=export.csv"})
+
+    return send_file('export.csv', as_attachment=True)
+
