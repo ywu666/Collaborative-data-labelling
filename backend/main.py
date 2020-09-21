@@ -1,7 +1,11 @@
 import os
 
 import csv
+
+import firebase_admin
+from firebase_admin import auth
 from bson import ObjectId
+from firebase_admin import credentials
 from flask import Flask, request, make_response
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
@@ -12,18 +16,24 @@ from model.label import Label
 from model.project import Project
 from mongoDBInterface import get_col
 
+
 app = Flask(__name__)
 app.register_blueprint(document_api.document_api)
 app.register_blueprint(label_api.label_api)
 app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
 
+cred = credentials.Certificate("collaborative-content-coding-firebase-adminsdk-dpj86-0d9f3ad3d8.json")
+default_app = firebase_admin.initialize_app(cred)
 
+# Start listing users from the beginning, 1000 at a time.
+page = auth.list_users()
 cors = CORS(app)
 
 # Create folder for temporarily storing files
 uploads_dir = os.path.join('uploads')
 os.makedirs(uploads_dir, exist_ok=True)
+
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
