@@ -4,7 +4,7 @@ import MainPage from './pages/MainPage';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { Redirect, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -25,6 +25,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 import LoginPage from './pages/LoginPage';
+import SignUpPage from './pages/SignUpPage';
 
 const App: React.FC = () => {
   return (
@@ -32,14 +33,15 @@ const App: React.FC = () => {
       <IonReactRouter>
           <IonRouterOutlet id="main">
             <Route path="/project/:name" component={ProjectPage} exact />
-            <Route path="/auth" component={LoginPage} exact />
+            <Route path="/auth" component={LoginPage}  />
+            <Route path="/signup" component={SignUpPage}  />
             <Route path="/" component={MainPage} exact />
             {/** I don't understand the purpose of this route and it doesn't redirect to anything
              * currently, for now I'm putting the MainPage as root,
              * idea brought up by Chuyang
              * 
              * <Redirect from="/" to="/page/Inbox" exact />**/}
-            <Route path="/page/Settings" component={SettingsPage} exact />
+            <Route path="/project/:project/settings" component={SettingsPage} exact />
           </IonRouterOutlet>
       </IonReactRouter>
     </IonApp>

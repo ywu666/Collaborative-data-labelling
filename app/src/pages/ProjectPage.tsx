@@ -10,8 +10,6 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
-  IonTextarea,
-  IonInput
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline} from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -19,7 +17,7 @@ import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
 import * as request from 'request';
-  
+
 interface Document {
   title: string;
   tag: string;
@@ -82,29 +80,32 @@ const ProjectPage: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar className="header">
-          <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
+          <IonButton fill="clear" slot="start" routerLink="/" routerDirection="back">
+            <IonIcon icon={arrowBack}/>
+            </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton slot="end">Log out</IonButton>
+          <IonButton fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
         <div className="container">        
-          <strong>{name}</strong>
+          <h1>{name}</h1>
+          <IonButton slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
               {labels.map((label, i) =>
-                <IonButton key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
+                <IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
               )}
             </div>
-          </IonModal>      
+          </IonModal>
           <IonList>
             {documents.map((doc, i) =>
               <IonItem key={i}>
                 <IonLabel>{doc.title}</IonLabel>
                 {isNullOrUndefined(doc.tag) || doc.tag === ""
-                  ? <IonButton slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
-                  : <IonButton slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
+                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
+                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
                 }
               </IonItem>
             )}
@@ -112,9 +113,9 @@ const ProjectPage: React.FC = () => {
         </div>
         <form className="uploadFile">
             <IonItem>
-            <input type="file" />
+            <input type="file"  />
             </IonItem>
-            <IonButton className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
+            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
             </IonButton>
         </form>

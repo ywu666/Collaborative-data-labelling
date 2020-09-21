@@ -7,3 +7,5 @@ node_modules/
 .vscode/* 
 .DS_Store
 *.env
+*.json
+backend/collaborative-content-coding-firebase-adminsdk-dpj86-0d9f3ad3d8.json
