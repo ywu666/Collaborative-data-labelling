@@ -9,6 +9,7 @@ import CardActions from '@material-ui/core/CardActions';
 import { css } from 'glamor';
 import Typography from '@material-ui/core/Typography';
 import { Redirect } from "react-router-dom";
+import { IonLabel } from '@ionic/react';
 const useStyles = css({
     root: {
         minWidth: 275,
@@ -80,21 +81,22 @@ class SignInFormBase extends Component {
             .catch(error => {
                 this.setState({ error });
             });
-          
-          
+             
         event.preventDefault();
 
     };
 
     onChange = event => {
         console.log("change")
+        this.setState({error: ''})
         this.setState({ [event.target.name]: event.target.value });
     };
 
     render() {
         const { email, password, error } = this.state;
 
-        const isInvalid = password === '' || email === '';
+        const isInvalid = email === '' || password === '';
+
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -104,9 +106,11 @@ class SignInFormBase extends Component {
                     <Typography className={useStyles.title} variant="h5" component="h2">
                         Sign In
                     </Typography>
+                    <div {...lightPadding}>
                     <Typography className={useStyles.pos} color="textSecondary">
                         Verify your password.
                     </Typography>
+                    </div>
                     <div {...lightPadding}>
                         <div {...inputBoxStyling}>
                             <TextField
@@ -130,12 +134,16 @@ class SignInFormBase extends Component {
                         </div>
                         <CardActions>
                             <div {...inputBoxStyling}>
-                                <Button color="primary" onClick={this.onSubmit}>
+                                <Button color="primary" disabled={isInvalid} onClick={this.onSubmit}>
                                     Sign In
-                </Button>
+                                </Button>
                             </div>
                         </CardActions>
-                        {error && <p>{error.message}</p>}
+                        <div {...inputBoxStyling}>
+                        <Typography className={useStyles.pos} color="textSecondary">
+                        {error && <IonLabel color="danger">{error.message}</IonLabel>}
+                        </Typography>
+                        </div>
                     </div>
                 </CardContent>
             </Card>
