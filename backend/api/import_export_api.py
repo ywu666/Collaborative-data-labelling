@@ -2,8 +2,10 @@
 import csv
 import os
 
+import mongoDBInterface
+from bson import ObjectId
 from flask import Blueprint, request, make_response
-from model.document import Document
+from model.document import Document, get_db_collection
 from model.project import Project
 from werkzeug.utils import secure_filename
 
@@ -58,3 +60,10 @@ def upload_file():
             response = {'message': 'No project id provided'}
             response = make_response(response)
             return response, 400
+
+
+@import_export_api.route('/project/export', methods=['GET'])
+def export_documents():
+    
+
+    return '', 200
