@@ -29,24 +29,6 @@ def create_document():
     doc.upload(project)
     return '', 204
 
-@document_api.route('/document/ids', methods=['Get'])
-def get_document_ids():
-    if 'project' in request.json:
-        project = request.json['project']
-    else:
-        response = {'message': "Missing project"}
-        response = make_response(response)
-        return response, 400
-
-    col = get_db_collection(project, "documents")
-    docs = col.find({}, {'_id': 1})
-    docs = list(docs)
-    for d in docs:
-        d['_id'] = str(d['_id'])
-        print(d['_id'])
-    return {"document_ids": docs}, 200
-
-
 
 @document_api.route('/document/ids', methods=['Get'])
 def get_document_ids():
