@@ -14,28 +14,26 @@ import {
     IonInput
   } from '@ionic/react';
   import { add, arrowBack} from 'ionicons/icons';
-  import React, { useState } from 'react';
+  import React, { useState, useEffect } from 'react';
   import './MainPage.css';
   import app from 'firebase/app';
   import 'firebase/auth';
   import firebase from "firebase";
-  /*
-   * Temporary project data to display UI 
-   */
-  const projectData = [
-    {
-        title: "Project1",
-        description:
-            "Wellington, the capital of New Zealand, sits near the North Island’s southernmost point on the Cook Strait.",
-    },
-    {
-        title: "Project2",
-        description:
-            "Auckland, based around 2 large harbours, is a major city in the north of New Zealand’s North Island.",
-    },
-];
+  import { projectServices } from '../services/ProjectServices'
   
   const MainPage: React.FC = () => {
+    const [projectData, setProjectData] = useState([""]);
+    useEffect(() => {
+      try {
+        projectServices.getProjectNames()
+        .then(data => {
+          setProjectData(data)
+        })
+      } catch (e) {
+        
+      }
+    }, [])
+    
     function onLogout() {
       firebase.auth().signOut().then(function() {
         localStorage.clear();
@@ -44,6 +42,7 @@ import {
         // An error happened.
       });
     }
+
     return (
       <IonPage>
         <IonHeader>
@@ -60,13 +59,15 @@ import {
             
         <div className="container">
             {projectData.map((name, index) => (
-                <IonCard key={index}>
+                <IonCard key={index} routerLink={"/project/" + name}>
                     <IonCardTitle>
-                            {name.title}
+                            {name}
                     </IonCardTitle>
+                    {/** current project backend api
                     <IonCardContent >
                             {name.description}
                     </IonCardContent>
+                    */}
                 </IonCard>
             ))}
         </div>
