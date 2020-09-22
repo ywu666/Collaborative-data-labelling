@@ -1,9 +1,6 @@
-setuptools
-ez_setup
 Flask==1.1.2
 Flask-Cors==3.0.8
 pytest==6.0.1
 pymongo
 python-dotenv
 dnspython
-firebase-admin

@@ -17,8 +17,6 @@
     "@types/react-router": "^5.1.4",
     "@types/react-router-dom": "^5.1.3",
     "@types/request": "^2.48.5",
-    "firebase": "^7.21.0",
-    "firebase-admin": "^9.2.0",
     "glamor": "^2.20.40",
     "ionicons": "^5.0.0",
     "npm-watch": "^0.7.0",
@@ -28,7 +26,6 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.3",
-    "recompose": "^0.30.0",
     "redux": "^4.0.5",
     "redux-saga": "^1.1.3",
     "typescript": "3.8.3"
@@ -57,7 +54,6 @@
   "devDependencies": {
     "@capacitor/cli": "2.4.0",
     "@types/react-redux": "^7.1.9",
-    "@types/recompose": "^0.30.7",
     "lerna": "^3.22.1",
     "prettier": "2.0.5"
   },
