@@ -10,6 +10,8 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -29,7 +31,7 @@ const ProjectPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState("");
   const [documents, setDocuments] = useState<any[]>([]); //TODO: get documents via project id
-  const [document_ids, setDocumentsIds] = useState([""]);
+  const [document_ids, setDocumentsIds] = useState<any[]>([]);
 
   useEffect(() => {
     try {
@@ -42,17 +44,30 @@ const ProjectPage: React.FC = () => {
     }
   }, [])
 
-//  useEffect(() => {    
-//    let result = [""];
-//    for (let child of data) {
-//      documentServices.getDocument(name, child._id)
-//      .then(data => {
-//        data._id = child._id
-//        result.push(data)
-//      }) 
-//    }
-//    setDocuments(result)
-//  }, [])
+  useEffect(() => {   
+    let index = 0;
+    for (let child of document_ids) {
+      documentServices.getDocument(name, child._id)
+      .then(data => {
+        setDocuments(doc => [...doc, data])
+      })
+      index = index + 1;
+      if(index > 20) {
+        break
+      }
+    }
+  }, [document_ids])
+
+
+  const loadDocuments = (event:any) => {
+    setTimeout(() => {
+      console.log('Loaded data');
+      event.target.complete();
+
+      // App logic to determine if all data is loaded
+      // and disable the infinite scroll
+    }, 500);
+  }
 
   const renderLabelModal = (id:string) => {
     setShowModal(true)
@@ -89,16 +104,22 @@ const ProjectPage: React.FC = () => {
             </div>
           </IonModal>
           <IonList>
-            {documents.map(doc =>
-              <IonItem key={doc._id}>
+            {documents.map((doc, index) =>
+              <IonItem key={index}>
                 <IonLabel>{doc.data}</IonLabel>
-                {isNullOrUndefined(doc.user_and_labels)
-                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
-                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{doc.user_and_labels[0]}</IonButton>
+                {doc.user_and_labels.length === 0
+                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.index)}><IonIcon icon={add}/></IonButton>
+                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.index)}>{doc.user_and_labels[0].label}</IonButton>
                 }
               </IonItem>
             )}
           </IonList>
+          <IonInfiniteScroll threshold="100px" onIonInfinite={(event) => loadDocuments(event)}>
+            <IonInfiniteScrollContent
+              loading-spinner="bubbles"
+              loading-text="Loading more data...">
+            </IonInfiniteScrollContent>
+          </IonInfiniteScroll>
         </div>
         <form className="uploadFile">
             <IonItem>
