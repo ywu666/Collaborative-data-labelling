@@ -43,7 +43,7 @@ def create_document(project_name):
 
     doc = Document(content, [], [])
     doc.data = content
-    doc.upload(project)
+    doc.upload(project_name)
     return '', 204
 
 
@@ -72,9 +72,9 @@ def get_document_ids(project_name):
 
     col = get_db_collection(project_name, "documents")
     docs = col.find({}, {'_id': 1})
-    docs = list(docs)
-    docs = JSONEncoder().encode(docs)
-    return {"document_ids": docs}, 200
+    docs_dict = {'docs': list(docs)}
+    docs = JSONEncoder().encode(docs_dict)
+    return docs, 200
 
 
 @document_api.route('/projects/<project_name>/documents/<document_id>', methods=['Get'])
@@ -103,10 +103,10 @@ def get_document(project_name, document_id):
 
     col = get_db_collection(project_name, "documents")
     doc = col.find_one({'_id': ObjectId(document_id)}, {'_id': 0})
+
+    doc = {'document': doc}
     doc = JSONEncoder().encode(doc)
-    response = {'document': doc}
-    response = make_response(response)
-    return response, 200
+    return doc, 200
 
 
 # Endpoint to allow adding of labels to a document
@@ -149,7 +149,7 @@ def set_label_for_user(project_name, document_id):
         response = make_response(response)
         return response, 400
 
-    col = get_db_collection(project, "documents")
+    col = get_db_collection(project_name, "documents")
 
     # if the label already exists for the user
     if col.find_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}}) is not None:
@@ -162,7 +162,7 @@ def set_label_for_user(project_name, document_id):
         col.update_one({'_id': ObjectId(document_id)},
                        {'$push': {
                            "user_and_labels": {
-                               "email": requestor,
+                               "email": requestor_email,
                                "label": ObjectId(label_id)}
                            }
                        })
