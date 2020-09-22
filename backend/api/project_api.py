@@ -46,6 +46,27 @@ def create_project():
 
 @project_api.route("/projects", methods=['GET'])
 def get_projects():
+    if 'id_token' in request.json:
+        id_token = request.json['id_token']
+
+        requestor_email = get_email(id_token)
+        if requestor_email is None:
+            response = {'message': "ID Token has expired or is invalid"}
+            response = make_response(response)
+            return response, 400
+    else:
+        response = {'message': "Missing id_token"}
+        response = make_response(response)
+        return response, 400
+
+    all_users_col = get_col("users", "users")
+    requestor = all_users_col.find_one({"email": requestor_email})
+
+    if requestor is None:
+        response = {'message': "Not authorised to perform this action"}
+        response = make_response(response)
+        return response, 401
+
     my_client = get_db_client()
     names = my_client.list_database_names()
     names.remove("admin")
@@ -54,7 +75,6 @@ def get_projects():
     response = {'projects': names}
     response = make_response(response)
     return response, 200
-
 
 
 @project_api.route("/project/delete", methods=['DELETE'])
