@@ -95,7 +95,7 @@ def export_documents(project_name):
 
         docs_to_write.append([id_as_string, d['data'], final_label])
 
-    # TODO: Generated CSV file is buggy and not formatted correctly. Needs to be fixed. 
+    # TODO: Generated CSV file is buggy and not formatted correctly. Needs to be fixed.
     # Generator lets system create csv file without storing it locally
     def generate_csv():
         for doc in docs_to_write:
