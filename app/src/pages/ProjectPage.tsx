@@ -108,6 +108,9 @@ const ProjectPage: React.FC = () => {
               )}
             </div>
           </IonModal>
+          {/**
+         * skelenton is displayed if isLoading is true, otherwise document name is displayed
+         */}
           {isLoading
           ?<IonList>
             <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>

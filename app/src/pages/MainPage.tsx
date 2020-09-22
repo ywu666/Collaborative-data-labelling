@@ -54,6 +54,9 @@ import {
         </IonHeader>
 
       <IonContent>
+        {/**
+         * skelenton is displayed if isLoading is true, otherwise projectData is displayed
+         */}
         {isLoading
         ?<div className="container">
           <IonCard>
