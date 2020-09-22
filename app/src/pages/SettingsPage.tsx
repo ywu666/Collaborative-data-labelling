@@ -17,6 +17,7 @@ import {
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
   import onLogout from '../helpers/logout'
+  import SettingsUsers from '../components/SettingsUsers';
   
   import './SettingsPage.css';
   
@@ -25,6 +26,7 @@ import {
   
     // test tags data only! pass this in from database
     const tags: string[] = ["One", "Two", "Three"];
+    const users: string[] = ["One", "Two", "Three"];
   
   //add the proper header component that will be common to all pages
     return (
@@ -47,6 +49,11 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <h1>{project}</h1>
+            </IonRow>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="6">
+                <SettingsUsers users={users} />
+              </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
