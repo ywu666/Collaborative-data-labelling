@@ -2,7 +2,9 @@ import {
     IonButton,
     IonAlert,
     IonItem,
-    IonLabel
+    IonLabel,
+    IonModal,
+    IonList
   } from '@ionic/react';
 import React, {useState} from 'react';
 
@@ -11,8 +13,10 @@ interface ContainerProps {
 }
 
 const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
-    const [showNewTag, setShowNewTag] = useState(false);
+    const [showUserModal, setShowUserModal] = useState(false);
     const [newTag, setNewTag] = useState<string>();
+
+    const allusers = ["one", "two", "four"];
 
   return (
     <div className="container">
@@ -20,47 +24,26 @@ const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
           {users.map((user, index) => {
             return (
             <IonItem>
-                <IonLabel slot="start">{user}</IonLabel>
+                <IonLabel>{user}</IonLabel>
                 <IonButton slot="end">Permissions</IonButton>
-                </IonItem>
+            </IonItem>
             );
           })}
 
-        <IonButton size="small" color="light" fill="solid" onClick={() => setShowNewTag(true)}>
+        <IonButton size="small" color="light" fill="solid" onClick={() => setShowUserModal(true)}>
             + Add user
         </IonButton>
 
-        <IonAlert 
-        isOpen={showNewTag}
-        onDidDismiss={() => setShowNewTag(false)}
-        header={'Enter new name:'}
-        message={''}
-        inputs={[
-            { 
-            name: 'newTag',
-            type: 'text',
-            id: 'tagName',
-            placeholder: 'New Tag' }
-        ]}
-        buttons={[
-            {
-                text: 'Cancel',
-                role: 'cancel'
-            },
-            {
-                text: 'Confirm',
-                handler: (alertData) => {
-                    // test if name is valid, can add more
-                    if (alertData.newTag.length > 0) {
-                        // add to database here
-                    } else {
-                        alert('Name is invalid');
-                        return false;
-                    }
-                }
-            }
-        ]}
-        />
+          <IonModal isOpen={showUserModal}>
+              <IonList>
+              {allusers.map((user, index) => {
+                  return (
+                      <IonItem button onClick={() => {}}>{user}</IonItem>
+                  );
+              })}
+              </IonList>
+              <IonButton onClick={() => setShowUserModal(false)}>Close</IonButton>
+        </IonModal>
     </div>
   );
 };
