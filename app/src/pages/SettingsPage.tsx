@@ -27,10 +27,6 @@ import {
 
     const [tags, setTags] = useState([""]);
   
-    // test tags data only! pass this in from database
-    // const tags: string[] = ["One", "Two", "Three"];
-    // const users: string[] = ["UserOne", "UserTwo", "UserThree"];
-  
     return (
       <IonPage>
         <IonHeader>
