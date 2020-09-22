@@ -1,5 +1,6 @@
 from flask import Blueprint, request, make_response
 
+from api.methods import add_project_to_user, remove_project_from_user
 from mongoDBInterface import create_db_for_proj, get_col, get_db_client
 from firebase_auth import get_email
 
@@ -22,10 +23,10 @@ def create_project():
         response = make_response(response)
         return response, 400
 
-    if 'project' in request.json:
-        project = request.json['project']
+    if 'project_name' in request.json:
+        project = request.json['project_name']
     else:
-        response = {'message': "Missing projectID"}
+        response = {'message': "Missing project name"}
         response = make_response(response)
         return response, 400
 
@@ -35,6 +36,7 @@ def create_project():
         create_db_for_proj(project)
         project_user_col = get_col(project, "users")
         project_user_col.insert_one({'email': requestor_email, 'isAdmin': True, 'isContributor': True})
+        add_project_to_user(requestor_email, project)
     else:
         response = {'message': "Project already exists"}
         response = make_response(response)
@@ -110,6 +112,10 @@ def delete_project(project_name):
     my_client = get_db_client()
     names = my_client.list_database_names()
     if project_name in names:
+        all_users = user_col.find({})
+        for user in all_users:
+            user_email = user['email']
+            remove_project_from_user(user_email, project_name)
         my_client.drop_database(project_name)
     else:
         response = {'message': "Project does not exist"}

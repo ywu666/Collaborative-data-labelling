@@ -1,7 +1,7 @@
 import firebase_admin
 from flask import Blueprint, request, make_response
 
-from api.methods import JSONEncoder
+from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user
 from firebase_auth import get_email
 from mongoDBInterface import get_col
 
@@ -84,6 +84,7 @@ def add_user_to_project(project_name):
 
     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
         project_user_col.insert_one({'email': email, 'isAdmin': False, 'isContributor': False})
+        add_project_to_user(email, project_name)
         return "", 204
     else:
         response = {'message': "That user is already in the provided project"}
@@ -238,7 +239,7 @@ def remove_user():
     return "", 204
 
 
-@user_api.route("/projects/<project_name>/users/delete", methods=["Delete"])
+@user_api.route("/projects/<project_name>/users/delete", methods=["Put"])
 # admin or requestor can remove
 def remove_user_from_project(project_name):
     id_token = request.args.get('id_token')
@@ -267,4 +268,5 @@ def remove_user_from_project(project_name):
 
     if requestor_email == email or requestor['isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
         users_col.delete_one({'email': email})
+        remove_project_from_user(email, project_name)
     return "", 204
