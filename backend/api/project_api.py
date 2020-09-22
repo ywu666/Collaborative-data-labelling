@@ -46,9 +46,7 @@ def create_project():
         response = make_response(response)
         return response, 400
 
-    response = {'message': "Created project"}
-    response = make_response(response)
-    return response, 204
+    return "", 204
 
 
 @project_api.route("/projects/all", methods=['GET'])
@@ -126,6 +124,4 @@ def delete_project(project_name):
         response = make_response(response)
         return response, 400
 
-    response = {'message': "Deleted project"}
-    response = make_response(response)
-    return response, 204
+    return "", 204
