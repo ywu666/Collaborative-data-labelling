@@ -23,11 +23,7 @@
   ion-modal.auto-height ion-button {
     margin: 8px;
   }
-
-  ion-card-title {
-    padding: 16px;
-  }
-
+  
   .container {
     text-align: center;
     position: relative;
