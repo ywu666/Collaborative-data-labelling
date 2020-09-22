@@ -11,7 +11,8 @@ import {
     IonCard,
     IonCardContent,
     IonCardTitle,
-    IonInput
+    IonInput,
+    IonSkeletonText
   } from '@ionic/react';
   import { add, arrowBack} from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
@@ -24,6 +25,8 @@ import {
   
   const MainPage: React.FC = () => {
     const [projectData, setProjectData] = useState([""]);
+    const [isLoading, setIsLoading] = useState(true);
+    
     useEffect(() => {
       try {
         projectServices.getProjectNames()
@@ -35,6 +38,12 @@ import {
       }
     }, [])
 
+    setTimeout(() => {
+      setIsLoading(false);
+    },
+    1500
+    )
+    
     return (
       <IonPage>
         <IonHeader>
@@ -45,7 +54,25 @@ import {
         </IonHeader>
 
       <IonContent>
-        <div className="container">
+        {isLoading
+        ?<div className="container">
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+        </div>
+        :<div className="container">
             {projectData.map((name, index) => (
                 <IonCard key={index} routerLink={"/project/" + name}>
                     <IonCardTitle>
@@ -59,6 +86,8 @@ import {
                 </IonCard>
             ))}
         </div>
+        }
+
 
         {/**will add an onclick function which will parse the new project name information to the system
          */}

@@ -10,6 +10,7 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
+  IonSkeletonText
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -50,6 +51,12 @@ const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(true);
+  setTimeout(() => {
+    setIsLoading(false);
+  },
+  1000
+  )
   const [documents] = useState(sampleDoc); //TODO: get documents via project id
 
   const renderLabelModal = (i:number) => {
@@ -101,17 +108,24 @@ const ProjectPage: React.FC = () => {
               )}
             </div>
           </IonModal>
-          <IonList>
+          {isLoading
+          ?<IonList>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+          </IonList>   
+          :<IonList>
             {documents.map((doc, i) =>
-              <IonItem key={i}>
-                <IonLabel>{doc.title}</IonLabel>
-                {isNullOrUndefined(doc.tag) || doc.tag === ""
-                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
-                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
-                }
-              </IonItem>
+            <IonItem key={i}>
+              <IonLabel>{doc.title}</IonLabel>
+              {isNullOrUndefined(doc.tag) || doc.tag === ""
+                ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
+                : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
+              }
+            </IonItem>
             )}
-          </IonList>
+            </IonList>
+          }
         </div>
         <form className="uploadFile">
             <IonItem>
