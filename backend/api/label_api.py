@@ -1,58 +1,165 @@
+from bson import ObjectId
 from flask import Blueprint, request, make_response
 
+from api.methods import JSONEncoder
+from firebase_auth import get_email
+from model.document import get_db_collection
 from model.project import Project
 from mongoDBInterface import get_col
 
 label_api = Blueprint('label_api', __name__)
 
 
-# endpoint to add/delete/get preset labels
-@label_api.route('/projects/<project_name>/labels/preset', methods=['POST', 'GET', 'DELETE'])
-def preset_labels(project_name):
-    labels_col = get_col(project_name, "labels")
-    labels_cursor = labels_col.find({})
-    labels = list(labels_cursor)
+@label_api.route('/projects/<project_name>/labels/add', methods=['Post'])
+def add_preset_labels(project_name):
+    id_token = request.args.get('id_token')
 
-    for l in labels:
-        l['_id'] = str(l['_id'])
-
-    if request.method == 'GET':
-        response = {"labels": labels}
-        response = make_response(response)
-        return response, 200
-
-    # identify if passed label is already in the preset list
-    if 'label' in request.json:
-        label = request.json['label']
-
-        if labels_col.find_one({"name": label}) is not None:
-            label_present = True
-        else:
-            label_present = False
-
-        if request.method == 'POST':
-            if label_present:
-                response = {'message': "Label already set"}
-                response = make_response(response)
-                return response, 400
-            else:
-                labels_col.insert_one({"name": label})
-                response = {'message': "Added label successfully"}
-                response = make_response(response)
-                return response, 200
-
-        if request.method == 'DELETE':
-            if label_present:
-                labels_col.delete_one({"name": label})
-                response = {'message': "Label deleted successfully"}
-                response = make_response(response)
-                return response, 200
-            else:
-                response = {'message': "Label was not set"}
-                response = make_response(response)
-                return response, 400
-
-    else:
-        response = {'message': 'No label value provided'}
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
         return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_db_collection(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    if 'label_name' in request.json:
+        label_name = request.json['label_name']
+    else:
+        response = {'message': "Missing label to add"}
+        response = make_response(response)
+        return response, 400
+
+    labels_col = get_col(project_name, "labels")
+    label_in_database = labels_col.find_one({"name": label_name})
+
+    if label_in_database is not None:
+        response = {'message': "That label already exists"}
+        response = make_response(response)
+        return response, 400
+
+    labels_col.insert_one({"name": label_name})
+    return "", 204
+
+
+@label_api.route('/projects/<project_name>/labels/all', methods=['Get'])
+def get_preset_labels(project_name):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_db_collection(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    labels_col = get_col(project_name, "labels")
+    labels = labels_col.find({})
+    labels_list = list(labels)
+    labels_dict = {
+        'labels': labels_list
+    }
+    labels_out = JSONEncoder().encode(labels_dict)
+    return labels_out, 200
+
+
+@label_api.route('/projects/<project_name>/labels/<label_id>/delete', methods=['Delete'])
+def delete_preset_labels(project_name, label_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_db_collection(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    labels_col = get_col(project_name, "labels")
+    labels_col.delete_one({"_id": ObjectId(label_id)})
+    # Go into each document, and delete all mentions of that label from each document
+    document_col = get_col(project_name, "documents")
+    document_col.update(
+        {
+            "user_and_labels": {
+                "$elemMatch": {
+                    "label": ObjectId(label_id)
+                }
+            }
+        },
+        {
+            "$pull": {
+                "user_and_labels": {
+                    'label': ObjectId(label_id)}
+            }
+        })
+
+    return "", 204
+
+
+@label_api.route('/projects/<project_name>/labels/<label_id>/update', methods=['Put'])
+def update_preset_labels(project_name, label_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_db_collection(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    if 'label_name' in request.json:
+        label_name = request.json['label_name']
+    else:
+        response = {'message': "Missing label to add"}
+        response = make_response(response)
+        return response, 400
+
+    labels_col = get_col(project_name, "labels")
+    labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})
+    return "", 204
