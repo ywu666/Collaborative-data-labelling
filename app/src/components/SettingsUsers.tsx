@@ -1,6 +1,5 @@
 import {
     IonButton,
-    IonAlert,
     IonItem,
     IonLabel,
     IonModal,
@@ -16,7 +15,12 @@ const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
     const [showUserModal, setShowUserModal] = useState(false);
     const [newTag, setNewTag] = useState<string>();
 
-    const allusers = ["one", "two", "four"];
+    const allusers = ["user1", "user2", "user3"]; //TODO: backend
+
+    function addUser(user: string) {
+        users.push(user); //TODO: backend
+        setShowUserModal(false)
+      }
 
   return (
     <div className="container">
@@ -35,11 +39,14 @@ const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
         </IonButton>
 
           <IonModal isOpen={showUserModal}>
+          <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
               {allusers.map((user, index) => {
-                  return (
-                      <IonItem button onClick={() => {}}>{user}</IonItem>
-                  );
+                  if (!users.includes(user)) {
+                      return (
+                          <IonItem button onClick={() => { addUser(user) }}>{user}</IonItem>
+                      );
+                  }
               })}
               </IonList>
               <IonButton onClick={() => setShowUserModal(false)}>Close</IonButton>
