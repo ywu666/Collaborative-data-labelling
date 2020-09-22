@@ -22,11 +22,17 @@ import {
   import { projectServices } from '../services/ProjectServices'
   import onLogout from '../helpers/logout'
   
-  const MainPage: React.FC = () => {
+  interface MainPageProps {
+    firebase: any
+  }
+  const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
+    const {
+      firebase
+    } = props;
     useEffect(() => {
       try {
-        projectServices.getProjectNames()
+        projectServices.getProjectNames(firebase)
         .then(data => {
           setProjectData(data)
         })

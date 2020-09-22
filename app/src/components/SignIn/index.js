@@ -10,6 +10,7 @@ import { css } from 'glamor';
 import Typography from '@material-ui/core/Typography';
 import { Redirect } from "react-router-dom";
 import { IonLabel } from '@ionic/react';
+import { refresh } from 'ionicons/icons';
 const useStyles = css({
     root: {
         minWidth: 275,
