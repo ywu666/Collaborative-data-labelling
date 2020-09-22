@@ -17,7 +17,6 @@ import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
 import * as request from 'request';
-import MainPage from './MainPage';
 import onLogout from '../helpers/logout'
 
 interface Document {
@@ -64,7 +63,7 @@ const ProjectPage: React.FC = () => {
   }
 
   const downloadCSV = (projectName:string) => {
-    request.get(process.env.REACT_APP_API_URL + '/project/' + projectName + '/export', (response: any) => {
+    request.get(process.env.REACT_APP_API_URL + '/projects/' + projectName + '/export', (response: any) => {
       console.log(response)
       //console.log(response.ok)
       if(response != null) {
