@@ -62,18 +62,10 @@ def upload_file():
 
 
 # Endpoint for exporting documents with labels for project
-@import_export_api.route('/project/export', methods=['GET'])
-def export_documents():
-    # Check request params
-    if 'project' in request.json:
-        project = request.json['project']
-    else:
-        response = {'message': "Missing projectID"}
-        response = make_response(response)
-        return response, 400
-
+@import_export_api.route('/projects/<project_name>/export', methods=['GET'])
+def export_documents(project_name):
     # get all documents
-    doc_col = get_db_collection(project, "documents")
+    doc_col = get_db_collection(project_name, "documents")
     documents = doc_col.find(projection={'comments': 0})
 
     docs_to_write = [["ID", "BODY", "LABEL"]]
@@ -95,7 +87,7 @@ def export_documents():
 
         # Get label name
         if final_label_id is not None:
-            label_col = get_db_collection(project, 'labels')
+            label_col = get_db_collection(project_name, 'labels')
             final_label = label_col.find_one({"_id": ObjectId(final_label_id)})
             final_label = final_label['name']
         else:
@@ -103,6 +95,7 @@ def export_documents():
 
         docs_to_write.append([id_as_string, d['data'], final_label])
 
+    # TODO: Generated CSV file is buggy and not formatted correctly. Needs to be fixed. 
     # Generator lets system create csv file without storing it locally
     def generate_csv():
         for doc in docs_to_write:
