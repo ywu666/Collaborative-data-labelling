@@ -3,9 +3,11 @@ import csv
 import os
 
 from bson import ObjectId
+from firebase_auth import get_email
 from flask import Blueprint, request, make_response, Response, send_file
 from model.document import Document, get_db_collection
 from model.project import Project
+from mongoDBInterface import get_col
 from werkzeug.utils import secure_filename
 
 uploads_dir = os.path.join('uploads')
@@ -14,51 +16,75 @@ os.makedirs(uploads_dir, exist_ok=True)
 import_export_api = Blueprint('import_export_api', __name__)
 
 
+# Endpoint for uploading and importing documents from file
 @import_export_api.route('/projects/upload', methods=['POST'])
 def upload_file():
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
     if request.method == 'POST':
 
         if 'projectName' in request.form:
             project_name = str(request.form['projectName'])
-
-            if 'inputFile' not in request.files:
-                response = {'message': 'No file selected'}
-                response = make_response(response)
-                return response, 400
-
-            file = request.files['inputFile']
-            if file.filename == '':
-                response = {'message': 'No file selected'}
-                response = make_response(response)
-                return response, 400
-            if file:
-                filename = secure_filename(file.filename)
-                filelocation = os.path.join(uploads_dir, filename)
-                file.save(filelocation)
-
-                with open(filelocation) as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=",")
-                    is_first_line = True
-
-                    for row in csv_reader:
-                        if is_first_line:
-                            is_first_line = False
-                        else:
-                            document = Document(row[1], [], [])
-                            # Find project database and populate document collection
-                            project = Project(project_name, [], [])
-                            project.add_document(document)
-
-                # Delete file when done
-                os.remove(filelocation)
-
-                response = {'message': 'Documents imported successfully'}
-                response = make_response(response)
-                return response, 200
         else:
             response = {'message': 'No project id provided'}
             response = make_response(response)
             return response, 400
+
+        users_col = get_col(project_name, "users")
+        requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+        if requestor is None:
+            response = {'message': "You are not authorised to perform this action"}
+            response = make_response(response)
+            return response, 403
+
+        if 'inputFile' not in request.files:
+            response = {'message': 'No file selected'}
+            response = make_response(response)
+            return response, 400
+
+        file = request.files['inputFile']
+
+        if file.filename == '':
+            response = {'message': 'No file selected'}
+            response = make_response(response)
+            return response, 400
+
+        if file:
+            filename = secure_filename(file.filename)
+            filelocation = os.path.join(uploads_dir, filename)
+            file.save(filelocation)
+
+            with open(filelocation) as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=",")
+                is_first_line = True
+
+                for row in csv_reader:
+                    if is_first_line:
+                        is_first_line = False
+                    else:
+                        document = Document(row[1], [], [])
+                        # Find project database and populate document collection
+                        project = Project(project_name, [], [])
+                        project.add_document(document)
+
+            # Delete file when done
+            os.remove(filelocation)
+
+            response = {'message': 'Documents imported successfully'}
+            response = make_response(response)
+            return response, 200
 
 
 # Endpoint for exporting documents with labels for project
@@ -76,6 +102,7 @@ def export_documents(project_name):
 
         # Find final label id
         user_and_labels = d['user_and_labels']
+        
         final_label_id = None
         if len(user_and_labels) > 1:
             final_label_id = user_and_labels[0]['label']
