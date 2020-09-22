@@ -17,6 +17,8 @@ import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
 import * as request from 'request';
+import MainPage from './MainPage';
+import onLogout from '../helpers/logout'
 
 interface Document {
   title: string;
@@ -90,7 +92,7 @@ const ProjectPage: React.FC = () => {
             <IonIcon icon={arrowBack}/>
             </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 

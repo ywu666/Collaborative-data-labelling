@@ -9,10 +9,13 @@ export const projectServices = {
 function getProjectNames() {
    const requestOptions = {
        method: 'GET',
-       headers: { 'Content-Type': 'application/json' },
+       headers: { 'Content-Type': 'application/json', 
+       "Access-Control-Allow-Origin": "*",
+       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
    };
    
-   return fetch(process.env.REACT_APP_API_URL + '/project/names', requestOptions) // TODO:config.apiUrl
+   return fetch(process.env.REACT_APP_API_URL + '/projects/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
            return data.projects

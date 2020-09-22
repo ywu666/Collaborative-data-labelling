@@ -16,6 +16,7 @@ import {
   import React from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
+  import onLogout from '../helpers/logout'
   
   import './SettingsPage.css';
   
@@ -34,7 +35,7 @@ import {
             <IonIcon icon={arrowBack}/>
             </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
