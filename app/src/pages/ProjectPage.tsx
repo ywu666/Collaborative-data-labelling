@@ -65,7 +65,7 @@ const ProjectPage: React.FC = () => {
     request.get(process.env.REACT_APP_API_URL + '/project/' + projectName + '/export', (response: any) => {
       console.log(response)
       //console.log(response.ok)
-      //if(response.ok) {
+      if(response != null) {
         const filename = 'labeller-' + projectName + '.csv'
         const blob = new Blob([response], {type: 'text/csv'});
         const link = document.createElement('a');
@@ -76,7 +76,9 @@ const ProjectPage: React.FC = () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      //}
+      } else {
+        console.log("project not found")
+      }
     })
   }
 
