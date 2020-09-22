@@ -85,7 +85,7 @@ def get_preset_labels(project_name):
     return labels_out, 200
 
 
-@label_api.route('/projects/<project_name>/labels/<label_id>', methods=['Post'])
+@label_api.route('/projects/<project_name>/labels/<label_id>/delete', methods=['Delete'])
 def delete_preset_labels(project_name, label_id):
     id_token = request.args.get('id_token')
 
@@ -110,9 +110,22 @@ def delete_preset_labels(project_name, label_id):
 
     labels_col = get_col(project_name, "labels")
     labels_col.delete_one({"_id": ObjectId(label_id)})
-    #Go into each document, and delete all mentions of that label from each document
+    # Go into each document, and delete all mentions of that label from each document
     document_col = get_col(project_name, "documents")
-
+    document_col.update(
+        {
+            "user_and_labels": {
+                "$elemMatch": {
+                    "label": ObjectId(label_id)
+                }
+            }
+        },
+        {
+            "$pull": {
+                "user_and_labels": {
+                    'label': ObjectId(label_id)}
+            }
+        })
 
     return "", 204
 
@@ -150,6 +163,3 @@ def update_preset_labels(project_name, label_id):
     labels_col = get_col(project_name, "labels")
     labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})
     return "", 204
-
-
-
