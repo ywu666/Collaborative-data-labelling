@@ -3,17 +3,18 @@ import {
     IonItem,
     IonLabel,
     IonModal,
-    IonList
+    IonList,
+    IonAlert
   } from '@ionic/react';
 import React, {useState} from 'react';
+import SettingsUser from '../components/SettingsUser';
 
 interface ContainerProps {
     users: string[];
 }
 
-const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
+const SettingsUsers: React.FC<ContainerProps> = ({ users }) => {
     const [showUserModal, setShowUserModal] = useState(false);
-    const [newTag, setNewTag] = useState<string>();
 
     const allusers = ["user1", "user2", "user3"]; //TODO: backend
 
@@ -27,10 +28,13 @@ const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
       <h2>Users</h2>
           {users.map((user, index) => {
             return (
-            <IonItem>
-                <IonLabel>{user}</IonLabel>
-                <IonButton slot="end">Permissions</IonButton>
-            </IonItem>
+                <SettingsUser user={user}></SettingsUser>
+            // <IonItem>
+            //     <IonLabel>{user}</IonLabel>
+            //     <IonButton slot="end" onClick={() => setShowPermissions(true)}>
+            //         Permissions
+            //     </IonButton>
+            // </IonItem>
             );
           })}
 
@@ -51,8 +55,16 @@ const SettingsTags: React.FC<ContainerProps> = ({ users }) => {
               </IonList>
               <IonButton onClick={() => setShowUserModal(false)}>Close</IonButton>
         </IonModal>
-    </div>
-  );
+
+        {/* <IonModal isOpen={showPermissions}>
+          <IonItem text-align="center"><h3>Edit user permissions</h3></IonItem>
+              
+          <IonButton onClick={() => setShowPermissions(false)}>Confirm</IonButton>
+              <IonButton onClick={() => setShowPermissions(false)}>Close</IonButton>
+        </IonModal> */}
+
+        </div>
+    );
 };
 
-export default SettingsTags;
+export default SettingsUsers;

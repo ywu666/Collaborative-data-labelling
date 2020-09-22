@@ -13,16 +13,31 @@ import {
     IonIcon,
   } from '@ionic/react';
   import { arrowBack } from 'ionicons/icons';
-  import React from 'react';
+  import React, { useState, useEffect } from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
   import onLogout from '../helpers/logout'
   import SettingsUsers from '../components/SettingsUsers';
+  import { projectServices } from '../services/ProjectServices'
   
   import './SettingsPage.css';
   
   const SettingsPage: React.FC = () => {
     const { project } = useParams<{ project: string }>();
+
+    // const [tags, setTags] = useState([""]);
+
+    // const [users, setUsers] = useState([""]);
+    // useEffect(() => {
+    //   try {
+    //     projectServices.getProjectUsers(project)
+    //     .then(data => {
+    //       setTags(data)
+    //     })
+    //   } catch (e) {
+        
+    //   }
+    // }, [])
   
     // test tags data only! pass this in from database
     const tags: string[] = ["One", "Two", "Three"];
