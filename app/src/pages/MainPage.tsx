@@ -20,6 +20,7 @@ import {
   import 'firebase/auth';
   import firebase from "firebase";
   import { projectServices } from '../services/ProjectServices'
+  import onLogout from '../helpers/logout'
   
   const MainPage: React.FC = () => {
     const [projectData, setProjectData] = useState([""]);
@@ -33,18 +34,6 @@ import {
         
       }
     }, [])
-    
-    function onLogout() {
-      firebase.auth().signOut().then(function() {
-        localStorage.clear();
-        console.log(
-          'Sign-out successful.' + localStorage.getItem('user-token')
-        );
-      })
-      .catch(function (error) {
-        // An error happened.
-      });
-    }
 
     return (
       <IonPage>

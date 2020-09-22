@@ -11,11 +11,14 @@ import {
   IonIcon,
   IonModal,
 } from '@ionic/react';
-import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
+import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
+import * as request from 'request';
+import MainPage from './MainPage';
+import onLogout from '../helpers/logout'
 
 interface Document {
   title: string;
@@ -60,6 +63,21 @@ const ProjectPage: React.FC = () => {
     setShowModal(false)
   }
 
+  const downloadCSV = (projectName:string) => {
+    request.get('https://localhost:5000/project/export?project=' + projectName, (response: any) => {
+      const filename = 'labeller-' + projectName + '.csv'
+      const blob = new Blob([response], {type: 'text/csv;charset=utf-8;'});
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    })
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -68,7 +86,7 @@ const ProjectPage: React.FC = () => {
             <IonIcon icon={arrowBack}/>
             </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
@@ -101,6 +119,11 @@ const ProjectPage: React.FC = () => {
             </IonItem>
             <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
+            </IonButton>
+        </form>
+        <form className="downloadFile">
+            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV("projectName"/*need to pass the real project name/id here*/)}><IonIcon icon={arrowDownOutline}/>
+                download
             </IonButton>
         </form>
       </IonContent>

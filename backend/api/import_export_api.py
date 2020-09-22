@@ -88,29 +88,8 @@ def upload_file():
 
 
 # Endpoint for exporting documents with labels for project
-@import_export_api.route('/project/<project_name>/export', methods=['GET'])
+@import_export_api.route('/projects/<project_name>/export', methods=['GET'])
 def export_documents(project_name):
-    id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email})
-    if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
-
     # get all documents
     doc_col = get_db_collection(project_name, "documents")
     documents = doc_col.find(projection={'comments': 0})
@@ -123,6 +102,7 @@ def export_documents(project_name):
 
         # Find final label id
         user_and_labels = d['user_and_labels']
+        
         final_label_id = None
         if len(user_and_labels) > 1:
             final_label_id = user_and_labels[0]['label']
@@ -142,6 +122,7 @@ def export_documents(project_name):
 
         docs_to_write.append([id_as_string, d['data'], final_label])
 
+    # TODO: Generated CSV file is buggy and not formatted correctly. Needs to be fixed.
     # Generator lets system create csv file without storing it locally
     def generate_csv():
         for doc in docs_to_write:
