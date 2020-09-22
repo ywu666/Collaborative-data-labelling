@@ -6,18 +6,19 @@ from firebase_auth import get_email
 project_api = Blueprint('project_api', __name__)
 
 
-@project_api.route("/projects", methods=['POST'])
+@project_api.route("/projects/create", methods=['POST'])
 def create_project():
-    if 'id_token' in request.json:
-        id_token = request.json['id_token']
+    id_token = request.args.get('id_token')
 
-        requestor_email = get_email(id_token)
-        if requestor_email is None:
-            response = {'message': "ID Token has expired or is invalid"}
-            response = make_response(response)
-            return response, 400
-    else:
-        response = {'message': "Missing id_token"}
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -44,18 +45,19 @@ def create_project():
     return response, 204
 
 
-@project_api.route("/projects", methods=['GET'])
+@project_api.route("/projects/all", methods=['GET'])
 def get_projects():
-    if 'id_token' in request.json:
-        id_token = request.json['id_token']
+    id_token = request.args.get('id_token')
 
-        requestor_email = get_email(id_token)
-        if requestor_email is None:
-            response = {'message': "ID Token has expired or is invalid"}
-            response = make_response(response)
-            return response, 400
-    else:
-        response = {'message': "Missing id_token"}
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -77,33 +79,28 @@ def get_projects():
     return response, 200
 
 
-@project_api.route("/project/delete", methods=['DELETE'])
-def delete_project():
-    if 'id_token' in request.json:
-        id_token = request.json['id_token']
+@project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
+def delete_project(project_name):
+    id_token = request.args.get('id_token')
 
-        requestor_email = get_email(id_token)
-        if requestor_email is None:
-            response = {'message': "ID Token has expired or is invalid"}
-            response = make_response(response)
-            return response, 400
-    else:
-        response = {'message': "Missing id_token"}
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
         return response, 400
 
-    if 'project' in request.json:
-        project = request.json['project']
-        if project == "local" or project == "users" or project == "admin":
-            response = {'message': "Cannot delete that project because it is not a user created project"}
-            response = make_response(response)
-            return response, 400
-    else:
-        response = {'message': "Missing projectID"}
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
-    user_col = get_col(project, "users")
+    if project_name == "local" or project_name == "users" or project_name == "admin":
+        response = {'message': "Cannot delete that project because it is not a user created project"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
         response = {'message': "Not authorised for that operation"}
@@ -112,18 +109,13 @@ def delete_project():
 
     my_client = get_db_client()
     names = my_client.list_database_names()
-    if project in names:
-        my_client.drop_database(project)
+    if project_name in names:
+        my_client.drop_database(project_name)
     else:
-        response = {'message': "Project does no exist"}
+        response = {'message': "Project does not exist"}
         response = make_response(response)
         return response, 400
 
     response = {'message': "Deleted project"}
     response = make_response(response)
     return response, 204
-
-
-if __name__ == '__main__':
-    my_client = get_db_client()
-    print(my_client.list_database_names())

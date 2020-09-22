@@ -2,6 +2,7 @@ from bson import ObjectId
 from flask import Blueprint, request, make_response
 
 from api.methods import JSONEncoder
+from firebase_auth import get_email
 from model.document import Document, get_db_collection
 from model.label import Label
 from mongoDBInterface import get_col
@@ -12,6 +13,27 @@ document_api = Blueprint('document_api', __name__)
 @document_api.route('/projects/<project_name>/documents', methods=['Post'])
 # Creating a new document!
 def create_document(project_name):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
     if 'content' in request.json:
         content = request.json['content']
     else:
@@ -27,6 +49,27 @@ def create_document(project_name):
 
 @document_api.route('/projects/<project_name>/documents', methods=['Get'])
 def get_document_ids(project_name):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
     col = get_db_collection(project_name, "documents")
     docs = col.find({}, {'_id': 1})
     docs = list(docs)
@@ -37,6 +80,27 @@ def get_document_ids(project_name):
 @document_api.route('/projects/<project_name>/documents/<document_id>', methods=['Get'])
 # Getting a document!
 def get_document(project_name, document_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
     col = get_db_collection(project_name, "documents")
     doc = col.find_one({'_id': ObjectId(document_id)}, {'_id': 0})
     doc = JSONEncoder().encode(doc)
@@ -48,10 +112,17 @@ def get_document(project_name, document_id):
 # Endpoint to allow adding of labels to a document
 @document_api.route('/projects/<project_name>/documents/<document_id>/label', methods=['Post'])
 def set_label_for_user(project_name, document_id):
-    if 'email' in request.json:
-        email = request.json['email']
-    else:
-        response = {'message': "Missing email"}
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -64,11 +135,11 @@ def set_label_for_user(project_name, document_id):
 
     # get user obj
     user_col = get_db_collection(project_name, "users")
-    user = user_col.find_one({'email': email})
-    if user is None:
-        response = {'message': "Invalid User Email"}
+    requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
         response = make_response(response)
-        return response, 400
+        return response, 403
 
     # get label obj
     label_col = get_db_collection(project_name, "labels")
@@ -81,8 +152,8 @@ def set_label_for_user(project_name, document_id):
     col = get_db_collection(project, "documents")
 
     # if the label already exists for the user
-    if col.find_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": email}}}) is not None:
-        col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": email}}},
+    if col.find_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}}) is not None:
+        col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
                        {'$set': {
                            "user_and_labels.$.label": ObjectId(label_id)}
                        })
@@ -91,7 +162,7 @@ def set_label_for_user(project_name, document_id):
         col.update_one({'_id': ObjectId(document_id)},
                        {'$push': {
                            "user_and_labels": {
-                               "email": email,
+                               "email": requestor,
                                "label": ObjectId(label_id)}
                            }
                        })
