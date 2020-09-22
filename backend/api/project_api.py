@@ -1,5 +1,5 @@
 from flask import Blueprint, request, make_response
-
+import re
 from api.methods import add_project_to_user, remove_project_from_user
 from mongoDBInterface import create_db_for_proj, get_col, get_db_client
 from firebase_auth import get_email
@@ -31,6 +31,10 @@ def create_project():
         return response, 400
 
     my_client = get_db_client()
+    if re.match(r'^\w+$', project):
+        response = {'message': "Project name can only be Alphanumerics and underscores"}
+        response = make_response(response)
+        return response, 400
 
     if project not in my_client.list_database_names():
         create_db_for_proj(project)
