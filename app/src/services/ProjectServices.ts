@@ -12,7 +12,7 @@ function getProjectNames() {
        headers: { 'Content-Type': 'application/json' },
    };
    
-   return fetch(process.env.REACT_APP_API_URL + '/project/names', requestOptions) // TODO:config.apiUrl
+   return fetch(process.env.REACT_APP_API_URL + '/projects', requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
            return data.projects
