@@ -69,7 +69,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
           <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
               {allUsers.map((user, index) => {
-                  if (!users.includes(user)) {
+                  if (!users.some(check => check.email === user.email)) {
                       return (
                           <IonItem button onClick={() => { addUser(user) }}>{user.email}</IonItem>
                       );
