@@ -77,10 +77,12 @@ def get_preset_labels(project_name):
 
     labels_col = get_col(project_name, "labels")
     labels = labels_col.find({})
-    labels = JSONEncoder().encode(labels)
-    response = {"labels": labels}
-    response = make_response(response)
-    return response, 200
+    labels_list = list(labels)
+    labels_dict = {
+        'labels': labels_list
+    }
+    labels_out = JSONEncoder().encode(labels_dict)
+    return labels_out, 200
 
 
 @label_api.route('/projects/<project_name>/labels/<label_id>', methods=['Post'])
@@ -108,6 +110,10 @@ def delete_preset_labels(project_name, label_id):
 
     labels_col = get_col(project_name, "labels")
     labels_col.delete_one({"_id": ObjectId(label_id)})
+    #Go into each document, and delete all mentions of that label from each document
+    document_col = get_col(project_name, "documents")
+
+
     return "", 204
 
 
