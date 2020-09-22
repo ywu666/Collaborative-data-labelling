@@ -5,6 +5,7 @@ import { css } from 'glamor';
 import { Redirect } from "react-router-dom";
 import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
+import { IonSpinner } from '@ionic/react';
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -32,7 +33,8 @@ const INITIAL_STATE = {
     passwordOne: '',
     passwordTwo: '',
     error: null,
-    redirect: null
+    redirect: null,
+    loading: false
 };
 
 class SignUpFormBase extends Component {
@@ -42,16 +44,19 @@ class SignUpFormBase extends Component {
     }
 
     onSubmit = event => {
-        const { username, email, passwordOne } = this.state;
+        this.setState({ loading: true});
+        const { username, email, passwordOne, loading } = this.state;
 
         this.props.firebase
             .doCreateUserWithEmailAndPassword(email, passwordOne)
             .then(authUser => {
                 this.setState({ ...INITIAL_STATE });
                 this.setState({ redirect: "/auth" });
+                this.setState({ loading: false});
             })
             .catch(error => {
                 this.setState({ error });
+                this.setState({ loading: false});
             });
 
         event.preventDefault();
@@ -68,6 +73,7 @@ class SignUpFormBase extends Component {
             passwordOne,
             passwordTwo,
             error,
+            loading,
         } = this.state;
 
         const isInvalid =
@@ -128,6 +134,7 @@ class SignUpFormBase extends Component {
                 <CardActions>
                 <Button color="primary" disabled={isInvalid} type="submit">
                     Sign Up
+                    {loading && <IonSpinner name="crescent" />} 
                 </Button>
                 </CardActions>
                 
