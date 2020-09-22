@@ -12,30 +12,11 @@ import {
   IonModal,
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
-
-interface Document {
-  title: string;
-  tag: string;
-}
-
-const sampleDoc: Document[] = [
-  {
-    title: "first doc",
-    tag: "",
-  },
-  {
-    title: "second doc",
-    tag: "tag1",
-  },
-  {
-    title: "long title doc: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    tag: "tag1",
-  },
-]
+import { documentServices } from '../services/DocumentService'
 
 const labels: string[] = [
   "tag1",
@@ -46,17 +27,41 @@ const labels: string[] = [
 const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [showModal, setShowModal] = useState(false);
-  const [labelIndex, setLabelIndex] = useState(-1);
-  const [documents] = useState(sampleDoc); //TODO: get documents via project id
+  const [labelIndex, setLabelIndex] = useState("");
+  const [documents, setDocuments] = useState<any[]>([]); //TODO: get documents via project id
+  const [document_ids, setDocumentsIds] = useState([""]);
 
-  const renderLabelModal = (i:number) => {
+  useEffect(() => {
+    try {
+      documentServices.getDocumentIds(name)
+      .then(data => {
+        setDocumentsIds(data)
+      })
+    } catch (e) {
+      
+    }
+  }, [])
+
+//  useEffect(() => {    
+//    let result = [""];
+//    for (let child of data) {
+//      documentServices.getDocument(name, child._id)
+//      .then(data => {
+//        data._id = child._id
+//        result.push(data)
+//      }) 
+//    }
+//    setDocuments(result)
+//  }, [])
+
+  const renderLabelModal = (id:string) => {
     setShowModal(true)
-    setLabelIndex(i)
+    setLabelIndex(id)
   }
 
-  const changeTag = (i:number, label:string) => {
+  const changeTag = (i:any, label:string) => {
     //TODO: connect with backend to update tags /
-    documents[i].tag = label
+    //documents[i].tag = label
     setShowModal(false)
   }
 
@@ -84,12 +89,12 @@ const ProjectPage: React.FC = () => {
             </div>
           </IonModal>
           <IonList>
-            {documents.map((doc, i) =>
-              <IonItem key={i}>
-                <IonLabel>{doc.title}</IonLabel>
-                {isNullOrUndefined(doc.tag) || doc.tag === ""
-                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
-                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
+            {documents.map(doc =>
+              <IonItem key={doc._id}>
+                <IonLabel>{doc.data}</IonLabel>
+                {isNullOrUndefined(doc.user_and_labels)
+                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{doc.user_and_labels[0]}</IonButton>
                 }
               </IonItem>
             )}
