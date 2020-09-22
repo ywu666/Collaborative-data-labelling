@@ -26,7 +26,7 @@ import {
   
     // test tags data only! pass this in from database
     const tags: string[] = ["One", "Two", "Three"];
-    const users: string[] = ["One", "Two", "Three"];
+    const users: string[] = ["UserOne", "UserTwo", "UserThree"];
   
   //add the proper header component that will be common to all pages
     return (
