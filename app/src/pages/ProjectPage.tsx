@@ -62,17 +62,21 @@ const ProjectPage: React.FC = () => {
   }
 
   const downloadCSV = (projectName:string) => {
-    request.get('https://localhost:5000/project/export?project=' + projectName, (response: any) => {
-      const filename = 'labeller-' + projectName + '.csv'
-      const blob = new Blob([response], {type: 'text/csv;charset=utf-8;'});
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    request.get(process.env.REACT_APP_API_URL + '/project/' + projectName + '/export', (response: any) => {
+      console.log(response)
+      //console.log(response.ok)
+      //if(response.ok) {
+        const filename = 'labeller-' + projectName + '.csv'
+        const blob = new Blob([response], {type: 'text/csv'});
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      //}
     })
   }
 
@@ -120,7 +124,7 @@ const ProjectPage: React.FC = () => {
             </IonButton>
         </form>
         <form className="downloadFile">
-            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV("projectName"/*need to pass the real project name/id here*/)}><IonIcon icon={arrowDownOutline}/>
+            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
         </form>
