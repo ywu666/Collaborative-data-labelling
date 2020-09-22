@@ -71,7 +71,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
               {allUsers.map((user, index) => {
                   if (!users.some(check => check.email === user.email)) {
                       return (
-                          <IonItem button onClick={() => { addUser(user) }}>{user.email}</IonItem>
+                          <IonItem button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
                       );
                   }
               })}
