@@ -263,9 +263,9 @@ def remove_user_from_project(project_name):
         response = make_response(response)
         return response, 400
 
-    users_col = get_col(project_name, requestor_email)
+    users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
-
+    print(requestor_email)
     if requestor_email == email or requestor['isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
         users_col.delete_one({'email': email})
         remove_project_from_user(email, project_name)
