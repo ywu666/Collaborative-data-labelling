@@ -4,6 +4,8 @@
  */
 export const projectServices = {
     getProjectNames,
+    getProjectUsers,
+    setProjectUsers
 }
 
 function getProjectNames() {
@@ -21,6 +23,38 @@ function getProjectNames() {
            return data.projects
        })
 }
+
+function getProjectUsers(project: string) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + 
+        '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+ }
+
+ function setProjectUsers(project: string, user: string) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({ user })
+        };
+    
+    return fetch(process.env.REACT_APP_API_URL + 
+        '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+ }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
    return response.text().then((text: string) => {

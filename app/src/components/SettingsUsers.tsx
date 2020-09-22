@@ -6,20 +6,49 @@ import {
     IonList,
     IonAlert
   } from '@ionic/react';
-import React, {useState} from 'react';
+  import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
+import { projectServices } from '../services/ProjectServices'
+import { userService } from '../services/UserServices'
 
 interface ContainerProps {
-    users: string[];
+    project: string;
 }
 
-const SettingsUsers: React.FC<ContainerProps> = ({ users }) => {
+const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
     const [showUserModal, setShowUserModal] = useState(false);
 
-    const allusers = ["user1", "user2", "user3"]; //TODO: backend
+    const initialUsers = [
+        { id: 0, email: 'No users'}
+    ]
 
-    function addUser(user: string) {
-        users.push(user); //TODO: backend
+    const [users, setUsers] = useState(initialUsers);
+    useEffect(() => {
+      try {
+        projectServices.getProjectUsers(project)
+        // userService.getAllUsers() // testing only
+        .then(data => {
+          setUsers(data)
+        })
+      } catch (e) {
+        
+      }
+    }, [])
+
+    const [allUsers, setAllUsers] = useState(initialUsers);
+    useEffect(() => {
+      try {
+        userService.getAllUsers()
+        .then(data => {
+            setAllUsers(data)
+        })
+      } catch (e) {
+        
+      }
+    }, [])
+
+    function addUser(user: any) {
+        projectServices.setProjectUsers(project, user);
         setShowUserModal(false)
       }
 
@@ -28,13 +57,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ users }) => {
       <h2>Users</h2>
           {users.map((user, index) => {
             return (
-                <SettingsUser user={user}></SettingsUser>
-            // <IonItem>
-            //     <IonLabel>{user}</IonLabel>
-            //     <IonButton slot="end" onClick={() => setShowPermissions(true)}>
-            //         Permissions
-            //     </IonButton>
-            // </IonItem>
+                <SettingsUser user={user.email}></SettingsUser>
             );
           })}
 
@@ -45,24 +68,16 @@ const SettingsUsers: React.FC<ContainerProps> = ({ users }) => {
           <IonModal isOpen={showUserModal}>
           <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
-              {allusers.map((user, index) => {
+              {allUsers.map((user, index) => {
                   if (!users.includes(user)) {
                       return (
-                          <IonItem button onClick={() => { addUser(user) }}>{user}</IonItem>
+                          <IonItem button onClick={() => { addUser(user) }}>{user.email}</IonItem>
                       );
                   }
               })}
               </IonList>
               <IonButton onClick={() => setShowUserModal(false)}>Close</IonButton>
         </IonModal>
-
-        {/* <IonModal isOpen={showPermissions}>
-          <IonItem text-align="center"><h3>Edit user permissions</h3></IonItem>
-              
-          <IonButton onClick={() => setShowPermissions(false)}>Confirm</IonButton>
-              <IonButton onClick={() => setShowPermissions(false)}>Close</IonButton>
-        </IonModal> */}
-
         </div>
     );
 };

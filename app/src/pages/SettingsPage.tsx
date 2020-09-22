@@ -25,25 +25,12 @@ import {
   const SettingsPage: React.FC = () => {
     const { project } = useParams<{ project: string }>();
 
-    // const [tags, setTags] = useState([""]);
-
-    // const [users, setUsers] = useState([""]);
-    // useEffect(() => {
-    //   try {
-    //     projectServices.getProjectUsers(project)
-    //     .then(data => {
-    //       setTags(data)
-    //     })
-    //   } catch (e) {
-        
-    //   }
-    // }, [])
+    const [tags, setTags] = useState([""]);
   
     // test tags data only! pass this in from database
-    const tags: string[] = ["One", "Two", "Three"];
-    const users: string[] = ["UserOne", "UserTwo", "UserThree"];
+    // const tags: string[] = ["One", "Two", "Three"];
+    // const users: string[] = ["UserOne", "UserTwo", "UserThree"];
   
-  //add the proper header component that will be common to all pages
     return (
       <IonPage>
         <IonHeader>
@@ -67,7 +54,7 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
-                <SettingsUsers users={users} />
+                <SettingsUsers project={project} />
               </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center">
