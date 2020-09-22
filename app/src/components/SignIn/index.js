@@ -77,6 +77,7 @@ class SignInFormBase extends Component {
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
                     localStorage.setItem("user-token", idToken);
+                    console.log(idToken)
                 })
             })
             .catch(error => {

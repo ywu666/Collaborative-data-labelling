@@ -11,15 +11,14 @@ function getProjectNames(firebase: any) {
        method: 'GET',
        headers: { 'Content-Type': 'application/json' },
    };
-   
-   return fetch(process.env.REACT_APP_API_URL + '/projects', requestOptions) // TODO:config.apiUrl
+   var token = localStorage.getItem('user-token');
+   if(token != firebase.getIdToken()){
+       console.log(firebase.getIdToken() + " not equal");
+       localStorage.setItem('user-token',firebase.getIdToken())
+   }
+   return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
-           var token = localStorage.getItem('user-token');
-           if(token != firebase.getIdToken()){
-               console.log(firebase.getIdToken() + " not equal");
-               localStorage.setItem('user-token',firebase.getIdToken())
-           }
            return data.projects
        })
 }
