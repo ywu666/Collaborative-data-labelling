@@ -15,7 +15,7 @@ async function getProjectNames(firebase: any) {
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
    };
-   await handleAuthorization(firebase);
+  // await handleAuthorization(firebase);
    const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -44,7 +44,16 @@ async function getProjectUsers(project: string, firebase: any) {
         "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
     };
 
-    await handleAuthorization(firebase);
+    const token = localStorage.getItem('user-token');
+   if(firebase.auth.currentUser != null){
+    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+        if(token !== idToken){
+            localStorage.setItem('user-token',idToken)
+        }
+       })
+   }else{
+    window.location.href = '/auth';
+   }
     
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
@@ -61,7 +70,16 @@ async function getProjectUsers(project: string, firebase: any) {
         body: JSON.stringify({ user })
         };
     
-        await handleAuthorization(firebase);
+        const token = localStorage.getItem('user-token');
+        if(firebase.auth.currentUser != null){
+         firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+             if(token !== idToken){
+                 localStorage.setItem('user-token',idToken)
+             }
+            })
+        }else{
+         window.location.href = '/auth';
+        }
 
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)

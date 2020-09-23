@@ -23,8 +23,11 @@ import {
   interface SettingsPageProps {
     firebase: any
   }
-  const SettingsPage: React.FC<SettingsPageProps> = (firebase) => {
+  const SettingsPage: React.FC<SettingsPageProps> = (props: SettingsPageProps) => {
     const { project } = useParams<{ project: string }>();
+    const {
+      firebase
+    } = props;
 
     const [tags, setTags] = useState([""]);
   
