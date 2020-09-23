@@ -15,16 +15,8 @@ function getProjectNames(firebase: any) {
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
    };
-   const token = localStorage.getItem('user-token');
-   if(firebase.auth.currentUser != null){
-    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-        if(token !== idToken){
-            localStorage.setItem('user-token',idToken)
-        }
-       })
-   }else{
-    window.location.href = '/auth';
-   }
+
+   handleAuthorization(firebase)
 
    return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
 
@@ -34,7 +26,7 @@ function getProjectNames(firebase: any) {
        })
 }
 
-function getProjectUsers(project: string) {
+function getProjectUsers(project: string, firebase: any) {
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json',
@@ -42,6 +34,8 @@ function getProjectUsers(project: string) {
         "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
     };
+
+    handleAuthorization(firebase);
     
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
@@ -51,13 +45,15 @@ function getProjectUsers(project: string) {
         })
  }
 
- function setProjectUsers(project: string, user: string) {
+ function setProjectUsers(project: string, user: string, firebase:any) {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({ user })
         };
     
+        handleAuthorization(firebase);
+        
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
@@ -76,4 +72,17 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
 
        return data;
    });
+}
+
+export function handleAuthorization(firebaseAuth: any) {
+    const token = localStorage.getItem('user-token');
+    if(firebaseAuth.auth.currentUser != null){
+        firebaseAuth.auth.currentUser.getIdToken().then((idToken: string) =>{
+         if(token !== idToken){
+             localStorage.setItem('user-token',idToken)
+         }
+        })
+    }else{
+     window.location.href = '/auth';
+    }
 }
