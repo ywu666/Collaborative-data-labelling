@@ -8,8 +8,8 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
-    createProject,
-    setProjectTags
+    setProjectTags,
+    createProject
 }
 
 async function createProject(projectName: any, firebase: any){
