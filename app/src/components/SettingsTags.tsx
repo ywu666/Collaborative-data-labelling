@@ -14,7 +14,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
     const [showNewTag, setShowNewTag] = useState(false);
 
     const initialUsers = [
-      { id: 0, label_name: 'No tags'}
+      { id: 0, label_name: ''}
   ]
 
   const [tags, setTags] = useState(initialUsers);
@@ -36,13 +36,15 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
   return (
     <div className="container">
       <h2>Tags</h2>
-          {tags.map((tag) => {
-            return (
-            <IonButton key="name" size="small">{tag.label_name}</IonButton>
-            );
-          })}
+      {tags.map((tag) => {
+        if (tag.label_name.length != 0) {
+          return (
+            <IonButton key="name" fill="outline" size="small">{tag.label_name}</IonButton>
+          );
+        }
+      })}
 
-        <IonButton size="small" color="light" fill="solid" onClick={() => setShowNewTag(true)}>
+        <IonButton size="small" fill="clear" onClick={() => setShowNewTag(true)}>
             + Add new tag
         </IonButton>
 
