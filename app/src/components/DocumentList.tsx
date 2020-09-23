@@ -67,9 +67,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
     setLabelIndex(id)
   }
 
-  const changeTag = (i:any, label:string) => {
+  const changeTag = (i:any, label:any) => {
     //TODO: connect with backend to update tags /
-    //documents[i].tag = label
+    //documents[i].tag = label.name
     setShowModal(false)
   }
 
@@ -103,7 +103,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
 					{labels.map((label, i) =>
-						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label}</IonButton>
+						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label.name}</IonButton>
 					)}
 				</div>
 			</IonModal>
