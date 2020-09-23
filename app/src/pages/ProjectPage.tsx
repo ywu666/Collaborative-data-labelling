@@ -10,6 +10,7 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
+  IonToast
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -50,6 +51,7 @@ const ProjectPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
   const [documents] = useState(sampleDoc); //TODO: get documents via project id
+  const [downloadError, setDownloadError] = useState<string>();
 
   const renderLabelModal = (i:number) => {
     setShowModal(true)
@@ -62,25 +64,27 @@ const ProjectPage: React.FC = () => {
     setShowModal(false)
   }
 
-  const downloadCSV = (projectName:string) => {
-    request.get(process.env.REACT_APP_API_URL + '/projects/' + projectName + '/export', (response: any) => {
-      console.log(response)
-      //console.log(response.ok)
-      if(response != null) {
-        const filename = 'labeller-' + projectName + '.csv'
-        const blob = new Blob([response], {type: 'text/csv'});
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        console.log("project not found")
-      }
-    })
+  const downloadCSV = async (projectName:string) => {
+    try {
+      request.get(process.env.REACT_APP_API_URL + '/projects/' + projectName + '/export?id_token=' + localStorage.getItem('user-token'), (response: any) => {
+          if(response != null) {
+            const filename = 'labeller-' + projectName + '.csv'
+            const blob = new Blob([response], {type: 'text/csv'});
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } else {
+            console.log("project is empty");
+          }    
+      })
+    } catch(e) {
+      setDownloadError(e.message);
+    }
   }
 
   return (
@@ -127,6 +131,7 @@ const ProjectPage: React.FC = () => {
             </IonButton>
         </form>
         <form className="downloadFile">
+            <IonToast  isOpen={!!downloadError} message={downloadError} duration={2000} />
             <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
