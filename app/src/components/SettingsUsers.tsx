@@ -1,12 +1,10 @@
 import {
     IonButton,
     IonItem,
-    IonLabel,
     IonModal,
     IonList,
-    IonAlert
   } from '@ionic/react';
-  import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
 import { projectServices } from '../services/ProjectServices'
 import { userService } from '../services/UserServices'
@@ -26,6 +24,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
+        console.log("firebase " + firebase.auth.currentUser)
         projectServices.getProjectUsers(project, firebase)
         // userService.getAllUsers() // testing only
         .then(data => {
@@ -48,7 +47,8 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
       }
     }, [])
 
-    function addUser(user: any) {
+    function addUser(user: string) {
+      console.log("add user " + firebase.auth)
         projectServices.setProjectUsers(project, user, firebase);
         setShowUserModal(false)
       }
@@ -56,9 +56,9 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   return (
     <div className="container">
       <h2>Users</h2>
-          {users.map((user) => {
+          {users.map((user, i: number) => {
             return (
-                <SettingsUser key={user.email} user={user.email}></SettingsUser>
+                <SettingsUser key={i} user={user.email}></SettingsUser>
             );
           })}
 
@@ -69,10 +69,10 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
           <IonModal isOpen={showUserModal}>
           <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
-              {allUsers.map((user) => {
+              {allUsers.map((user, i: number) => {
                   if (!users.some(check => check.email === user.email)) {
                       return (
-                          <IonItem key={user.email} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
+                          <IonItem key={i} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
                       );
                   }
               })}
