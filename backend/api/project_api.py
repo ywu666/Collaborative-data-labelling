@@ -73,11 +73,9 @@ def get_projects():
         response = make_response(response)
         return response, 401
 
-    my_client = get_db_client()
-    names = my_client.list_database_names()
-    names.remove("admin")
-    names.remove("local")
-    names.remove("users")
+    users_col = get_col("users", "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    names = requestor['projects']
     response = {'projects': names}
     response = make_response(response)
     return response, 200
