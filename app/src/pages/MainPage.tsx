@@ -45,9 +45,7 @@ import {
 
     setTimeout(() => {
       setIsLoading(false);
-    },
-    1500
-    )
+    }, 1500)
     
     return (
       <IonPage>
