@@ -51,7 +51,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
       documentServices.getDocument(name, child._id)
       .then(data => {
 				data.id = child._id
-				console.log(data)
 				setDocuments(doc => [...doc, data])
       })
     }
