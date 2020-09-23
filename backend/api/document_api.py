@@ -51,6 +51,14 @@ def create_document(project_name):
 def get_document_ids(project_name):
     id_token = request.args.get('id_token')
 
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
@@ -71,7 +79,7 @@ def get_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({}, {'_id': 1})
+    docs = col.find({}, {'_id': 1}).skip(page * page_size).limit(page_size)
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
@@ -107,6 +115,35 @@ def get_document(project_name, document_id):
     doc = {'document': doc}
     doc = JSONEncoder().encode(doc)
     return doc, 200
+
+
+@document_api.route('/projects/<project_name>/documents/<document_id>/delete', methods=['Get'])
+# Getting a document!
+def delete_document(project_name, document_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isAdmin': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    col = get_db_collection(project_name, "documents")
+    col.delete_one({'_id': ObjectId(document_id)})
+    return "", 204
 
 
 # Endpoint to allow adding of labels to a document
@@ -171,11 +208,7 @@ def set_label_for_user(project_name, document_id):
 
 
 if __name__ == '__main__':
-    project = "New_Project"
-    col = get_db_collection(project, "documents")
-    docs = col.find({}, {'_id': 1})
-    for d in docs:
-        print(d)
+    int('a')
 
 
 
