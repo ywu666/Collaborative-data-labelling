@@ -17,7 +17,7 @@ async function getProjectNames(firebase: any) {
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
    };
-  // await handleAuthorization(firebase);
+   //await handleAuthorization(firebase);
    const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -30,7 +30,6 @@ async function getProjectNames(firebase: any) {
    }
 
    return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
-
        .then(handleResponse)
        .then(data => {
            return data.projects
