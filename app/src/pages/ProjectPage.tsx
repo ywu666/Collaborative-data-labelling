@@ -8,13 +8,14 @@ import {
   IonItem,
   IonIcon,
 } from '@ionic/react';
-import { arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
+import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import * as request from 'request';
 import onLogout from '../helpers/logout'
 import DocumentList from '../components/DocumentList'
+import Header from '../components/Header'
 
 const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
@@ -38,15 +39,7 @@ const ProjectPage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar className="header">
-          <IonButton fill="clear" slot="start" routerLink="/" routerDirection="back">
-            <IonIcon icon={arrowBack}/>
-            </IonButton>
-          <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
-        </IonToolbar>
-      </IonHeader>
+      <Header routerLink={"/"} name={"User"}/>
 
       <IonContent>
         <div className="container">        
