@@ -4,7 +4,8 @@
 export const projectServices = {
     getProjectNames,
     getProjectUsers,
-    setProjectUsers
+    setProjectUsers,
+    uploadProjectDocuments,
 }
 
 async function getProjectNames(firebase: any) {
@@ -69,6 +70,30 @@ async function getProjectUsers(project: string, firebase: any) {
         .then(data => {
             return data.users
         })
+ }
+
+ async function uploadProjectDocuments(project: string, file : File, firebase:any) {
+    // const requestOptions = {
+    //     method: 'POST',
+    //     headers: {'Content-Type': 'multipart/form-data'}
+    // };
+
+     const formData = new FormData();
+
+    formData.append("inputFile", file);
+    formData.append("projectName", project);
+
+     const requestOptions = {
+        method: "POST",
+        body: formData
+     };
+
+        await handleAuthorization(firebase);
+
+        return fetch(process.env.REACT_APP_API_URL + '/projects/upload', requestOptions).then(handleResponse)
+
+
+
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
