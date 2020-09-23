@@ -12,12 +12,14 @@ import './Header.css';
 
 interface HeaderProps {
   routerLink?: string,
+  title?: string,
   name: string
 }
 
 const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   const {
     routerLink,
+    title,
 		name
   } = props;
 
@@ -30,6 +32,12 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
         </IonButton>
         : <img src="assets/icon/icon.png" slot="start"/>
         }
+        <IonTitle slot="start">
+          {title
+            ?title
+            :"Labeller"
+          }
+        </IonTitle>
         <IonTitle slot="end">{props.name}</IonTitle>
         <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
       </IonToolbar>
