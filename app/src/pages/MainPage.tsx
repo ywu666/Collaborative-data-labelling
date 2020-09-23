@@ -52,7 +52,7 @@ import {
     
     return (
       <IonPage>
-      <Header name={localStorage.getItem("email") || "User"}/>
+        <Header name={localStorage.getItem("email") || "User"}/>
 
       <IonContent>
         {/**
