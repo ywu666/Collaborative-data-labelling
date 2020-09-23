@@ -2,6 +2,7 @@
 import csv
 import os
 
+from api.methods import JSONEncoder
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response, Response, send_file
@@ -117,7 +118,6 @@ def export_documents(project_name):
     doc_col = get_db_collection(project_name, "documents")
     documents = doc_col.find(projection={'comments': 0})
 
-    # docs_to_write = [["ID", "BODY", "LABEL"]]
     docs_to_write = []
     # Generate data in correct format for export
     for d in documents:
@@ -143,26 +143,9 @@ def export_documents(project_name):
         else:
             final_label = ''
 
-        # docs_to_write.append([id_as_string, d['data'], final_label])
-
         # make dictionary
         docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
 
-    # write to csv
-    with open('export.csv', 'w', newline='') as csv_file:
-        fieldnames = ["ID", "BODY", "LABEL"]
-        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+    docs = JSONEncoder().encode(docs_to_write)
+    return docs, 200
 
-        writer.writeheader()
-        writer.writerows(docs_to_write)
-
-    return send_file('export.csv', as_attachment=True)
-
-    # TODO: Try to change to version where csv file does not need to be created locally
-    # # Generator lets system create csv file without storing it locally
-    # def generate_csv():
-    #     for doc in docs_to_write:
-    #         yield ','.join(doc) + '\r\n'
-    #
-    # return Response(generate_csv(), mimetype='text/csv',
-    #                 headers={"Content-Disposition": "attachment;filename=export.csv"})
