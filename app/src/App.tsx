@@ -27,15 +27,21 @@ import './theme/variables.css';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
 
-const App: React.FC = () => {
+interface AppProps {
+  firebase : any
+}
+const App: React.FC<AppProps> = (props: AppProps) => {
+  const {
+    firebase
+  } = props
   return (
     <IonApp>
       <IonReactRouter>
           <IonRouterOutlet id="main">
-            <Route path="/project/:name" component={ProjectPage} exact />
+            <Route path="/project/:name" component={()=><ProjectPage firebase={firebase}/>} exact />
             <Route path="/auth" component={LoginPage}  />
             <Route path="/signup" component={SignUpPage}  />
-            <Route path="/" component={MainPage} exact />
+            <Route path="/" component={()=><MainPage firebase={firebase} />} exact />
             {/** I don't understand the purpose of this route and it doesn't redirect to anything
              * currently, for now I'm putting the MainPage as root,
              * idea brought up by Chuyang

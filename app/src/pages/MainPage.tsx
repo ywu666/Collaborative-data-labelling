@@ -11,7 +11,8 @@ import {
     IonCard,
     IonCardContent,
     IonCardTitle,
-    IonInput
+    IonInput,
+    IonSkeletonText
   } from '@ionic/react';
   import { add, arrowBack} from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
@@ -22,19 +23,32 @@ import {
   import { projectServices } from '../services/ProjectServices'
   import onLogout from '../helpers/logout'
   
-  const MainPage: React.FC = () => {
+  interface MainPageProps {
+    firebase: any
+  }
+  const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
+    const {
+      firebase
+    } = props;
+    const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
       try {
-        projectServices.getProjectNames()
+        projectServices.getProjectNames(firebase)
         .then(data => {
           setProjectData(data)
         })
       } catch (e) {
-        
+        console.log(e)
       }
     }, [])
 
+    setTimeout(() => {
+      setIsLoading(false);
+    },
+    1500
+    )
+    
     return (
       <IonPage>
         <IonHeader>
@@ -45,7 +59,28 @@ import {
         </IonHeader>
 
       <IonContent>
-        <div className="container">
+        {/**
+         * skelenton is displayed if isLoading is true, otherwise projectData is displayed
+         */}
+        {isLoading
+        ?<div className="container">
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+        </div>
+        :<div className="container">
             {projectData.map((name, index) => (
                 <IonCard key={index} routerLink={"/project/" + name}>
                     <IonCardTitle>
@@ -59,6 +94,8 @@ import {
                 </IonCard>
             ))}
         </div>
+        }
+
 
         {/**will add an onclick function which will parse the new project name information to the system
          */}

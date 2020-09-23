@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {useState, Component } from 'react';
 import { compose } from 'recompose';
 import { withFirebase } from '../Firebase';
 import TextField from '@material-ui/core/TextField';
@@ -9,7 +9,8 @@ import CardActions from '@material-ui/core/CardActions';
 import { css } from 'glamor';
 import Typography from '@material-ui/core/Typography';
 import { Redirect } from "react-router-dom";
-import { IonLabel } from '@ionic/react';
+import { refresh } from 'ionicons/icons';
+import { IonSpinner, IonLabel } from '@ionic/react';
 const useStyles = css({
     root: {
         minWidth: 275,
@@ -53,8 +54,12 @@ const INITIAL_STATE = {
     password: '',
     loggedIn:false,
     error: null,
-    redirect: null
+    redirect: null,
+    loading: false
 };
+
+
+
 
 class SignInFormBase extends Component {
     constructor(props) {
@@ -64,25 +69,35 @@ class SignInFormBase extends Component {
     }
 
     onSubmit = event => {
+        this.setState({ loading: true});
         console.log("button click")
-        const { email, password, loggedin } = this.state;
+ 
+            
+        const { email, password, loggedin, loading } = this.state;
         this.props.firebase
             .doSignInWithEmailAndPassword(email, password)
             .then(user => {
                 this.setState({ ...INITIAL_STATE});
                 this.setState({loggedIn: true});
-                this.setState({ redirect: "/signup" });
+                this.setState({ redirect: "/" });
+                this.setState({ loading: false});
                 
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
                     localStorage.setItem("user-token", idToken);
+                    console.log(idToken)
                 })
+                this.setState({ loading: false});
             })
             .catch(error => {
                 this.setState({ error });
+                this.setState({ loading: false});
             });
-             
+        
         event.preventDefault();
+    
+     
+        
 
     };
 
@@ -93,7 +108,7 @@ class SignInFormBase extends Component {
     };
 
     render() {
-        const { email, password, error } = this.state;
+        const { email, password, error, loading } = this.state;
 
         const isInvalid = email === '' || password === '';
 
@@ -134,8 +149,10 @@ class SignInFormBase extends Component {
                         </div>
                         <CardActions>
                             <div {...inputBoxStyling}>
-                                <Button color="primary" disabled={isInvalid} onClick={this.onSubmit}>
+                                <Button color="primary"  onClick={this.onSubmit} disabled={loading}>
                                     Sign In
+                                    {loading && <IonSpinner name="crescent" />}
+                                    
                                 </Button>
                             </div>
                         </CardActions>

@@ -11,12 +11,16 @@ import {
   IonIcon,
   IonModal,
   IonInfiniteScroll,
-  IonInfiniteScrollContent
+  IonInfiniteScrollContent,
+  IonSkeletonText
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
+import app from 'firebase/app';
+import 'firebase/auth';
+import firebase from "firebase";
 import { isNullOrUndefined } from 'util';
 import * as request from 'request';
 import MainPage from './MainPage';
@@ -29,8 +33,15 @@ const labels: string[] = [
   "tag3",
 ]
 
-const ProjectPage: React.FC = () => {
+interface ProjectPageProps {
+  firebase: any
+}
+
+const ProjectPage: React.FC<ProjectPageProps> = (props:ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
+  const {
+    firebase
+  } = props;
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState("");
   const [documents, setDocuments] = useState<any[]>([]); //TODO: get documents via project id
@@ -39,7 +50,7 @@ const ProjectPage: React.FC = () => {
 
   useEffect(() => {
     try {
-      documentServices.getDocumentIds(name)
+      documentServices.getDocumentIds(firebase, name, 0, 20)
       .then(data => {
         setDocumentsIds(data)
       })
@@ -53,7 +64,7 @@ const ProjectPage: React.FC = () => {
     console.log(document_ids)
     for (let child of document_ids) {
       console.log(child)
-      documentServices.getDocument(name, child._id)
+      documentServices.getDocument(firebase, name, child._id)
       .then(data => {
         setDocuments(doc => [...doc, data])
       })
@@ -65,12 +76,9 @@ const ProjectPage: React.FC = () => {
     }
   }
 
-
-
   useEffect(() => {
     getNextDocuments(20)
   }, [document_ids])
-
 
   const loadDocuments = (event:any) => {
     setTimeout(() => {
@@ -84,6 +92,12 @@ const ProjectPage: React.FC = () => {
       // and disable the infinite scroll
     }, 500);
   }
+
+  const [isLoading, setIsLoading] = useState(true);
+  
+  setTimeout(() => {
+    setIsLoading(false);
+  }, 1000)
 
   const renderLabelModal = (id:string) => {
     setShowModal(true)
@@ -126,7 +140,7 @@ const ProjectPage: React.FC = () => {
       <IonContent>
         <div className="container">        
           <h1>{name}</h1>
-          <IonButton slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
+          <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
               {labels.map((label, i) =>
@@ -134,7 +148,17 @@ const ProjectPage: React.FC = () => {
               )}
             </div>
           </IonModal>
-          <IonList>
+
+          {/**
+          * skelenton is displayed if isLoading is true, otherwise document name is displayed
+          */}
+          {isLoading
+          ?<IonList>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+          </IonList>   
+          :<IonList>
             {documents.map((doc, index) =>
               <IonItem key={index}>
                 <IonLabel>{doc.data}</IonLabel>
@@ -145,6 +169,8 @@ const ProjectPage: React.FC = () => {
               </IonItem>
             )}
           </IonList>
+          }
+          
           <IonInfiniteScroll threshold="100px" onIonInfinite={(event) => loadDocuments(event)}>
             <IonInfiniteScrollContent
               loading-spinner="bubbles"
