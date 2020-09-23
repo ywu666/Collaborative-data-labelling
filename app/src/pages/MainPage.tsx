@@ -32,6 +32,8 @@ import {
       firebase
     } = props;
     const [isLoading, setIsLoading] = useState(true);
+
+    
     useEffect(() => {
       try {
         projectServices.getProjectNames(firebase)
@@ -51,7 +53,7 @@ import {
       <IonPage>
         <IonHeader>
           <IonToolbar className="header">
-            <IonTitle slot="end">User1</IonTitle>
+            <IonTitle slot="end">{localStorage.getItem("email")}</IonTitle>
             <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
           </IonToolbar>
         </IonHeader>

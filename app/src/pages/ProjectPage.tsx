@@ -43,7 +43,7 @@ const ProjectPage: React.FC = () => {
           <IonButton fill="clear" slot="start" routerLink="/" routerDirection="back">
             <IonIcon icon={arrowBack}/>
             </IonButton>
-          <IonTitle slot="end">User</IonTitle>
+          <IonTitle slot="end">{localStorage.getItem("email")}</IonTitle>
           <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
