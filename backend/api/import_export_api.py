@@ -33,6 +33,7 @@ def upload_file():
         response = make_response(response)
         return response, 400
 
+
     if request.method == 'POST':
 
         if 'projectName' in request.form:
@@ -103,6 +104,14 @@ def export_documents(project_name):
         response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
+
+    user_col = get_col(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
+
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
 
     # get all documents
     doc_col = get_db_collection(project_name, "documents")
