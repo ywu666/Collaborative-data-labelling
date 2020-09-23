@@ -144,7 +144,7 @@ def export_documents(project_name):
             final_label = ''
 
         # make dictionary
-        docs_to_write.append({"ID": d['_id'], "DOCUMENT": d['data'], "LABEL": final_label})
+        docs_to_write.append({"ID": d['_id'], "DOCUMENT": d['data'].strip(), "LABEL": final_label})
 
     # write to csv
     with open('export.csv', 'w', newline='') as csv_file:
