@@ -1,3 +1,4 @@
+import { StringDecoder } from "string_decoder";
 
 /**
  * The user service encapsulates all backend api calls for performing CRUD operations on user data
@@ -6,6 +7,7 @@
      login,
      logout,
      getAllUsers,
+     signup
  }
 
  function logout() {
@@ -28,6 +30,21 @@
 
             return user;
         });
+}
+
+function signup(email: string ,token: string){
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({email})
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + `/users/create` + '?id_token=' + token
+        , requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
 }
 
 function getAllUsers() {
