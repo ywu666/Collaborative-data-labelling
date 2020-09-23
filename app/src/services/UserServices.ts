@@ -5,6 +5,7 @@
  export const userService = {
      login,
      logout,
+     getAllUsers,
  }
 
  function logout() {
@@ -28,6 +29,24 @@
             return user;
         });
 }
+
+function getAllUsers() {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+ },
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/users/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+ }
+
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
     return response.text().then((text: string) => {
