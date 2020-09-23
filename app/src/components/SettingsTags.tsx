@@ -71,7 +71,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
             text: 'Confirm',
             handler: (alertData) => {
               if (alertData.newTag.length > 0
-                && !tags.some(check => check.name.toLowerCase === alertData.newTag.toLowerCase)) {
+                && !tags.some(check => check.name === alertData.newTag)) {
                 addTag(alertData.newTag);
               } else {
                 alert('Name is invalid');
