@@ -79,8 +79,10 @@ def get_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({}, {'_id': 1}).skip(page * page_size).limit(page_size)
-    docs_dict = {'docs': list(docs)}
+    count = col.find({}).count()
+    docs = col.find({}).skip(page * page_size).limit(page_size)
+    docs_dict = {'docs': list(docs),
+                 'count': count}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
 
