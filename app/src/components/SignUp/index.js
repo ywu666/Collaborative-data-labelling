@@ -6,6 +6,7 @@ import { Redirect } from "react-router-dom";
 import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { IonSpinner } from '@ionic/react';
+import { userService } from '../../services/UserServices'
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -52,6 +53,12 @@ class SignUpFormBase extends Component {
             .then(authUser => {
                 this.setState({ ...INITIAL_STATE });
                 this.setState({ redirect: "/auth" });
+                this.setState({ loading: false});
+            }).then(() => {
+                this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
+                    localStorage.setItem("user-token", idToken);
+                    userService.signup(email, idToken);
+                })
                 this.setState({ loading: false});
             })
             .catch(error => {
