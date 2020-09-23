@@ -144,8 +144,15 @@ def export_documents(project_name):
             final_label = ''
 
         # make dictionary
-        docs_to_write.append({"ID": d['_id'], "BODY": d['data'], "LABEL": final_label})
+        docs_to_write.append({"ID": d['_id'], "DOCUMENT": d['data'], "LABEL": final_label})
 
-    docs = JSONEncoder().encode(docs_to_write)
-    return docs, 200
+    # write to csv
+    with open('export.csv', 'w', newline='') as csv_file:
+        fieldnames = ["ID", "DOCUMENT", "LABEL"]
+        writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+
+        writer.writeheader()
+        writer.writerows(docs_to_write)
+
+    return send_file('export.csv', as_attachment=True)
 
