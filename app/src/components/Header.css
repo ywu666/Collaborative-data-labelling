@@ -1,0 +1,7 @@
+.header {
+  text-align: center;
+}
+
+ion-header img {
+	max-height: 56px;
+}

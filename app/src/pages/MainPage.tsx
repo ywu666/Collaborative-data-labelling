@@ -14,7 +14,7 @@ import {
     IonInput,
     IonSkeletonText
   } from '@ionic/react';
-  import { add, arrowBack} from 'ionicons/icons';
+  import { add } from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
   import './MainPage.css';
   import app from 'firebase/app';
@@ -22,6 +22,7 @@ import {
   import firebase from "firebase";
   import { projectServices } from '../services/ProjectServices'
   import onLogout from '../helpers/logout'
+  import Header from '../components/Header'
   
   interface MainPageProps {
     firebase: any
@@ -49,12 +50,7 @@ import {
     
     return (
       <IonPage>
-        <IonHeader>
-          <IonToolbar className="header">
-            <IonTitle slot="end">User1</IonTitle>
-            <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
-          </IonToolbar>
-        </IonHeader>
+      <Header name={"User"}/>
 
       <IonContent>
         {/**
