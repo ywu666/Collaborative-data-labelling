@@ -6,6 +6,7 @@ import { Redirect } from "react-router-dom";
 import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { IonSpinner } from '@ionic/react';
+import { projectServices } from '../services/ProjectServices'
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (

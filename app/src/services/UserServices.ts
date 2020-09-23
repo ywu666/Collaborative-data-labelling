@@ -30,6 +30,9 @@
         });
 }
 
+function signup(){
+    
+}
 function getAllUsers() {
     const requestOptions = {
         method: 'GET',
