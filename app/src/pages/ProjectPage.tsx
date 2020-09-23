@@ -13,13 +13,16 @@ import {
   IonSkeletonText
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, {useRef, useState} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
+import {projectServices} from "../services/ProjectServices";
+import firebase from "firebase";
 import * as request from 'request';
 import MainPage from './MainPage';
 import onLogout from '../helpers/logout'
+
 
 interface Document {
   title: string;
@@ -52,6 +55,7 @@ const ProjectPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
+  const inputFile = useRef(null);
   setTimeout(() => {
     setIsLoading(false);
   },
@@ -130,9 +134,12 @@ const ProjectPage: React.FC = () => {
             </IonList>
           }
         </div>
-        <form className="uploadFile">
+        <form className="uploadFile" onSubmit={() => {
+          // @ts-ignore
+          projectServices.uploadProjectDocuments(name, inputFile.current.files[0], firebase);
+        }}>
             <IonItem>
-            <input type="file"  />
+            <input ref={inputFile} type="file" />
             </IonItem>
             <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
