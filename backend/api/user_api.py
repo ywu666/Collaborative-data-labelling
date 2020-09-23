@@ -10,7 +10,7 @@ user_api = Blueprint('user_api', __name__)
 
 @user_api.route("/users/create", methods=["Post"])
 def create_user():
-    # creates a new user based on the ID token that gets sent over
+    # creates a new user based ogn the ID token that gets sent over
     id_token = request.args.get('id_token')
 
     if id_token is None or id_token == "":
@@ -32,7 +32,22 @@ def create_user():
         response = make_response(response)
         return response, 400
 
-    all_users.insert_one({'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+    if 'username' in request.json:
+        username = request.json['username']
+        if all_users.find_one({'username': username}) is not None:
+            response = {'message': "Username is already taken"}
+            response = make_response(response)
+            return response, 400
+        else:
+            all_users.insert_one({'email': requestor_email, 'projects': [],
+                                  'username': username})  # projects should just include the project IDs which the user
+    # else:
+    #    response = {'message': "Missing username"}
+    #    response = make_response(response)
+    #    return response, 400
+    else:
+        all_users.insert_one({'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+
     # is part of! When a new user is created it should be empty
 
     return "", 204
@@ -220,7 +235,6 @@ def get_user_info():
         response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
         return response, 400
-
     requestor_email = get_email(id_token)
 
     if requestor_email is None:
