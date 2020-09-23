@@ -18,7 +18,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
       <h2>Tags</h2>
           {tags.map((tag, index) => {
             return (
-            <IonButton size="small">{tag}</IonButton>
+            <IonButton key={index} size="small">{tag}</IonButton>
             );
           })}
 
