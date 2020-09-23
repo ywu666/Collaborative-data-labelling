@@ -8,9 +8,10 @@ import './SettingsTags.css';
 
 interface ContainerProps {
   project: string;
+  firebase:any
 }
 
-const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
+const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showNewTag, setShowNewTag] = useState(false);
 
   const initialTags = [
@@ -20,7 +21,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
   const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
-      projectServices.getProjectTags(project)
+      projectServices.getProjectTags(project, firebase)
       .then(data => {
         setTags(data)
       })
@@ -29,8 +30,9 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
     }
   }, [])
 
-  function addTag(tag: any) {
-    projectServices.setProjectTags(project, tag);
+  function addTag(tag: string) {
+    projectServices.setProjectTags(project, tag, firebase);
+    setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
   return (
@@ -69,7 +71,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
             text: 'Confirm',
             handler: (alertData) => {
               if (alertData.newTag.length > 0
-                || !tags.some(check => check.name === alertData.newTag)) {
+                && !tags.some(check => check.name.toLowerCase === alertData.newTag.toLowerCase)) {
                 addTag(alertData.newTag);
               } else {
                 alert('Name is invalid');

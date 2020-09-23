@@ -59,7 +59,7 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
-                <SettingsTags project={project} />
+                <SettingsTags project={project} firebase={firebase} />
               </IonCol>
             </IonRow>
           </IonGrid>
