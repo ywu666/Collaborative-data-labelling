@@ -8,28 +8,34 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
+    createProject,
     getProjectTags,
-    setProjectTags,
-    createProject
+    setProjectTags
 }
 
-async function createProject(project_name: any, firebase: any){
-    console.log("we made it");
-    console.log(project_name);
+async function createProject(projectName: any, firebase: any){
+    console.log("We made it")
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify( {project_name} )
+        body: JSON.stringify( {projectName} )
     }
-    
-    console.log(requestOptions);
+       //await handleAuthorization(firebase);
+   const token = localStorage.getItem('user-token');
+   if(firebase.auth.currentUser != null){
+    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+        if(token !== idToken){
+            localStorage.setItem('user-token',idToken)
+        }
+       })
+   }else{
+    window.location.href = '/auth';
+   }
 
-
-    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions)
     .then(handleResponse)
     .then(data => {
-        console.log("call for creating project reached back end")
-        return data
+        return data.projectName
     })
 }
 
