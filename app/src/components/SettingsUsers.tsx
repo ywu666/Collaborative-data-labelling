@@ -1,21 +1,20 @@
 import {
     IonButton,
     IonItem,
-    IonLabel,
     IonModal,
     IonList,
-    IonAlert
   } from '@ionic/react';
-  import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
 import { projectServices } from '../services/ProjectServices'
 import { userService } from '../services/UserServices'
 
 interface ContainerProps {
     project: string;
+    firebase:any
 }
 
-const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
+const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showUserModal, setShowUserModal] = useState(false);
 
     const initialUsers = [
@@ -25,7 +24,8 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        projectServices.getProjectUsers(project)
+        console.log("firebase " + firebase.auth.currentUser)
+        projectServices.getProjectUsers(project, firebase)
         // userService.getAllUsers() // testing only
         .then(data => {
           setUsers(data)
@@ -47,17 +47,18 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
       }
     }, [])
 
-    function addUser(user: any) {
-        projectServices.setProjectUsers(project, user);
+    function addUser(user: string) {
+      console.log("add user " + firebase.auth)
+        projectServices.setProjectUsers(project, user, firebase);
         setShowUserModal(false)
       }
 
   return (
     <div className="container">
       <h2>Users</h2>
-          {users.map((user) => {
+          {users.map((user, i: number) => {
             return (
-                <SettingsUser key={user.email} user={user.email}></SettingsUser>
+                <SettingsUser key={i} user={user.email}></SettingsUser>
             );
           })}
 
@@ -68,10 +69,10 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
           <IonModal isOpen={showUserModal}>
           <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
-              {allUsers.map((user) => {
+              {allUsers.map((user, i: number) => {
                   if (!users.some(check => check.email === user.email)) {
                       return (
-                          <IonItem key={user.email} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
+                          <IonItem key={i} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
                       );
                   }
               })}

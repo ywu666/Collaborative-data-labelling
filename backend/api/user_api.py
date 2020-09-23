@@ -148,6 +148,14 @@ def update_user(project_name):
 def get_user_emails():
     id_token = request.args.get('id_token')
 
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
@@ -161,7 +169,7 @@ def get_user_emails():
         return response, 400
 
     users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1})
+    all_users = users_col.find({}, {'email': 1}).skip(page * page_size).limit(page_size)
     all_users_dict = {"users": list(all_users)}
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
@@ -170,6 +178,14 @@ def get_user_emails():
 @user_api.route("/projects/<project_name>/users", methods=["Get"])
 def get_user_infos_for_project(project_name):
     id_token = request.args.get('id_token')
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
 
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
@@ -190,7 +206,7 @@ def get_user_infos_for_project(project_name):
         response = make_response(response)
         return response, 403
 
-    all_users = users_col.find({})
+    all_users = users_col.find({}).skip(page * page_size).limit(page_size)
     all_users_dict = {"users": list(all_users)}
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
