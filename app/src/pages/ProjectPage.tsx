@@ -93,7 +93,7 @@ const ProjectPage: React.FC = () => {
       <IonContent>
         <div className="container">        
           <h1>{name}</h1>
-          <IonButton slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
+          <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
               {labels.map((label, i) =>
