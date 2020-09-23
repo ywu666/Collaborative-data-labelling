@@ -17,6 +17,7 @@ import {
   import onLogout from '../helpers/logout'
   import SettingsUsers from '../components/SettingsUsers';
   import { projectServices } from '../services/ProjectServices'
+  import Header from '../components/Header';
   
   import './SettingsPage.css';
   
@@ -33,15 +34,7 @@ import {
   
     return (
       <IonPage>
-        <IonHeader>
-        <IonToolbar className="header">
-          <IonButton fill="clear" slot="start" routerLink={"/project/" + project} routerDirection="back">
-            <IonIcon icon={arrowBack}/>
-            </IonButton>
-          <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
-        </IonToolbar>
-      </IonHeader>
+        <Header routerLink={"/project/" + project} name={"User"}/>
 
         <IonContent>
 
