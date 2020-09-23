@@ -1,9 +1,7 @@
 import {
     IonContent,
     IonPage,
-    IonButtons,
     IonHeader,
-    IonMenuButton,
     IonTitle,
     IonToolbar,
     IonGrid,
@@ -13,29 +11,29 @@ import {
     IonIcon,
   } from '@ionic/react';
   import { arrowBack } from 'ionicons/icons';
-  import React from 'react';
+  import React, { useState, useEffect } from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
   import onLogout from '../helpers/logout'
+  import SettingsUsers from '../components/SettingsUsers';
+  import { projectServices } from '../services/ProjectServices'
   
   import './SettingsPage.css';
   
   const SettingsPage: React.FC = () => {
     const { project } = useParams<{ project: string }>();
+
+    const [tags, setTags] = useState([""]);
   
-    // test tags data only! pass this in from database
-    const tags: string[] = ["One", "Two", "Three"];
-  
-  //add the proper header component that will be common to all pages
     return (
       <IonPage>
         <IonHeader>
         <IonToolbar className="header">
-          <IonButton slot="start" routerLink={"/project/" + project} routerDirection="back">
+          <IonButton fill="clear" slot="start" routerLink={"/project/" + project} routerDirection="back">
             <IonIcon icon={arrowBack}/>
             </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
@@ -47,6 +45,11 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <h1>{project}</h1>
+            </IonRow>
+            <IonRow class="ion-justify-content-center">
+              <IonCol size="6">
+                <SettingsUsers project={project} />
+              </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
