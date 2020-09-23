@@ -4,7 +4,8 @@
 export const projectServices = {
     getProjectNames,
     getProjectUsers,
-    setProjectUsers
+    setProjectUsers,
+    getDocument,
 }
 
 function getProjectNames(firebase: any) {
@@ -65,6 +66,20 @@ function getProjectUsers(project: string) {
             return data.users
         })
  }
+
+ function getDocument(project_name: any, document_id: any) {
+   const requestOptions = {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   };
+
+   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name + '/documents/' + document_id, requestOptions) // TODO:config.apiUrl
+       .then(handleResponse)
+       .then(data => {
+
+           return data.document
+       })
+}
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
    return response.text().then((text: string) => {
