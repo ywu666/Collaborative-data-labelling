@@ -34,7 +34,7 @@ import {
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={"User"}/>
+        <Header routerLink={"/project/" + project} name={localStorage.getItem("email") || "User"}/>
 
         <IonContent>
 
