@@ -9,6 +9,7 @@ export const projectServices = {
     getProjectTags,
     setProjectTags,
     getDocument,
+    getLabels,
 }
 
 async function getProjectNames(firebase: any) {
@@ -147,19 +148,54 @@ async function getProjectUsers(project: string, firebase: any) {
         })
  }
 
- function getDocument(project_name: any, document_id: any) {
+ function getDocument(project_name: any, document_id: any, firebase: any) {
+     /*const token = localStorage.getItem('user-token');
+       if(firebase.auth.currentUser != null){
+        firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+            if(token !== idToken){
+                localStorage.setItem('user-token',idToken)
+            }
+           })
+       }else{
+        window.location.href = '/auth';
+       }*/
+
    const requestOptions = {
        method: 'GET',
        headers: { 'Content-Type': 'application/json' },
    };
-
-   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name + '/documents/' + document_id, requestOptions) // TODO:config.apiUrl
+   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name + '/documents/' + document_id + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
 
            return data.document
        })
 }
+
+function getLabels(project_name: any, firebase: any) {
+     /*const token = localStorage.getItem('user-token');
+       if(firebase.auth.currentUser != null){
+        firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+            if(token !== idToken){
+                localStorage.setItem('user-token',idToken)
+            }
+           })
+       }else{
+        window.location.href = '/auth';
+       }*/
+
+   const requestOptions = {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   };
+   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+       .then(handleResponse)
+       .then(data => {
+
+           return data.labels
+       })
+}
+
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
    return response.text().then((text: string) => {

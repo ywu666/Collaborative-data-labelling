@@ -15,6 +15,7 @@ import {
   IonCard,
     IonCardContent,
     IonCardTitle,
+    IonSkeletonText,
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -22,6 +23,10 @@ import { useParams } from 'react-router';
 import './DocumentPage.css';
 import { isNullOrUndefined } from 'util';
 import { projectServices } from '../services/ProjectServices'
+import firebase from "firebase";
+import app from 'firebase/app';
+import 'firebase/auth';
+import onLogout from '../helpers/logout'
 
 interface Document {
   title: string;
@@ -34,8 +39,16 @@ interface Users_and_Labels {
     label: string;
 }
 
+interface DocumentPageProps {
+    firebase: any
+  }
 
-const labels: Users_and_Labels[] = [
+interface Label {
+    _id: string;
+    name: string;
+}
+
+const users_and_labels_init: Users_and_Labels[] = [
     {
         email: "aaaa@aucklanduni.ac.nz",
         label: "tag1",
@@ -46,40 +59,84 @@ const labels: Users_and_Labels[] = [
     }
 ]
 
-var DocumentPage: React.FC = () => {
+const label_init: Label[] = [
+    {
+        _id: "123",
+        name: "123"
+    },
+    {
+        _id: "234",
+        name: "234",
+    }
+]
+
+
+
+var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const {document_id } = useParams<{document_id: string }>();
   const {project } = useParams<{project: string }>();
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
-//TODO: get documents via document id
-  //const [users_and_labels] = useState(labels);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    firebase
+  } = props;
 
     const id_Token = localStorage.getItem("user-token")
     const [documentData, setDocumentData] = useState([[""]]);
-    const [labelData, setLabelData] = useState([[""]]) //I dont think this is right
+    const [labelData, setLabelData] = useState(users_and_labels_init)
+    const [labelList, setLabelList] = useState(label_init)
 
     useEffect(() => {
       try {
-      console.log(project)
-        projectServices.getDocument(project, document_id)
+        projectServices.getLabels(project, firebase)
         .then(data => {
 
-            data = JSON.parse(data)
             console.log(data)
-
-            setDocumentData(data.data)
-            console.log(data.user_and_labels)
-            setLabelData(data.user_and_labels)
+            setLabelList(data)
+            console.log(labelList)
 
         })
       } catch (e) {
+        console.log(e)
+      }
+    }, []);
 
+    useEffect(() => {
+      try {
+        projectServices.getDocument(project, document_id, firebase)
+        .then(data => {
+            console.log(data)
+
+            setDocumentData(data.data)
+            setLabelData(data.user_and_labels)
+        })
+      } catch (e) {
+        console.log(e)
       }
     }, []);
 
 
-console.log(labelData)
-console.log(documentData)
+    console.log(labelData)
+    console.log(documentData)
+
+    let list: Users_and_Labels[] = [];
+    labelData.forEach((element:any) => {
+       labelList.forEach((element1:any) => {
+            if(element.label === element1._id){
+                let pair: Users_and_Labels = {email: element.email, label: element1.name}
+                list.push(pair)
+
+            }
+       })
+    })
+    console.log(list)
+    setTimeout(() => {
+      setIsLoading(false);
+    },
+    1500
+    )
 
   const renderLabelModal = (i:number) => {
     setShowModal(true)
@@ -92,30 +149,52 @@ console.log(documentData)
         <IonToolbar className="header">
           <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton slot="end">Log out</IonButton>
+          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
-      <IonHeader className="pageTitle">Document</IonHeader>
-        <div className="container">
-            <strong>{document_id}</strong>
+      {/**
+         * skeleton is displayed if isLoading is true, otherwise projectData is displayed
+         */}
+        {isLoading
+        ?<div className="container">
+          <IonCard>
             <IonCardTitle>
-                {documentData}
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
             </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+          <IonCard>
+            <IonCardTitle>
+              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+            </IonCardTitle>
+          </IonCard>
+        </div>
+        :<div className="container">
+            <IonHeader className="pageTitle">Document</IonHeader>
+        <div className="container">
+
+            <IonCardTitle>
+                {document_id}
+            </IonCardTitle>
+            <strong>{documentData}</strong>
         </div>
 
-        {/** I cant get this to work **/}
-        {/**
         <div className="container">
           <IonList>
-            {labelData.map((data, i) => (
+            {list.map((data, i) => (
                 <IonItem key={i}>
                 <IonLabel>{data.email}</IonLabel>
+                <IonLabel>{data.label}</IonLabel>
               </IonItem>
             ))}
           </IonList>
-        </div>**/}
+        </div>
 
         <div className="container">
             <IonButton className="ion-margin-top" type="submit" expand="block">
@@ -123,6 +202,11 @@ console.log(documentData)
             </IonButton>
 
         </div>
+        </div>
+        }
+
+
+
 
 
       </IonContent>
