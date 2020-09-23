@@ -12,10 +12,16 @@ function getProjectNames(firebase: any) {
        headers: { 'Content-Type': 'application/json' },
    };
    var token = localStorage.getItem('user-token');
-   if(token != firebase.firebase.auth.currentUser.getIdToken()){
-       console.log(firebase.firebase.auth.currentUser.getIdToken() + " not equal");
-       localStorage.setItem('user-token',firebase.firebase.auth.currentUser.getIdToken())
-   }
+
+   firebase.firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+    if(token != idToken){
+        console.log(firebase.firebase.auth.currentUser.getIdToken() + " not equal");
+        localStorage.setItem('user-token',idToken)
+    }else{
+        console.log("still the same token,not refreshed")
+    }
+   })
+  
    return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
