@@ -19,13 +19,13 @@ const labels: string[] = [
   "tag3",
 ]
 
-interface DocumentListProbs {
+interface DocumentListProps {
 	name: string,
   page: number,
   page_size: number
 }
 
-const DocumentList: React.FC<DocumentListProbs> = (props:DocumentListProbs) => {
+const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   const {
 		name,
 	  page,
@@ -49,7 +49,6 @@ const DocumentList: React.FC<DocumentListProbs> = (props:DocumentListProbs) => {
     for (let child of document_ids) {
       documentServices.getDocument(name, child._id)
       .then(data => {
-				console.log(data)
 				data.id = child._id
 				setDocuments(doc => [...doc, data])
       })
@@ -59,7 +58,6 @@ const DocumentList: React.FC<DocumentListProbs> = (props:DocumentListProbs) => {
 	useEffect(() => {
 		labelServices.getLabels(name)
 		.then(data => {
-			console.log(data)
 			setLabels(data)
 		})
 	}, [])
