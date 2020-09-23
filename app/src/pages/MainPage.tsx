@@ -14,8 +14,8 @@ import {
     IonInput,
     IonSkeletonText
   } from '@ionic/react';
-  import { add } from 'ionicons/icons';
-  import React, { useState, useEffect } from 'react';
+  import { add, arrowBack} from 'ionicons/icons';
+  import React, { useState, useEffect, useRef } from 'react';
   import './MainPage.css';
   import app from 'firebase/app';
   import 'firebase/auth';
@@ -29,6 +29,8 @@ import {
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
+    const projectName = useRef(null);
+
     const {
       firebase
     } = props;
@@ -49,7 +51,7 @@ import {
     setTimeout(() => {
       setIsLoading(false);
     }, 1500)
-    
+
     return (
       <IonPage>
         <Header name={localStorage.getItem("email") || "User"}/>
@@ -95,21 +97,19 @@ import {
 
         {/**will add an onclick function which will parse the new project name information to the system
          */}
-        <form className="createProject">
-          <IonItem>
-            <IonLabel position="floating">New Project</IonLabel>
-            <IonInput />
-          </IonItem>
-          <IonButton
-            fill="outline"
-            className="ion-margin-top"
-            type="submit"
-            expand="block"
-          >
-            <IonIcon icon={add} />
-            Create
-          </IonButton>
-        </form>
+
+        <form className="createProject" onSubmit={() => {
+          projectServices.createProject(projectName, firebase);
+        }}>
+            <IonItem>
+                <IonLabel position="floating">New Project</IonLabel>
+                <IonInput  ref={projectName} type="text"/>	            
+            </IonItem>
+            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block">	
+            <IonIcon icon={add} />            
+                create            
+            </IonButton>	            
+        </form>	      
       </IonContent>
     </IonPage>
   );

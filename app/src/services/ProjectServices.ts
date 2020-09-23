@@ -10,7 +10,33 @@ export const projectServices = {
     setProjectUsers,
     getProjectTags,
     setProjectTags,
-    uploadDocuments
+    createProject
+}
+
+async function createProject(projectName: any, firebase: any){
+    console.log("We made it")
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type' : 'application/json'},
+        body: JSON.stringify( {projectName} )
+    }
+       //await handleAuthorization(firebase);
+   const token = localStorage.getItem('user-token');
+   if(firebase.auth.currentUser != null){
+    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+        if(token !== idToken){
+            localStorage.setItem('user-token',idToken)
+        }
+       })
+   }else{
+    window.location.href = '/auth';
+   }
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    .then(handleResponse)
+    .then(data => {
+        return data.projectName
+    })
 }
 
 async function getProjectNames(firebase: any) {
