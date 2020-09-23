@@ -78,16 +78,17 @@ class SignInFormBase extends Component {
             .doSignInWithEmailAndPassword(email, password)
             .then(user => {
                 this.setState({ ...INITIAL_STATE});
-                this.setState({loggedIn: true});
-                this.setState({ redirect: "/" });
-                this.setState({ loading: false});
                 
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
+                    localStorage.setItem("email", email)
                     localStorage.setItem("user-token", idToken);
                     console.log(idToken)
+                    
+                    this.setState({loggedIn: true});
+                    this.setState({ redirect: "/" });
+                    this.setState({ loading: false});
                 })
-                this.setState({ loading: false});
             })
             .catch(error => {
                 this.setState({ error });
@@ -95,10 +96,6 @@ class SignInFormBase extends Component {
             });
         
         event.preventDefault();
-    
-     
-        
-
     };
 
     onChange = event => {
