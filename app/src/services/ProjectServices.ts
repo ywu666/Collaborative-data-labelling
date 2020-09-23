@@ -149,16 +149,7 @@ async function getProjectUsers(project: string, firebase: any) {
  }
 
  function getDocument(project_name: any, document_id: any, firebase: any) {
-     /*const token = localStorage.getItem('user-token');
-       if(firebase.auth.currentUser != null){
-        firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-            if(token !== idToken){
-                localStorage.setItem('user-token',idToken)
-            }
-           })
-       }else{
-        window.location.href = '/auth';
-       }*/
+
 
    const requestOptions = {
        method: 'GET',
@@ -173,16 +164,7 @@ async function getProjectUsers(project: string, firebase: any) {
 }
 
 function getLabels(project_name: any, firebase: any) {
-     /*const token = localStorage.getItem('user-token');
-       if(firebase.auth.currentUser != null){
-        firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-            if(token !== idToken){
-                localStorage.setItem('user-token',idToken)
-            }
-           })
-       }else{
-        window.location.href = '/auth';
-       }*/
+
 
    const requestOptions = {
        method: 'GET',
