@@ -54,7 +54,12 @@ class SignUpFormBase extends Component {
                 this.setState({ ...INITIAL_STATE });
                 this.setState({ redirect: "/auth" });
                 this.setState({ loading: false});
-                userService.signup(username, email, passwordOne);
+            }).then(() => {
+                this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
+                    localStorage.setItem("user-token", idToken);
+                    userService.signup(email, idToken);
+                })
+                this.setState({ loading: false});
             })
             .catch(error => {
                 this.setState({ error });
