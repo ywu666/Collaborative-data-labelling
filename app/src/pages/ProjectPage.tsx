@@ -35,6 +35,7 @@ const ProjectPage: React.FC = () => {
   const [labelIndex, setLabelIndex] = useState("");
   const [documents, setDocuments] = useState<any[]>([]); //TODO: get documents via project id
   const [document_ids, setDocumentsIds] = useState<any[]>([]);
+  const [index, setIndex] = useState(0)
 
   useEffect(() => {
     try {
@@ -47,24 +48,36 @@ const ProjectPage: React.FC = () => {
     }
   }, [])
 
-  useEffect(() => {   
-    let index = 0;
+  const getNextDocuments = (maximum:number) => {
+    let i = 0;
+    console.log(document_ids)
     for (let child of document_ids) {
+      console.log(child)
       documentServices.getDocument(name, child._id)
       .then(data => {
         setDocuments(doc => [...doc, data])
       })
-      index = index + 1;
-      if(index > 20) {
+      i = i + 1;
+      setIndex(index + 1)
+      if(i > maximum) {
         break
       }
     }
+  }
+
+
+
+  useEffect(() => {
+    getNextDocuments(20)
   }, [document_ids])
 
 
   const loadDocuments = (event:any) => {
     setTimeout(() => {
       console.log('Loaded data');
+
+
+
       event.target.complete();
 
       // App logic to determine if all data is loaded

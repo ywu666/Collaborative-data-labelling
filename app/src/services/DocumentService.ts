@@ -13,10 +13,11 @@ function getDocument(project:any, document_id:any) {
        headers: { 'Content-Type': 'application/json' },
    };
    
-   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id, requestOptions) // TODO:config.apiUrl
+   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
-           return JSON.parse(data.document)
+           console.log(data)
+           return data.document
        })
 }
 
@@ -26,10 +27,10 @@ function getDocumentIds(project:any) {
         headers: { 'Content-Type': 'application/json' },
     };
     
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents', requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents' + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
-            return JSON.parse(data.document_ids);
+            return data.docs;
         })
 }
 
