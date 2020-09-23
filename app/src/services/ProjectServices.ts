@@ -8,7 +8,8 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
-    createProject
+    createProject,
+    uploadDocuments
 }
 
 async function createProject(project_name: any, firebase: any){
@@ -32,13 +33,10 @@ async function createProject(project_name: any, firebase: any){
     window.location.href = '/auth';
    }
 
-   console.log(project_name)
-   console.log("calling fetch api")
     return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions)
     .then(handleResponse)
     .then(data => {
-        console.log(data)
-        return data.project_name
+        return data.projectName
     })
 }
 
