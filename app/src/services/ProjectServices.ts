@@ -57,7 +57,8 @@ async function getProjectUsers(project: string, firebase: any) {
    }
     
     return fetch(process.env.REACT_APP_API_URL + 
-        '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token') + '&page=0&page_size=20',
+        requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.users
