@@ -10,7 +10,8 @@ import {
   IonLabel,
   IonIcon,
   IonModal,
-  IonToast
+  //IonToast,
+  IonSkeletonText
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -51,6 +52,12 @@ const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
+  const [isLoading, setIsLoading] = useState(true);
+  setTimeout(() => {
+    setIsLoading(false);
+  },
+  1000
+  )
   const [documents] = useState(sampleDoc); //TODO: get documents via project id
   const [downloadError, setDownloadError] = useState<string>();
 
@@ -103,7 +110,7 @@ const ProjectPage: React.FC = () => {
       <IonContent>
         <div className="container">        
           <h1>{name}</h1>
-          <IonButton slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
+          <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
             <div className="inner-content">
               {labels.map((label, i) =>
@@ -111,17 +118,27 @@ const ProjectPage: React.FC = () => {
               )}
             </div>
           </IonModal>
-          <IonList>
+          {/**
+         * skelenton is displayed if isLoading is true, otherwise document name is displayed
+         */}
+          {isLoading
+          ?<IonList>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+            <IonItem><IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText></IonItem>
+          </IonList>   
+          :<IonList>
             {documents.map((doc, i) =>
-              <IonItem key={i}>
-                <IonLabel>{doc.title}</IonLabel>
-                {isNullOrUndefined(doc.tag) || doc.tag === ""
-                  ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
-                  : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
-                }
-              </IonItem>
+            <IonItem key={i}>
+              <IonLabel>{doc.title}</IonLabel>
+              {isNullOrUndefined(doc.tag) || doc.tag === ""
+                ? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}><IonIcon icon={add}/></IonButton>
+                : <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(i)}>{doc.tag}</IonButton>
+              }
+            </IonItem>
             )}
-          </IonList>
+            </IonList>
+          }
         </div>
         <form className="uploadFile">
             <IonItem>
