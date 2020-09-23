@@ -13,9 +13,10 @@ import { userService } from '../services/UserServices'
 
 interface ContainerProps {
     project: string;
+    firebase:any
 }
 
-const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
+const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showUserModal, setShowUserModal] = useState(false);
 
     const initialUsers = [
@@ -25,7 +26,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        projectServices.getProjectUsers(project)
+        projectServices.getProjectUsers(project, firebase)
         // userService.getAllUsers() // testing only
         .then(data => {
           setUsers(data)
@@ -48,7 +49,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
     }, [])
 
     function addUser(user: any) {
-        projectServices.setProjectUsers(project, user);
+        projectServices.setProjectUsers(project, user, firebase);
         setShowUserModal(false)
       }
 

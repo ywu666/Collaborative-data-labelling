@@ -20,7 +20,10 @@ import {
   
   import './SettingsPage.css';
   
-  const SettingsPage: React.FC = () => {
+  interface SettingsPageProps {
+    firebase: any
+  }
+  const SettingsPage: React.FC<SettingsPageProps> = (firebase) => {
     const { project } = useParams<{ project: string }>();
 
     const [tags, setTags] = useState([""]);
@@ -48,7 +51,7 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
-                <SettingsUsers project={project} />
+                <SettingsUsers project={project} firebase={firebase} />
               </IonCol>
             </IonRow>
             <IonRow class="ion-justify-content-center">
