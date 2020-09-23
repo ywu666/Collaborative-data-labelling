@@ -4,7 +4,8 @@
  */
 export const documentServices = {
     getDocument,
-    getDocumentIds
+    getDocumentIds,
+    postDocumentLabel
 }
 
 function getDocument(project:any, document_id:any) {
@@ -36,6 +37,24 @@ function getDocumentIds(project:any, page:number, page_size:number) {
         + '?page=' + page
         + '&page_size=' + page_size
         + '&id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        .then(handleResponse)
+        .then(data => {
+            return data.docs;
+        })
+}
+
+function postDocumentLabel(project: any, document_id: any, email:any, label_id: any) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        body: JSON.stringify({ email, label_id })
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id + '/label'
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data.docs;

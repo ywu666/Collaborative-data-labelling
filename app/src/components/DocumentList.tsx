@@ -35,8 +35,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   const [documents, setDocuments] = useState<any[]>([]);
 	const [document_ids, setDocumentsIds] = useState<any[]>([]);
 	const [labels, setLabels] = useState<any[]>([]);
-  const [labelIndex, setLabelIndex] = useState("");
+  const [documentIndex, setDocumentIndex] = useState("");
   const [showModal, setShowModal] = useState(false);
+	const [newDocument, setNewDocument] = useState<any>();
 
   useEffect(() => {
     documentServices.getDocumentIds(name, page, page_size)
@@ -50,6 +51,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
       documentServices.getDocument(name, child._id)
       .then(data => {
 				data.id = child._id
+				console.log(data)
 				setDocuments(doc => [...doc, data])
       })
     }
@@ -62,29 +64,47 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		})
 	}, [])
 
+	useEffect(() => {
+		setDocuments(
+			documents.map((e) => {
+				if (e.id === newDocument.id) return newDocument
+				else return e 
+			})
+		)
+	}, [newDocument])
+
   const renderLabelModal = (id:string) => {
     setShowModal(true)
-    setLabelIndex(id)
+    setDocumentIndex(id)
   }
 
-  const changeTag = (i:any, label:any) => {
-    //TODO: connect with backend to update tags /
-    //documents[i].tag = label.name
-    setShowModal(false)
-  }
+  const changeTag = (documentIndex:any, label:any) => {
+		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id)
+		.then(() => { return documentServices.getDocument(name, documentIndex) })
+		.then(data => {
+			data.id = documentIndex
+			return data
+		})
+		.then(data => {
+			setNewDocument(data)
+		})
+		setShowModal(false)
+	}
 
 	const documentItem = (doc_id: any, index: any) => {
 		let email = localStorage.getItem("email")
-		if (documents.some(e=> e.id == doc_id._id)) {
-			let document = documents.find(e => e.id == doc_id._id)
+		if (documents.some(e=> e.id === doc_id._id)) {
+			let document = documents.find(e => e.id === doc_id._id)
+			let user_label = labels.find(e => e._id === document.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
+			
 			return (
 				<IonItem key = {index}>
 					<IonLabel>{document.data}</IonLabel>
 					{isNullOrUndefined(email)
 					? <div/>
-					:	document.user_and_labels.length === 0
-						? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.index)}><IonIcon icon={add}/></IonButton>
-						: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.index)}>{labels.find(e => e._id == document.user_and_labels[0].label).name}</IonButton>
+					:	isNullOrUndefined(user_label)
+						? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}><IonIcon icon={add}/></IonButton>
+						: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}>{user_label.name}</IonButton>
 					}
 				</IonItem>
 			)
@@ -103,7 +123,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
 					{labels.map((label, i) =>
-						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(labelIndex, label)}>{label.name}</IonButton>
+						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(documentIndex, label)}>{label.name}</IonButton>
 					)}
 				</div>
 			</IonModal>
