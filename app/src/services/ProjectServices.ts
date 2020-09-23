@@ -5,7 +5,9 @@
 export const projectServices = {
     getProjectNames,
     getProjectUsers,
-    setProjectUsers
+    setProjectUsers,
+    getProjectTags,
+    setProjectTags
 }
 
 function getProjectNames() {
@@ -41,6 +43,23 @@ function getProjectUsers(project: string) {
         })
  }
 
+ function getProjectTags(project: string) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + 
+        '/projects/' + project + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+ }
+
  function setProjectUsers(project: string, user: string) {
     const requestOptions = {
         method: 'POST',
@@ -50,6 +69,21 @@ function getProjectUsers(project: string) {
     
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+ }
+
+ function setProjectTags(project: string, label_name: string) {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({ label_name })
+        };
+    
+    return fetch(process.env.REACT_APP_API_URL + 
+        '/projects/' + project + '/labels/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.users

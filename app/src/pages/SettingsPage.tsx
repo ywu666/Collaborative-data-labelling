@@ -53,7 +53,7 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
-                <SettingsTags tags={tags} />
+                <SettingsTags project={project} />
               </IonCol>
             </IonRow>
           </IonGrid>

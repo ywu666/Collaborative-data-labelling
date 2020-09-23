@@ -2,23 +2,43 @@ import {
     IonButton,
     IonAlert,
   } from '@ionic/react';
-import React, {useState} from 'react';
+  import React, { useState, useEffect } from 'react';
+  import { projectServices } from '../services/ProjectServices'
 import './SettingsTags.css';
 
 interface ContainerProps {
-  tags: string[];
+  project: string;
 }
 
-const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
+const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
     const [showNewTag, setShowNewTag] = useState(false);
-    const [newTag, setNewTag] = useState<string>();
+
+    const initialUsers = [
+      { id: 0, label_name: 'No tags'}
+  ]
+
+  const [tags, setTags] = useState(initialUsers);
+  useEffect(() => {
+    try {
+      projectServices.getProjectTags(project)
+      .then(data => {
+        setTags(data)
+      })
+    } catch (e) {
+      
+    }
+  }, [])
+
+  function addTag(tag: any) {
+    projectServices.setProjectTags(project, tag);
+  }
 
   return (
     <div className="container">
       <h2>Tags</h2>
-          {tags.map((tag, index) => {
+          {tags.map((tag) => {
             return (
-            <IonButton size="small">{tag}</IonButton>
+            <IonButton key="name" size="small">{tag.label_name}</IonButton>
             );
           })}
 
@@ -39,23 +59,22 @@ const SettingsTags: React.FC<ContainerProps> = ({ tags }) => {
             placeholder: 'New Tag' }
         ]}
         buttons={[
-            {
-                text: 'Cancel',
-                role: 'cancel'
-            },
-            {
-                text: 'Confirm',
-                handler: (alertData) => {
-                    // test if name is valid, can add more
-                    if (alertData.newTag.length > 0) {
-                        // add to database here
-                        tags.push(alertData.newTag);
-                    } else {
-                        alert('Name is invalid');
-                        return false;
-                    }
-                }
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            handler: (alertData) => {
+              if (alertData.newTag.length > 0
+                || !tags.some(check => check.label_name === alertData.newTag)) {
+                addTag(alertData.newTag);
+              } else {
+                alert('Name is invalid');
+                return false;
+              }
             }
+          }
         ]}
         />
     </div>
