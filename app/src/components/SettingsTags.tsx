@@ -13,11 +13,11 @@ interface ContainerProps {
 const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
     const [showNewTag, setShowNewTag] = useState(false);
 
-    const initialUsers = [
-      { id: 0, label_name: ''}
+  const initialTags = [
+    { _id: 0, name: '' }
   ]
 
-  const [tags, setTags] = useState(initialUsers);
+  const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
       projectServices.getProjectTags(project)
@@ -37,9 +37,9 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
     <div className="container">
       <h2>Tags</h2>
       {tags.map((tag) => {
-        if (tag.label_name.length != 0) {
+        if (tag.name.length != 0) {
           return (
-            <IonButton key="name" fill="outline" size="small">{tag.label_name}</IonButton>
+            <IonButton key={tag.name} fill="outline" size="small">{tag.name}</IonButton>
           );
         }
       })}
@@ -69,7 +69,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project }) => {
             text: 'Confirm',
             handler: (alertData) => {
               if (alertData.newTag.length > 0
-                || !tags.some(check => check.label_name === alertData.newTag)) {
+                || !tags.some(check => check.name === alertData.newTag)) {
                 addTag(alertData.newTag);
               } else {
                 alert('Name is invalid');

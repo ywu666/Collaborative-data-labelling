@@ -66,7 +66,7 @@ function getProjectUsers(project: string) {
         '/projects/' + project + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
-            return data.users
+            return data.labels
         })
  }
 
