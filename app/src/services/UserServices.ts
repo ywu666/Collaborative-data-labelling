@@ -30,8 +30,19 @@
         });
 }
 
-function signup(){
-    
+function signup(username: string, email: string,password: string){
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + `/users/create`
+        , requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
 }
 function getAllUsers() {
     const requestOptions = {

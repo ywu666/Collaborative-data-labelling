@@ -6,7 +6,7 @@ import { Redirect } from "react-router-dom";
 import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { IonSpinner } from '@ionic/react';
-import { projectServices } from '../services/ProjectServices'
+import { userService } from '../../services/UserServices'
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -54,6 +54,7 @@ class SignUpFormBase extends Component {
                 this.setState({ ...INITIAL_STATE });
                 this.setState({ redirect: "/auth" });
                 this.setState({ loading: false});
+                userService.signup(username, email, passwordOne);
             })
             .catch(error => {
                 this.setState({ error });
