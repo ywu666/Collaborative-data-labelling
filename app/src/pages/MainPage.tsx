@@ -37,7 +37,7 @@ import {
           setProjectData(data)
         })
       } catch (e) {
-        
+        console.log(e)
       }
     }, [])
 

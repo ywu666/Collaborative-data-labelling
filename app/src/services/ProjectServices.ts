@@ -1,4 +1,3 @@
-import 'firebase/auth';
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
@@ -11,11 +10,9 @@ function getProjectNames(firebase: any) {
        method: 'GET',
        headers: { 'Content-Type': 'application/json' },
    };
-   var token = localStorage.getItem('user-token');
-
-   firebase.firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-    if(token != idToken){
-        console.log(firebase.firebase.auth.currentUser.getIdToken() + " not equal");
+   const token = localStorage.getItem('user-token');
+   firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+    if(token !== idToken){
         localStorage.setItem('user-token',idToken)
     }else{
         console.log("still the same token,not refreshed")

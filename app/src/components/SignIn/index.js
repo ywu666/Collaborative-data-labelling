@@ -72,7 +72,7 @@ class SignInFormBase extends Component {
             .then(user => {
                 this.setState({ ...INITIAL_STATE});
                 this.setState({loggedIn: true});
-                this.setState({ redirect: "/signup" });
+                this.setState({ redirect: "/" });
                 
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
