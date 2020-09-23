@@ -9,6 +9,7 @@ import CardActions from '@material-ui/core/CardActions';
 import { css } from 'glamor';
 import Typography from '@material-ui/core/Typography';
 import { Redirect } from "react-router-dom";
+import { refresh } from 'ionicons/icons';
 import { IonSpinner, IonLabel } from '@ionic/react';
 const useStyles = css({
     root: {
@@ -78,12 +79,13 @@ class SignInFormBase extends Component {
             .then(user => {
                 this.setState({ ...INITIAL_STATE});
                 this.setState({loggedIn: true});
-                this.setState({ redirect: "/signup" });
+                this.setState({ redirect: "/" });
                 this.setState({ loading: false});
                 
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
                     localStorage.setItem("user-token", idToken);
+                    console.log(idToken)
                 })
                 this.setState({ loading: false});
             })
