@@ -7,26 +7,6 @@ export const projectServices = {
     setProjectUsers
 }
 
-<<<<<<< HEAD
-function getProjectNames(firebase: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-    const token = localStorage.getItem('user-token');
-    if(firebase.auth.currentUser != null){
-        firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-            if(token !== idToken){
-                localStorage.setItem('user-token',idToken)
-            }
-        })
-    } else {
-        window.location.href = '/auth';
-    }
-=======
 async function getProjectNames(firebase: any) {
    const requestOptions = {
        method: 'GET',
@@ -35,7 +15,7 @@ async function getProjectNames(firebase: any) {
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
    };
-  // await handleAuthorization(firebase);
+   //await handleAuthorization(firebase);
    const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -46,7 +26,6 @@ async function getProjectNames(firebase: any) {
    }else{
     window.location.href = '/auth';
    }
->>>>>>> 267fa33305d65c0f7808560064571d5a1fbbeb81
 
    return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
