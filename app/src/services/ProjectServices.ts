@@ -90,12 +90,7 @@ async function getProjectUsers(project: string, firebase: any) {
         })
  }
 
- async function uploadProjectDocuments(project: string, file : File, firebase:any) {
-    // const requestOptions = {
-    //     method: 'POST',
-    //     headers: {'Content-Type': 'multipart/form-data'}
-    // };
-
+ async function uploadProjectDocuments(project: string, file: File, firebase:any) {
      const formData = new FormData();
 
     formData.append("inputFile", file);
@@ -108,9 +103,12 @@ async function getProjectUsers(project: string, firebase: any) {
 
         await handleAuthorization(firebase);
 
-        return fetch(process.env.REACT_APP_API_URL + '/projects/upload', requestOptions).then(handleResponse)
-
-
+        return fetch(process.env.REACT_APP_API_URL + '/projects/upload' + '?id_token=' +
+            localStorage.getItem('user-token'), requestOptions)
+            .then(handleResponse)
+            .then(data => {
+            return data.inputFile
+        })
 
  }
 
