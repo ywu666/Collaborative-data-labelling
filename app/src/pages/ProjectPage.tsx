@@ -19,6 +19,7 @@ import './ProjectPage.css';
 import { isNullOrUndefined } from 'util';
 import * as request from 'request';
 import onLogout from '../helpers/logout'
+import {projectServices} from '../services/ProjectServices';
 
 interface Document {
   title: string;
@@ -64,28 +65,28 @@ const ProjectPage: React.FC = () => {
     setShowModal(false)
   }
 
-  const downloadCSV = async (projectName:string) => {
-    try {
-      request.get(process.env.REACT_APP_API_URL + '/projects/' + projectName + '/export?id_token=' + localStorage.getItem('user-token'), (response: any) => {
-          if(response != null) {
-            const filename = 'labeller-' + projectName + '.csv'
-            const blob = new Blob([response], {type: 'text/csv'});
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          } else {
-            console.log("project is empty");
-          }    
-      })
-    } catch(e) {
-      setDownloadError(e.message);
-    }
-  }
+  // const downloadCSV = async (projectName:string) => {
+  //   try {
+  //     request.get(process.env.REACT_APP_API_URL + '/projects/' + projectName + '/export?id_token=' + localStorage.getItem('user-token'), (response: any) => {
+  //         if(response != null) {
+  //           const filename = 'labeller-' + projectName + '.csv'
+  //           const blob = new Blob([response], {type: 'text/csv'});
+  //           const link = document.createElement('a');
+  //           const url = URL.createObjectURL(blob);
+  //           link.setAttribute('href', url);
+  //           link.setAttribute('download', filename);
+  //           link.style.visibility = 'hidden';
+  //           document.body.appendChild(link);
+  //           link.click();
+  //           document.body.removeChild(link);
+  //         } else {
+  //           console.log("project is empty");
+  //         }    
+  //     })
+  //   } catch(e) {
+  //     setDownloadError(e.message);
+  //   }
+  // }
 
   return (
     <IonPage>
@@ -131,8 +132,7 @@ const ProjectPage: React.FC = () => {
             </IonButton>
         </form>
         <form className="downloadFile">
-            <IonToast  isOpen={!!downloadError} message={downloadError} duration={2000} />
-            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
+            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => projectServices.exportCsv(name)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
         </form>

@@ -4,6 +4,7 @@
  */
 export const projectServices = {
     getProjectNames,
+    exportCsv,
 }
 
 function getProjectNames() {
@@ -20,6 +21,22 @@ function getProjectNames() {
        .then(data => {
            return data.projects
        })
+}
+
+function exportCsv(projectName: string) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.projects
+        })
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
