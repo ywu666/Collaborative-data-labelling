@@ -55,28 +55,28 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project }) => {
   return (
     <div className="container">
       <h2>Users</h2>
-          {users.map((user, index) => {
+          {users.map((user) => {
             return (
-                <SettingsUser user={user.email}></SettingsUser>
+                <SettingsUser key={user.email} user={user.email}></SettingsUser>
             );
           })}
 
-        <IonButton size="small" color="light" fill="solid" onClick={() => setShowUserModal(true)}>
+        <IonButton size="small" fill="outline" onClick={() => setShowUserModal(true)}>
             + Add user
         </IonButton>
 
           <IonModal isOpen={showUserModal}>
           <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
               <IonList>
-              {allUsers.map((user, index) => {
+              {allUsers.map((user) => {
                   if (!users.some(check => check.email === user.email)) {
                       return (
-                          <IonItem button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
+                          <IonItem key={user.email} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
                       );
                   }
               })}
               </IonList>
-              <IonButton onClick={() => setShowUserModal(false)}>Close</IonButton>
+              <IonButton fill="outline" onClick={() => setShowUserModal(false)}>Close</IonButton>
         </IonModal>
         </div>
     );

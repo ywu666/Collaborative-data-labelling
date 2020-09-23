@@ -23,7 +23,7 @@ const SettingsUser: React.FC<ContainerProps> = ({ user }) => {
 
             <IonItem>
                 <IonLabel>{user}</IonLabel>
-                <IonButton slot="end" onClick={() => setShowPermissions(true)}>
+                <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
                     Permissions
                     </IonButton>
             </IonItem>

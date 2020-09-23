@@ -1,9 +1,7 @@
 import {
     IonContent,
     IonPage,
-    IonButtons,
     IonHeader,
-    IonMenuButton,
     IonTitle,
     IonToolbar,
     IonGrid,
@@ -31,11 +29,11 @@ import {
       <IonPage>
         <IonHeader>
         <IonToolbar className="header">
-          <IonButton slot="start" routerLink={"/project/" + project} routerDirection="back">
+          <IonButton fill="clear" slot="start" routerLink={"/project/" + project} routerDirection="back">
             <IonIcon icon={arrowBack}/>
             </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
         </IonToolbar>
       </IonHeader>
 
