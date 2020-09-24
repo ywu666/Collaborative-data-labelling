@@ -4,7 +4,8 @@
  */
 export const documentServices = {
     getDocument,
-    getDocumentIds
+    getDocumentIds,
+    getLabels,
 }
 
 function getDocument(project:any, document_id:any) {
@@ -23,6 +24,8 @@ function getDocument(project:any, document_id:any) {
         })
 }
 
+
+
 function getDocumentIds(project:any, page:number, page_size:number) {
     const requestOptions = {
         method: 'GET',
@@ -40,6 +43,21 @@ function getDocumentIds(project:any, page:number, page_size:number) {
         .then(data => {
             return data.docs;
         })
+}
+
+function getLabels(project_name: any, firebase: any) {
+   const requestOptions = {
+       method: 'GET',
+       headers: { 'Content-Type': 'application/json' },
+   };
+   return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name
+   + '/labels/all' + '?id_token='
+   + localStorage.getItem('user-token'), requestOptions)
+       .then(handleResponse)
+       .then(data => {
+
+           return data.labels
+       })
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
