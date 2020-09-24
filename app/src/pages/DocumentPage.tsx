@@ -22,7 +22,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import './DocumentPage.css';
 import { isNullOrUndefined } from 'util';
-import { projectServices } from '../services/ProjectServices'
+import { documentServices } from '../services/DocumentService'
 import firebase from "firebase";
 import app from 'firebase/app';
 import 'firebase/auth';
@@ -48,30 +48,6 @@ interface Label {
     name: string;
 }
 
-const users_and_labels_init: Users_and_Labels[] = [
-    {
-        email: "aaaa@aucklanduni.ac.nz",
-        label: "tag1",
-    },
-    {
-        email: "bbbb@aucklanduni.ac.nz",
-        label: "tag1",
-    }
-]
-
-const label_init: Label[] = [
-    {
-        _id: "123",
-        name: "123"
-    },
-    {
-        _id: "234",
-        name: "234",
-    }
-]
-
-
-
 var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const {document_id } = useParams<{document_id: string }>();
   const {project } = useParams<{project: string }>();
@@ -85,41 +61,29 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
     const id_Token = localStorage.getItem("user-token")
     const [documentData, setDocumentData] = useState([[""]]);
-    const [labelData, setLabelData] = useState(users_and_labels_init)
-    const [labelList, setLabelList] = useState(label_init)
+    const [labelData, setLabelData] = useState<Users_and_Labels[]>([])
+    const [labelList, setLabelList] = useState<Label[]>([])
 
     useEffect(() => {
       try {
-        projectServices.getLabels(project, firebase)
+        documentServices.getLabels(project, firebase)
         .then(data => {
-
-            console.log(data)
             setLabelList(data)
-            console.log(labelList)
-
         })
       } catch (e) {
-        console.log(e)
       }
     }, []);
 
     useEffect(() => {
       try {
-        projectServices.getDocument(project, document_id, firebase)
+        documentServices.getDocument(project, document_id)
         .then(data => {
-            console.log(data)
-
             setDocumentData(data.data)
             setLabelData(data.user_and_labels)
         })
       } catch (e) {
-        console.log(e)
       }
     }, []);
-
-
-    console.log(labelData)
-    console.log(documentData)
 
     let list: Users_and_Labels[] = [];
     labelData.forEach((element:any) => {
@@ -131,7 +95,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
             }
        })
     })
-    console.log(list)
     setTimeout(() => {
       setIsLoading(false);
     },
@@ -196,12 +159,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </IonList>
         </div>
 
-        <div className="container">
-            <IonButton className="ion-margin-top" type="submit" expand="block">
-                xxx
-            </IonButton>
-
-        </div>
         </div>
         }
 

@@ -1,6 +1,7 @@
 import ProjectPage from './pages/ProjectPage';
 import SettingsPage from './pages/SettingsPage';
 import MainPage from './pages/MainPage';
+import DocumentPage from './pages/DocumentPage';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
