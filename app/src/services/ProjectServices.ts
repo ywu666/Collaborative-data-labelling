@@ -1,3 +1,5 @@
+
+import {downloadHelpers} from '../helpers/download'
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
@@ -40,16 +42,24 @@ function exportCsv(projectName: string) {
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json', 
+        'Content-Disposition': 'attachment; filename=' + projectName + '-export.csv',
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
+    const exportFields = ['_id', 'document', 'label'];
+    //const exportFields = ['_id'];
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data.projects
-        })
+    //return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/documents?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    .then(handleResponse)
+    .then(downloadHelpers.collectionToCSV(exportFields))
+    .then(csv => {
+        console.log(csv)
+        const blob = new Blob([csv], {type: 'text/csv'});
+        downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
+    })
+    .catch(console.error);
 }
 
 function getProjectUsers(project: string) {
