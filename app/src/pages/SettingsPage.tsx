@@ -34,7 +34,7 @@ import {
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={"User"}/>
+        <Header routerLink={"/project/" + project} name={localStorage.getItem("email") || "User"}/>
 
         <IonContent>
 
@@ -52,7 +52,7 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="6">
-                <SettingsTags tags={tags} />
+                <SettingsTags project={project} firebase={firebase} />
               </IonCol>
             </IonRow>
           </IonGrid>

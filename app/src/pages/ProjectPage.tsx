@@ -39,7 +39,7 @@ const ProjectPage: React.FC = () => {
 
   return (
     <IonPage>
-      <Header routerLink={"/"} name={"User"}/>
+      <Header routerLink={"/"} name={localStorage.getItem("email") || "User"}/>
 
       <IonContent>
         <div className="container">        
