@@ -47,6 +47,7 @@ const ProjectPage: React.FC = () => {
           <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
           <DocumentList name={name} page={pageIndex} page_size={page_size}/>
         </div>
+        <div>
         <form className="uploadFile">
             <IonItem>
             <input type="file"  />
@@ -55,11 +56,19 @@ const ProjectPage: React.FC = () => {
                 upload
             </IonButton>
         </form>
+        <p className="note">The uploaded file should be CSV formatted.<br/>There should be two 'columns' in the<br/>following order: ID and BODY</p>
+
+        </div>
+
+        <div>
         <form className="downloadFile">
             <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV("projectName"/*need to pass the real project name/id here*/)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
         </form>
+        <p className="note">The downloaded file will be a CSV file.<br/>There will be three 'columns' in the following<br/>order: ID, BODY, and LABEL</p>
+
+        </div>
       </IonContent>
 
     </IonPage>
