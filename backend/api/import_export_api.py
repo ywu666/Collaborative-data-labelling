@@ -78,8 +78,8 @@ def upload_file():
                     else:
                         document = Document(row[1], [], [])
                         # Find project database and populate document collection
-                        project = Project(project_name, [], [])
-                        project.add_document(document)
+                        doc_col = get_col(project_name, "documents")
+                        doc_col.insert_one(document.__dict__)
 
             # Delete file when done
             os.remove(filelocation)
