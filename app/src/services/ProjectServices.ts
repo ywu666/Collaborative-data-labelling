@@ -56,7 +56,7 @@ async function getProjectUsers(project: string, firebase: any) {
    }else{
     window.location.href = '/auth';
    }
-    
+
     return fetch(process.env.REACT_APP_API_URL + 
         '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token') + '&page=0&page_size=20',
         requestOptions)
@@ -72,7 +72,7 @@ async function getProjectUsers(project: string, firebase: any) {
         headers: { 'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
 
     const token = localStorage.getItem('user-token');
@@ -85,8 +85,8 @@ async function getProjectUsers(project: string, firebase: any) {
      } else {
          window.location.href = '/auth';
      }
-    
-    return fetch(process.env.REACT_APP_API_URL + 
+
+    return fetch(process.env.REACT_APP_API_URL +
         '/projects/' + project + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
@@ -112,7 +112,7 @@ async function getProjectUsers(project: string, firebase: any) {
          window.location.href = '/auth';
         }
 
-    return fetch(process.env.REACT_APP_API_URL + 
+    return fetch(process.env.REACT_APP_API_URL +
         '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
@@ -137,8 +137,8 @@ async function getProjectUsers(project: string, firebase: any) {
      } else {
          window.location.href = '/auth';
      }
-    
-    return fetch(process.env.REACT_APP_API_URL + 
+
+    return fetch(process.env.REACT_APP_API_URL +
         '/projects/' + project + '/labels/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
@@ -157,16 +157,6 @@ async function getProjectUsers(project: string, firebase: any) {
         body : formData
     }
     await handleAuthorization(firebase)
-    // const token = localStorage.getItem('user-token');
-    //  if (firebase.auth.currentUser != null) {
-    //      firebase.auth.currentUser.getIdToken().then((idToken: string) => {
-    //          if (token !== idToken) {
-    //              localStorage.setItem('user-token', idToken)
-    //          }
-    //      })
-    //  } else {
-    //      window.location.href = '/auth';
-    //  }
 
      return fetch(process.env.REACT_APP_API_URL + '/projects/upload' + '?id_token=' +
          localStorage.getItem('user-token'), requestOptions)
