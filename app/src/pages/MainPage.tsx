@@ -29,14 +29,11 @@ import {
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
-    const projectName = useRef(null);
 
     const {
       firebase
     } = props;
     const [isLoading, setIsLoading] = useState(true);
-
-    
     useEffect(() => {
       try {
         projectServices.getProjectNames(firebase)
@@ -54,7 +51,7 @@ import {
 
     return (
       <IonPage>
-        <Header name={localStorage.getItem("email") || "User"}/>
+      <Header name={"User"}/>
 
       <IonContent>
         {/**
