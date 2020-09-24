@@ -35,14 +35,6 @@ import {
     } = props;
     const [isLoading, setIsLoading] = useState(true);
     useEffect(() => {
-
-      try{
-        projectServices.createProject("hello", firebase);
-      } catch (e){
-        console.log(e)
-      }
-
-
       try {
         projectServices.getProjectNames(firebase)
         .then(data => {
@@ -51,9 +43,6 @@ import {
       } catch (e) {
         console.log(e)
       }
-
-
-
     }, [])
 
     setTimeout(() => {

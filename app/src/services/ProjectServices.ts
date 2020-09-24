@@ -37,7 +37,6 @@ async function createProject(project_name: any, firebase: any){
     .then(handleResponse)
     .then(data => {
         console.log("call for creating project reached back end")
-        console.log(data)
         return data
     })
 }
