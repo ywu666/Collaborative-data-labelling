@@ -9,18 +9,21 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
-import React, { useState } from 'react';
+import React, {useRef, useState} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import * as request from 'request';
 import onLogout from '../helpers/logout'
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
+import {projectServices} from "../services/ProjectServices";
+import firebase from "firebase";
 
 const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
-  const page_size = 10
-  const [pageIndex] = useState(0)
+  const page_size = 10;
+  const [pageIndex] = useState(0);
+  const inputFile = useRef(null);
 
   const downloadCSV = (projectName:string) => {
     request.get('https://localhost:5000/project/export?project=' + projectName, (response: any) => {
@@ -37,7 +40,14 @@ const ProjectPage: React.FC = () => {
     })
   }
 
-  return (
+  // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    // @ts-ignore
+    return (
     <IonPage>
       <Header routerLink={"/"} name={localStorage.getItem("email") || "User"}/>
 
@@ -48,9 +58,11 @@ const ProjectPage: React.FC = () => {
           <DocumentList name={name} page={pageIndex} page_size={page_size}/>
         </div>
         <div>
-        <form className="uploadFile">
+        <form className="uploadFile" onSubmit={() =>
+            // @ts-ignore
+            projectServices.uploadDocuments(name, inputFile.current.files[0], firebase)}>
             <IonItem>
-            <input type="file"  />
+            <input ref={inputFile} type="file" />
             </IonItem>
             <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
