@@ -38,6 +38,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   const [documentIndex, setDocumentIndex] = useState("");
   const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
+	const [docError, setDocError] = useState<any[]>([]);
 
   useEffect(() => {
     documentServices.getDocumentIds(name, page, page_size)
@@ -78,14 +79,31 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   }
 
   const changeTag = (documentIndex:any, label:any) => {
+		let doc = documents.find(e => e.id == documentIndex)
+		let email = localStorage.getItem("email")
+
+		if (doc.user_and_labels.some((e: { email: string | null; }) => e.email === email))
+			doc.user_and_labels.find((e: { email: string | null; }) => e.email === email).label = label._id 
+
+		else doc.user_and_labels.push({'email': email, 'label':label._id})
+
+		setNewDocument(doc)
+
 		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id)
-		.then(() => { return documentServices.getDocument(name, documentIndex) })
-		.then(data => {
-			data.id = documentIndex
-			return data
+		.then(() => { 
+			return documentServices.getDocument(name, documentIndex)
 		})
 		.then(data => {
+			data.id = documentIndex
 			setNewDocument(data)
+			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
+		})
+		.catch(e => {
+			let error = {
+				'doc_id':documentIndex,
+				'error':'There was an error updating label'
+			}
+			setDocError(err => [...err, error])
 		})
 		setShowModal(false)
 	}
@@ -94,11 +112,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let email = localStorage.getItem("email")
 		if (documents.some(e=> e.id === doc_id._id)) {
 			let document = documents.find(e => e.id === doc_id._id)
+			let error = docError.find(e => e.doc_id === doc_id._id)
 			let user_label = labels.find(e => e._id === document.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
-			
+
 			return (
 				<IonItem key = {index}>
-					<IonLabel>{document.data}</IonLabel>
+					<IonLabel>{document?.data}</IonLabel>
+					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 					{isNullOrUndefined(email)
 					? <div/>
 					:	isNullOrUndefined(user_label)
