@@ -38,14 +38,6 @@ import {
 
     
     useEffect(() => {
-
-      try{
-        projectServices.createProject("hello", firebase);
-      } catch (e){
-        console.log(e)
-      }
-
-
       try {
         projectServices.getProjectNames(firebase)
         .then(data => {
@@ -54,9 +46,6 @@ import {
       } catch (e) {
         console.log(e)
       }
-
-
-
     }, [])
 
     setTimeout(() => {
@@ -108,19 +97,24 @@ import {
 
         {/**will add an onclick function which will parse the new project name information to the system
          */}
-
-        <form className="createProject" onSubmit={() => {
-          projectServices.createProject(projectName, firebase);
-        }}>
+          <form className="createProject" onSubmit={(e: React.FormEvent) => {
+            
+            console.log("project name value below");
+            e.preventDefault();
+            const formData = new FormData(e.target as HTMLFormElement);
+            console.log(formData);
+            projectServices.createProject(formData.get("projectName"), firebase);
+            formData.delete("projectName");
+          }}>
             <IonItem>
-                <IonLabel position="floating">New Project</IonLabel>
-                <IonInput  ref={projectName} type="text"/>	            
+              <IonLabel position="floating">New Project</IonLabel>
+              <IonInput name="projectName" id="projectName" type="text"/>	            
             </IonItem>
             <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block">	
             <IonIcon icon={add} />            
                 create            
             </IonButton>	            
-        </form>	      
+            </form>	 	      
       </IonContent>
     </IonPage>
   );

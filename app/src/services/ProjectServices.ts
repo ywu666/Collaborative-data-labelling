@@ -14,7 +14,8 @@ export const projectServices = {
 }
 
 async function createProject(project_name: any, firebase: any){
-    console.log("We made it")
+    console.log("we made it");
+    console.log(project_name);
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type' : 'application/json'},
@@ -28,7 +29,6 @@ async function createProject(project_name: any, firebase: any){
     .then(handleResponse)
     .then(data => {
         console.log("call for creating project reached back end")
-        console.log(data)
         return data
     })
 }
