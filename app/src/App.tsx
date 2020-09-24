@@ -1,7 +1,6 @@
 import ProjectPage from './pages/ProjectPage';
 import SettingsPage from './pages/SettingsPage';
 import MainPage from './pages/MainPage';
-import DocumentPage from './pages/DocumentPage';
 import React from 'react';
 import { IonApp, IonRouterOutlet, IonSplitPane } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
@@ -48,8 +47,6 @@ const App: React.FC<AppProps> = (props: AppProps) => {
              * idea brought up by Chuyang
              * 
              * <Redirect from="/" to="/page/Inbox" exact />**/}
-            <Route path="/project/:project/settings" component={SettingsPage} exact />
-            <Route path="/project/:project/document/:document_id" component={DocumentPage} exact />
             <Route path="/project/:project/settings" component={()=><SettingsPage firebase={firebase} />} exact />
             <Route path="/project/:project/document/:document_id" component={DocumentPage} exact />
           </IonRouterOutlet>
