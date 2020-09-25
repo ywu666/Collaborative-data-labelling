@@ -11,13 +11,15 @@ export const projectServices = {
     createProject
 }
 
-async function createProject(projectName: any, firebase: any){
-    console.log("We made it")
+async function createProject(project_name: any, firebase: any){
+    console.log("entering creatproject function")
+    console.log(project_name)
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify( {projectName} )
+        body: JSON.stringify( {project_name} )
     }
+    console.log(requestOptions)
        //await handleAuthorization(firebase);
    const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
@@ -30,10 +32,13 @@ async function createProject(projectName: any, firebase: any){
     window.location.href = '/auth';
    }
 
+   console.log(project_name)
+   console.log("calling fetch api")
     return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions)
     .then(handleResponse)
     .then(data => {
-        return data.projectName
+        console.log(data)
+        return data.project_name
     })
 }
 
