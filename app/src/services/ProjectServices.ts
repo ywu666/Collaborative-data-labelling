@@ -8,29 +8,6 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
-<<<<<<< HEAD
-    setProjectTags,
-    createProject
-}
-
-async function createProject(project_name: any, firebase: any){
-    console.log("we made it");
-    console.log(project_name);
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify( {project_name} )
-    }
-    
-    console.log(requestOptions);
-
-
-    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
-    .then(handleResponse)
-    .then(data => {
-        console.log("call for creating project reached back end")
-        return data
-=======
     createProject
 }
 
@@ -57,7 +34,6 @@ async function createProject(projectName: any, firebase: any){
     .then(handleResponse)
     .then(data => {
         return data.projectName
->>>>>>> 625a7ea... create project Integration added
     })
 }
 
