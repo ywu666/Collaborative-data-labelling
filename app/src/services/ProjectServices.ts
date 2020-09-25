@@ -47,11 +47,11 @@ function exportCsv(projectName: string) {
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
-    const exportFields = ['_id', 'document', 'label'];
-    //const exportFields = ['_id'];
+    const exportFields = ['ID', 'DOCUMENT', 'LABEL'];
+    //const exportFields = ['id'];
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
-    //return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/documents?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    //return fetch('https://picsum.photos/list', requestOptions)
     .then(handleResponse)
     .then(downloadHelpers.collectionToCSV(exportFields))
     .then(csv => {
@@ -95,8 +95,10 @@ function getProjectUsers(project: string) {
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
+    console.log(response)
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
+       console.log(data)
        if (!response.ok) {
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);

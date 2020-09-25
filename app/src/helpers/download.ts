@@ -4,10 +4,9 @@ export const downloadHelpers = {
 }
 
 function collectionToCSV(keys : string[] = []) {
-    return (collection: string[] = []) => {
+    return (collection: JSON[] = []) => {
       const headers = keys.map(key => `"${key}"`).join(',');
       const extractKeyValues = (record:any) => keys.map(key => `"${record[key]}"`).join(',');
-        console.log(collection)
       return collection.reduce((csv, record) => {
         return (`${csv}\n${extractKeyValues(record)}`).trim();
       }, headers);
