@@ -10,7 +10,7 @@ user_api = Blueprint('user_api', __name__)
 
 @user_api.route("/users/create", methods=["Post"])
 def create_user():
-    # creates a new user based on the ID token that gets sent over
+    # creates a new user based ogn the ID token that gets sent over
     id_token = request.args.get('id_token')
 
     if id_token is None or id_token == "":
@@ -32,7 +32,22 @@ def create_user():
         response = make_response(response)
         return response, 400
 
-    all_users.insert_one({'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+    if 'username' in request.json:
+        username = request.json['username']
+        if all_users.find_one({'username': username}) is not None:
+            response = {'message': "Username is already taken"}
+            response = make_response(response)
+            return response, 400
+        else:
+            all_users.insert_one({'email': requestor_email, 'projects': [],
+                                  'username': username})  # projects should just include the project IDs which the user
+    # else:
+    #    response = {'message': "Missing username"}
+    #    response = make_response(response)
+    #    return response, 400
+    else:
+        all_users.insert_one({'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+
     # is part of! When a new user is created it should be empty
 
     return "", 204
@@ -148,6 +163,14 @@ def update_user(project_name):
 def get_user_emails():
     id_token = request.args.get('id_token')
 
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
@@ -161,7 +184,7 @@ def get_user_emails():
         return response, 400
 
     users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1})
+    all_users = users_col.find({}, {'email': 1}).skip(page * page_size).limit(page_size)
     all_users_dict = {"users": list(all_users)}
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
@@ -170,6 +193,14 @@ def get_user_emails():
 @user_api.route("/projects/<project_name>/users", methods=["Get"])
 def get_user_infos_for_project(project_name):
     id_token = request.args.get('id_token')
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
 
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
@@ -190,7 +221,7 @@ def get_user_infos_for_project(project_name):
         response = make_response(response)
         return response, 403
 
-    all_users = users_col.find({})
+    all_users = users_col.find({}).skip(page * page_size).limit(page_size)
     all_users_dict = {"users": list(all_users)}
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
@@ -204,7 +235,6 @@ def get_user_info():
         response = {'message': "ID Token is not included with the request uri in args"}
         response = make_response(response)
         return response, 400
-
     requestor_email = get_email(id_token)
 
     if requestor_email is None:
