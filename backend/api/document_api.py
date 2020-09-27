@@ -79,7 +79,7 @@ def get_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    count = col.find({}).count()
+    count = col.count_documents({})
     docs = col.find({}).skip(page * page_size).limit(page_size)
     docs_dict = {'docs': list(docs),
                  'count': count}
