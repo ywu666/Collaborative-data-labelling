@@ -292,7 +292,6 @@ def post_comment_on_document(project_name, document_id):
                              }})
     return '', 204
 
-
 if __name__ == '__main__':
     int('a')
 

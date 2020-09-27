@@ -7,6 +7,9 @@ import {
   IonButton,
   IonItem,
   IonIcon,
+  IonModal,
+  IonSkeletonText,
+  IonToast
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, {useRef, useState} from 'react';
@@ -24,20 +27,14 @@ const ProjectPage: React.FC = () => {
   const page_size = 10;
   const [pageIndex] = useState(0);
   const inputFile = useRef(null);
+  const [downloadError, setDownloadError] = useState<string>();
 
-  const downloadCSV = (projectName:string) => {
-    request.get('https://localhost:5000/project/export?project=' + projectName, (response: any) => {
-      const filename = 'labeller-' + projectName + '.csv'
-      const blob = new Blob([response], {type: 'text/csv;charset=utf-8;'});
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    })
+  const downloadCSV = (projectName: string) => {
+    try {
+      projectServices.exportCsv(projectName)
+    } catch(e) {
+      setDownloadError(e)
+    }
   }
 
   // @ts-ignore
@@ -74,7 +71,8 @@ const ProjectPage: React.FC = () => {
 
         <div>
         <form className="downloadFile">
-            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV("projectName"/*need to pass the real project name/id here*/)}><IonIcon icon={arrowDownOutline}/>
+          <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
+            <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
         </form>
