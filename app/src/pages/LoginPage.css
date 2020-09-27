@@ -24,3 +24,13 @@
 .login-container a {
   text-decoration: none;
 }
+
+.center {
+  margin: auto;
+  text-align: center;
+  width: 20%;
+  border: 2px solid lightgray;
+  padding: 5px;
+  position: relative;
+  top: 80%;
+}
