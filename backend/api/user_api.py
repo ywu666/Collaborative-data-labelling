@@ -1,7 +1,7 @@
 import firebase_admin
 from flask import Blueprint, request, make_response
 import pymongo
-from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user
+from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from firebase_auth import get_email
 from mongoDBInterface import get_col
 
@@ -160,6 +160,9 @@ def update_user(project_name):
         response = {'message': "There are already two contributors within this project, and you cannot add more"}
         response = make_response(response)
         return response, 400
+    # if user is going to not be a contributor, remove that the labels assigned by that contributor
+    elif not permissions['isContributor']:
+        remove_all_labels_of_user(email, project_name)
 
     project_user_col.update_one({'email': email}, {'$set': permissions})
     return "", 204
@@ -302,8 +305,8 @@ def remove_user_from_project(project_name):
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
-    print(requestor_email)
     if requestor_email == email or requestor['isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
         users_col.delete_one({'email': email})
         remove_project_from_user(email, project_name)
+        remove_all_labels_of_user(email, project_name)
     return "", 204
