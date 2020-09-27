@@ -79,6 +79,24 @@ function getLabels(project_name: any, firebase: any) {
        })
 }
 
+function postNewComment(project_name: string, document_id: string, comment: string){
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        body: JSON.stringify({ comment })
+    };
+    return fetch(process.env.REACT_APP_API_URL + 
+        '/projects/' + project_name + "/documents/" + document_id + "/comments/post?id_token="
+        + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return null
+        })
+}
+
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);

@@ -27,6 +27,7 @@ import firebase from "firebase";
 import app from 'firebase/app';
 import 'firebase/auth';
 import onLogout from '../helpers/logout'
+import NewCommentInput from '../components/NewCommentInputProps';
 
 interface Document {
   title: string;
@@ -161,6 +162,9 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
         </div>
         }
+        <NewCommentInput onCommentCreated={handleCommentCreated}
+        inputRef={NewCommentaElement}
+        postId={document_id}></NewCommentInput>
 
 
 
