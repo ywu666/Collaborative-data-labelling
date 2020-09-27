@@ -1,6 +1,6 @@
 import firebase_admin
 from flask import Blueprint, request, make_response
-
+import pymongo
 from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user
 from firebase_auth import get_email
 from mongoDBInterface import get_col
@@ -151,6 +151,13 @@ def update_user(project_name):
 
     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
         response = {'message': "That user does not exist in the project, add them to the project first"}
+        response = make_response(response)
+        return response, 400
+
+    count = project_user_col.count_documents({'isContributor'})
+
+    if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
+        response = {'message': "There are already two contributors within this project, and you cannot add more"}
         response = make_response(response)
         return response, 400
 
