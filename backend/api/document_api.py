@@ -1,3 +1,5 @@
+import datetime
+
 from bson import ObjectId
 from flask import Blueprint, request, make_response
 
@@ -245,6 +247,50 @@ def get_unlabelled_document_ids(project_name):
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
+
+
+@document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
+def post_comment_on_document(project_name, document_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    if 'comment' in request.json:
+        comment = request.json['comment']
+    else:
+        response = {'message': "Missing comment"}
+        response = make_response(response)
+        return response, 400
+
+    # have to be contributor, should include email, time and content of comment for every comment
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to do this"}
+        response = make_response(response)
+        return response, 403
+
+    documents_col = get_col(project_name, "documents")
+    current_time = datetime.datetime.now()
+    documents_col.update_one({'_id': ObjectId(document_id)},
+                             {'$push': {
+                                 'comments': {
+                                     'email': requestor_email,
+                                     'comment_body': comment,
+                                     'time': str(current_time)
+                                 }
+                             }})
+    return '', 204
 
 
 if __name__ == '__main__':
