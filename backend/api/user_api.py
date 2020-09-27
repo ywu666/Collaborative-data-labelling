@@ -154,7 +154,7 @@ def update_user(project_name):
         response = make_response(response)
         return response, 400
 
-    count = project_user_col.count_documents({'isContributor'})
+    count = project_user_col.count_documents({'isContributor': True})
 
     if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
         response = {'message': "There are already two contributors within this project, and you cannot add more"}
