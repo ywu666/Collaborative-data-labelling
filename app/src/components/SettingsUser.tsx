@@ -12,13 +12,16 @@ interface ContainerProps {
   user: string;
   isContributor: boolean;
   isAdmin: boolean;
+  canEdit: boolean;
   firebase:any
 }
 
 
-const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, firebase }) => {
+const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase }) => {
 
   const [showPermissions, setShowPermissions] = useState(false);
+
+  var currentRole = "Observer";
 
   const alert = 
   <IonAlert
@@ -64,50 +67,41 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     ]}
   />
 
-  // set perms here
   function setPermissions() {
     projectServices.setUserPermissions(project, user, isAdmin, isContributor, firebase);
   }
 
   if (isAdmin) {
-    return (
-      <div>
-        <IonItem>
-          <IonLabel>{user}</IonLabel>
-          <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
-            Admin
-          </IonButton>
-        </IonItem>
-        {alert}
-      </div>
-    );
+    currentRole = "Admin";
   } else if (isContributor) {
-    return (
-      <div>
-        <IonItem>
-          <IonLabel>{user}</IonLabel>
-          <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
-            Contributor
-          </IonButton>                
-        </IonItem>
-
-        {alert}
-      </div>
-      );
-  } else {
-    return (
-      <div>
-        <IonItem>
-          <IonLabel>{user}</IonLabel>
-          <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
-            Observer
-          </IonButton>
-        </IonItem>
-
-        {alert}
-      </div>
-    );
+    currentRole = "Contributor";
   }
+
+if (canEdit) {
+  return (
+    <div>
+    <IonItem>
+        <IonLabel>{user}</IonLabel>
+        <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
+        {currentRole}
+        </IonButton>
+    </IonItem>
+    {alert}
+    </div>
+  );
+} else {
+  return (
+    <div>
+    <IonItem>
+        <IonLabel>{user}</IonLabel>
+        <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)} disabled>
+        {currentRole}
+        </IonButton>
+    </IonItem>
+    {alert}
+    </div>
+  );
+}
 }
 
 export default SettingsUser;
