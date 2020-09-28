@@ -1,10 +1,8 @@
-from bson import ObjectId
-from flask import Blueprint, request, make_response
-
 from api.methods import JSONEncoder
+from bson import ObjectId
 from firebase_auth import get_email
+from flask import Blueprint, request, make_response
 from model.document import Document, get_db_collection
-from model.label import Label
 from mongoDBInterface import get_col
 
 document_api = Blueprint('document_api', __name__)
@@ -197,13 +195,22 @@ def set_label_for_user(project_name, document_id):
         response = make_response(response)
         return response, 400
 
+    # Check if other contributor has labelled document
+    label_is_confirmed = False
+    if len(document['user_and_labels']) > 1:
+        for item in document['user_and_labels']:
+            # If label assignments match, set confirmed
+            if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
+                label_is_confirmed = True
+
     # if the label already exists for the user
     current_user_label = col.find_one(
         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
     if current_user_label is not None:
         col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
                        {'$set': {
-                           "user_and_labels.$.label": ObjectId(label_id)}
+                           "user_and_labels.$.label": ObjectId(label_id),
+                           "label_confirmed": label_is_confirmed}
                        })
     else:
         # if the label assignment does not exist for the user
@@ -211,19 +218,10 @@ def set_label_for_user(project_name, document_id):
                        {'$push': {
                            "user_and_labels": {
                                "email": requestor_email,
-                               "label": ObjectId(label_id)}
-                       }
+                               "label": ObjectId(label_id)},
+                       },
+                           '$set': {"label_confirmed": label_is_confirmed}
                        })
-
-    # Check if other contributor has labelled document
-    if len(document['user_and_labels']) > 1:
-        for item in document['user_and_labels']:
-            # If label assignments match, set confirmed
-            if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
-                col.update_one({'_id': ObjectId(document_id)},
-                               {'$set': {
-                                   "label_confirmed": True}
-                               })
 
     return '', 204
 
