@@ -18,7 +18,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showUserModal, setShowUserModal] = useState(false);
 
     const initialUsers = [
-        { id: 0, email: 'No users'}
+        { id: 0, email: 'No users', isAdmin: false, isContributor: false }
     ]
 
     const [users, setUsers] = useState(initialUsers);
@@ -58,7 +58,8 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
       <h2>Users</h2>
           {users.map((user, i: number) => {
             return (
-                <SettingsUser key={i} user={user.email}></SettingsUser>
+                <SettingsUser key={i} project={project} user={user.email} 
+                isAdmin={user.isAdmin} isContributor={user.isContributor} firebase={firebase}></SettingsUser>
             );
           })}
 

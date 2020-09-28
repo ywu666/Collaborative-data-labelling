@@ -2,21 +2,28 @@ import {
     IonButton,
     IonItem,
     IonLabel,
-    IonModal,
-    IonList,
     IonAlert
 } from '@ionic/react';
 import React, { useState } from 'react';
+import { projectServices } from '../services/ProjectServices'
 
 interface ContainerProps {
+    project: string;
     user: string;
+    isContributor: boolean;
+    isAdmin: boolean;
+    firebase:any
 }
 
 
-const SettingsUser: React.FC<ContainerProps> = ({ user }) => {
+const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, firebase }) => {
 
     const [showPermissions, setShowPermissions] = useState(false);
 
+    // set perms here
+    function setPermissions() {
+          projectServices.setUserPermissions(project, user, isAdmin, isContributor, firebase);
+        }
 
     return (
         <div>
@@ -35,19 +42,16 @@ const SettingsUser: React.FC<ContainerProps> = ({ user }) => {
                 message={''}
                 inputs={[
                     {
-                        name: 'labelling',
                         type: 'checkbox',
-                        label: 'Allow Labelling',
+                        label: 'Contributor',
+                        value: 'Contributor',
+                        checked: isContributor
                     },
                     {
-                        name: 'upload',
                         type: 'checkbox',
-                        label: 'Allow Upload',
-                    },
-                    {
-                        name: 'newTag',
-                        type: 'checkbox',
-                        label: 'Can Assign Privileges',
+                        label: 'Admin',
+                        value: 'Admin',
+                        checked: isAdmin
                     }
                 ]}
                 buttons={[
@@ -57,8 +61,18 @@ const SettingsUser: React.FC<ContainerProps> = ({ user }) => {
                     },
                     {
                         text: 'Confirm',
-                        handler: (alertData) => {
-
+                        handler: (data) => {
+                            if (data.includes("Contributor")) {
+                                isContributor = true;
+                            } else {
+                                isContributor = false;
+                            }
+                            if (data.includes("Admin")) {
+                                isAdmin = true;
+                            } else {
+                                isAdmin = false;
+                            }
+                            setPermissions()
                         }
                     }
                 ]}
