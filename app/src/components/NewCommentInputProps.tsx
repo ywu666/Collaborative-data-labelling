@@ -14,16 +14,15 @@ import {
   import React, { useState, RefObject } from 'react';
   import { send } from 'ionicons/icons';
   import { isNullOrWhitespace } from '../utils';
+  import { documentServices } from '../services/DocumentService';
   export interface NewCommentInputProps {
-    onCommentCreated: (
-      newCommentContent: any
-    ) => void;
+    projectName: string;
     inputRef: RefObject<HTMLIonTextareaElement>;
-    postId: string | undefined;
+    postId: string;
   }
   
   const NewCommentInput: React.FC<NewCommentInputProps> = ({
-    onCommentCreated,
+    projectName,
     inputRef,
     postId,
   }) => {
@@ -32,12 +31,10 @@ import {
     const handleSubmit = async () => {
       // TODO: add input validation and retrieve communityId from somewhere
       try {
-        // const { data } = await submitComment({
-        //   variables: {
-        //     postId: postId!,
-        //     content: content!,
-        //   },
-        // });
+        documentServices.postNewComment(projectName, postId, content)
+        .then(() => { 
+			return documentServices.getDocument(projectName, postId)
+		})
         setContent('');
        // onCommentCreated(data!.submitComment!.comment!);
       } catch (e) {
@@ -78,6 +75,7 @@ import {
                       disabled={isNullOrWhitespace(content) || !postId}
                       onClick={handleSubmit}
                     >
+                        Submit
                       {/* {(loading && <IonSpinner />) || (
                         <>
                           Submit

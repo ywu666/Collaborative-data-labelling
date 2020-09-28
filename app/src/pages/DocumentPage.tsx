@@ -18,7 +18,7 @@ import {
     IonSkeletonText,
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import './DocumentPage.css';
 import { isNullOrUndefined } from 'util';
@@ -64,12 +64,29 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     const [documentData, setDocumentData] = useState([[""]]);
     const [labelData, setLabelData] = useState<Users_and_Labels[]>([])
     const [labelList, setLabelList] = useState<Label[]>([])
+    const newCommentElement = useRef<HTMLIonTextareaElement>(null);
+
+    const handleReply = (author: string) => {
+      newCommentElement.current!.setFocus();
+      newCommentElement.current!.value = `@${author} `;
+    };
 
     useEffect(() => {
       try {
         documentServices.getLabels(project, firebase)
         .then(data => {
             setLabelList(data)
+        })
+      } catch (e) {
+      }
+    }, []);
+
+    useEffect(() => {
+      try {
+        documentServices.getDocument(project, document_id)
+        .then(data => {
+            setDocumentData(data.data)
+            setLabelData(data.user_and_labels)
         })
       } catch (e) {
       }
@@ -162,8 +179,8 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
         </div>
         }
-        <NewCommentInput onCommentCreated={handleCommentCreated}
-        inputRef={NewCommentaElement}
+        <NewCommentInput projectName={project}
+        inputRef={newCommentElement}
         postId={document_id}></NewCommentInput>
 
 
