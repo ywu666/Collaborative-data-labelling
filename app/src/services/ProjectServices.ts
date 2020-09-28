@@ -12,12 +12,12 @@ export const projectServices = {
     uploadDocuments
 }
 
-async function createProject(projectName: any, firebase: any){
+async function createProject(project_name: any, firebase: any){
     console.log("We made it")
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type' : 'application/json'},
-        body: JSON.stringify( {projectName} )
+        body: JSON.stringify( {project_name} )
     }
        //await handleAuthorization(firebase);
    const token = localStorage.getItem('user-token');
