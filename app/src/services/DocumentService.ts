@@ -7,6 +7,7 @@ export const documentServices = {
     getDocumentIds,
     postDocumentLabel,
     getLabels,
+    postNewComment
 }
 
 function getDocument(project:any, document_id:any) {
@@ -79,7 +80,11 @@ function getLabels(project_name: any, firebase: any) {
        })
 }
 
-function postNewComment(project_name: string, document_id: string, comment: string){
+function getComments(project_name:string, document_id:string){
+    
+}
+
+function postNewComment(project_name: string, document_id: string, comment: string | undefined){
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 
