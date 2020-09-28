@@ -67,14 +67,19 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         <IonInput type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
 
         <IonButton size="small" fill="outline" onClick={() => {
-          if (users.some(check => check.email === newUser)) {
-            setErrorMessage('User has already been added')
+          if (typeof newUser !== 'undefined' && newUser) {
+            if (users.some(check => check.email === newUser)) {
+              setErrorMessage('User has already been added');
+              setShowAlert(true);
+            } else if (!allUsers.some(check => check.email === newUser)) {
+              setErrorMessage('User does not exist');
+              setShowAlert(true);
+            } else {
+              addUser(newUser)
+            }
+          } else {
+            setErrorMessage('Please enter a user email');
             setShowAlert(true);
-          } else if (!allUsers.some(check => check.email === newUser)) {
-            setErrorMessage('User does not exist');
-            setShowAlert(true);
-          } else if (typeof newUser !== 'undefined') {
-            addUser(newUser)
           }
         }}>
           + Add user
