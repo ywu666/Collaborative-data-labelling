@@ -189,9 +189,18 @@ def set_label_for_user(project_name, document_id):
         return response, 400
 
     col = get_db_collection(project_name, "documents")
+    document = col.find_one({'_id': ObjectId(document_id)})
+
+    # If labels are already the same, prevent any further changes
+    if document['label_confirmed']:
+        response = {'message': "Label already confirmed"}
+        response = make_response(response)
+        return response, 400
 
     # if the label already exists for the user
-    if col.find_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}}) is not None:
+    current_user_label = col.find_one(
+        {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
+    if current_user_label is not None:
         col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
                        {'$set': {
                            "user_and_labels.$.label": ObjectId(label_id)}
@@ -203,8 +212,18 @@ def set_label_for_user(project_name, document_id):
                            "user_and_labels": {
                                "email": requestor_email,
                                "label": ObjectId(label_id)}
-                           }
+                       }
                        })
+
+    # Check if other contributor has labelled document
+    if len(document['user_and_labels']) > 1:
+        for item in document['user_and_labels']:
+            # If label assignments match, set confirmed
+            if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
+                col.update_one({'_id': ObjectId(document_id)},
+                               {'$set': {
+                                   "label_confirmed": True}
+                               })
 
     return '', 204
 
@@ -241,7 +260,8 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(page * page_size).limit(page_size)
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(
+        page * page_size).limit(page_size)
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
@@ -249,6 +269,3 @@ def get_unlabelled_document_ids(project_name):
 
 if __name__ == '__main__':
     int('a')
-
-
-
