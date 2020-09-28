@@ -249,8 +249,9 @@ def get_unlabelled_document_ids(project_name):
     return docs, 200
 
 
+# Returns the ids of documents that have conflicting labels
 @document_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
-def get_documents_with_conflicting_labels(project_name):
+def get_conflicting_labels_document_ids(project_name):
     id_token = request.args.get('id_token')
 
     try:
