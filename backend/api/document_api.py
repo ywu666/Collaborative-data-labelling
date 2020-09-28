@@ -191,7 +191,8 @@ def set_label_for_user(project_name, document_id):
     col = get_db_collection(project_name, "documents")
 
     # if the label already exists for the user
-    if col.find_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}}) is not None:
+    if col.find_one(
+            {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}}) is not None:
         col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
                        {'$set': {
                            "user_and_labels.$.label": ObjectId(label_id)}
@@ -203,7 +204,7 @@ def set_label_for_user(project_name, document_id):
                            "user_and_labels": {
                                "email": requestor_email,
                                "label": ObjectId(label_id)}
-                           }
+                       }
                        })
 
     return '', 204
@@ -241,10 +242,12 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(page * page_size).limit(page_size)
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(
+        page * page_size).limit(page_size)
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
+
 
 @document_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
 def get_documents_with_conflicting_labels(project_name):
@@ -293,19 +296,18 @@ def get_documents_with_conflicting_labels(project_name):
             for item in user_and_labels:
                 # check that label is the same
                 if item['label'] != final_label_id:
-                    conflicting_doc_ids.append(d['_id'])
+                    conflicting_doc_ids.append(ObjectId(d['_id']))
                     break
 
     # get documents that conflict
-    documents = doc_col.find({'_id:': {'$in': {conflicting_doc_ids}}}, {'_id': 1}).skip(page * page_size).limit(page_size)
-    docs_dict = {'docs': list(documents)}
+    query = {'_id': {'$in': conflicting_doc_ids}}
+    projection = {'_id': 1}
+    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
+
+    docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
 
 
-
 if __name__ == '__main__':
     int('a')
-
-
-
