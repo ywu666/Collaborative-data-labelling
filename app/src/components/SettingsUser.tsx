@@ -4,30 +4,33 @@ import {
     IonLabel,
     IonModal,
     IonList,
-    IonAlert
+    IonAlert,
+    IonIcon
 } from '@ionic/react';
+import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
 import React, { useState } from 'react';
 
 interface ContainerProps {
     user: string;
+    admin: boolean;
+    contributor: boolean;
 }
 
 
-const SettingsUser: React.FC<ContainerProps> = ({ user }) => {
+const SettingsUser: React.FC<ContainerProps> = ({ user, admin, contributor }) => {
 
     const [showPermissions, setShowPermissions] = useState(false);
 
 
     return (
         <div>
-
-            <IonItem>
+            <IonItem >
                 <IonLabel>{user}</IonLabel>
+                <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!admin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!contributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
                 <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
-                    Permissions
-                    </IonButton>
+                    Edit Permissions
+                </IonButton>
             </IonItem>
-
             <IonAlert
                 isOpen={showPermissions}
                 onDidDismiss={() => setShowPermissions(false)}
