@@ -4,8 +4,9 @@ import {
   IonLabel,
   IonAlert
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { projectServices } from '../services/ProjectServices'
+import { isNullOrUndefined } from 'util';
 
 interface ContainerProps {
   project: string;
@@ -20,6 +21,8 @@ interface ContainerProps {
 const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase }) => {
 
   const [showPermissions, setShowPermissions] = useState(false);
+  const [localIsContributor, setLocalIsContributor] = useState<boolean>(isContributor);
+  const [localIsAdmin, setLocalIsAdmin] = useState<boolean>(isAdmin);
 
   var currentRole = "Observer";
 
@@ -34,13 +37,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
         type: 'checkbox',
         label: 'Contributor',
         value: 'Contributor',
-        checked: isContributor
+        checked: localIsContributor
       },
       {
         type: 'checkbox',
         label: 'Admin',
         value: 'Admin',
-        checked: isAdmin
+        checked: localIsAdmin
       }
     ]}
     buttons={[
@@ -52,14 +55,14 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
         text: 'Confirm',
         handler: (data) => {
           if (data.includes("Contributor")) {
-            isContributor = true;
+            setLocalIsContributor(true);
           } else {
-            isContributor = false;
+            setLocalIsContributor(false);
           }
           if (data.includes("Admin")) {
-            isAdmin = true;
+            setLocalIsAdmin(true);
           } else {
-            isAdmin = false;
+            setLocalIsAdmin(false);
           }
           setPermissions()
           }
@@ -68,12 +71,14 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
   />
 
   function setPermissions() {
+    isContributor = localIsContributor;
+    isAdmin = localIsAdmin;
     projectServices.setUserPermissions(project, user, isAdmin, isContributor, firebase);
   }
 
-  if (isAdmin) {
+    if (localIsAdmin) {
     currentRole = "Admin";
-  } else if (isContributor) {
+  } else if (localIsContributor) {
     currentRole = "Contributor";
   }
 
