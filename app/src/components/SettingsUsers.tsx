@@ -1,7 +1,8 @@
 import {
   IonButton,
   IonAlert,
-  IonInput
+  IonInput,
+  IonRow
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
@@ -61,21 +62,25 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         );
       })}
 
-      <IonInput type="text" placeholder="Enter user email" onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
+      <IonRow>
 
-      <IonButton size="small" fill="outline" onClick={() => {
-        if (users.some(check => check.email === newUser)) {
-          setErrorMessage('User has already been added')
-          setShowAlert(true);
-        } else if (!allUsers.some(check => check.email === newUser)) {
-          setErrorMessage('User does not exist');
-          setShowAlert(true);
-        } else if (typeof newUser !== 'undefined') {
-          addUser(newUser)
-        }
-      }}>
-        + Add user
+        <IonInput type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
+
+        <IonButton size="small" fill="outline" onClick={() => {
+          if (users.some(check => check.email === newUser)) {
+            setErrorMessage('User has already been added')
+            setShowAlert(true);
+          } else if (!allUsers.some(check => check.email === newUser)) {
+            setErrorMessage('User does not exist');
+            setShowAlert(true);
+          } else if (typeof newUser !== 'undefined') {
+            addUser(newUser)
+          }
+        }}>
+          + Add user
         </IonButton>
+
+      </IonRow>
 
         <IonAlert 
         isOpen={showAlert}
