@@ -176,13 +176,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		<div>
 			<div>
 				<IonSegment onIonChange={e => filterOnChange(e.detail.value)}>
-      	    <IonSegmentButton value="all">
-      	      <IonLabel>All</IonLabel>
-      	    </IonSegmentButton>
-      	    <IonSegmentButton value="unlabelled">
-      	      <IonLabel>Unlabelled</IonLabel>
-      	    </IonSegmentButton>
-      	</IonSegment>
+					<IonSegmentButton value="all">
+						<IonLabel>All</IonLabel>
+					</IonSegmentButton>
+					<IonSegmentButton value="unlabelled">
+						<IonLabel>Unlabelled</IonLabel>
+					</IonSegmentButton>
+				</IonSegment>
 			</div>
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
