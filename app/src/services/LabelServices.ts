@@ -49,14 +49,14 @@ function setLabels(project: string, label_name: string, firebase:any) {
         })
  }
 
-function updateLabel(project: string, label_id: number, label_name: string){
+function updateLabel(project: string, label_id: number, label_name: string, firebase: any){
     const requestOptions = {
         method: 'PUT',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ label_name })
      };
 
-     /*const token = localStorage.getItem('user-token');
+     const token = localStorage.getItem('user-token');
      if (firebase.auth.currentUser != null) {
          firebase.auth.currentUser.getIdToken().then((idToken: string) => {
              if (token !== idToken) {
@@ -65,7 +65,7 @@ function updateLabel(project: string, label_id: number, label_name: string){
          })
      } else {
          window.location.href = '/auth';
-     }*/
+     }
 
     return fetch(process.env.REACT_APP_API_URL +
         '/projects/' + project + '/labels/' + label_id + '/update' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
