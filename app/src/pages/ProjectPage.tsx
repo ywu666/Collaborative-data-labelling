@@ -25,7 +25,6 @@ import firebase from "firebase";
 const ProjectPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
   const page_size = 10;
-  const [pageIndex] = useState(0);
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
 
@@ -52,7 +51,7 @@ const ProjectPage: React.FC = () => {
         <div className="container">        
           <h1>{name}</h1>
           <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          <DocumentList name={name} page={pageIndex} page_size={page_size}/>
+          <DocumentList name={name} page_size={page_size}/>
         </div>
         <div>
         <form className="uploadFile" onSubmit={() =>
