@@ -88,7 +88,7 @@ if (canEdit) {
     <div>
     <IonItem>
         <IonLabel>{user}</IonLabel>
-        <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
+        <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!localIsAdmin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!localIsContributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
         <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
         {currentRole}
         </IonButton>
