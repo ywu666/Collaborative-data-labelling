@@ -31,7 +31,7 @@ def create_project():
         return response, 400
 
     my_client = get_db_client()
-    if re.match(r'^\w+$', project):
+    if not re.match(r'^\w+$', project):
         response = {'message': "Project name can only be Alphanumerics and underscores"}
         response = make_response(response)
         return response, 400

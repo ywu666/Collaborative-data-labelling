@@ -3,7 +3,7 @@ import {
     IonAlert,
   } from '@ionic/react';
   import React, { useState, useEffect } from 'react';
-  import { projectServices } from '../services/ProjectServices'
+  import { labelServices } from '../services/LabelServices'
 import './SettingsTags.css';
 
 interface ContainerProps {
@@ -21,7 +21,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
-      projectServices.getProjectTags(project, firebase)
+      labelServices.getLabels(project)
       .then(data => {
         setTags(data)
       })
@@ -31,7 +31,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   }, [])
 
   function addTag(tag: string) {
-    projectServices.setProjectTags(project, tag, firebase);
+    labelServices.setLabels(project, tag, firebase);
     setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
