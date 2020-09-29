@@ -27,6 +27,7 @@ import app from 'firebase/app';
 import 'firebase/auth';
 import onLogout from '../helpers/logout';
 import NewCommentInput from '../components/NewCommentInputProps';
+import Comment from '../components/Comment';
 
 interface Document {
   title: string;
@@ -205,9 +206,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
             <IonList>
               {commentList.map((data, i) => (
                 <IonItem key={i}>
-                  <IonLabel>{data.email}</IonLabel>
-                  <IonLabel>{data.comment_body}</IonLabel>
-                  <IonLabel>{data.time}</IonLabel>
+                 <Comment onReply={handleReply} email={data.email} content= {data.comment_body} time={data.time}></Comment>
                 </IonItem>
               ))}
             </IonList>
