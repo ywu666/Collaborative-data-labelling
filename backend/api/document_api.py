@@ -392,10 +392,21 @@ def get_conflicting_labels_document_ids(project_name):
         response = {'message': "page and page_size must be integers"}
         response = make_response(response)
         return response, 400
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
     
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
-    
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
         response = make_response(response)
