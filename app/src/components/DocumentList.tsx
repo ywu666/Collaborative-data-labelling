@@ -13,23 +13,19 @@ import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
 
-const labels: string[] = [
-  "tag1",
-  "tag2",
-  "tag3",
-]
-
 interface DocumentListProps {
-	name: string,
+  name: string,
   page: number,
-  page_size: number
+  page_size: number,
+  firebase:any
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   const {
 		name,
 	  page,
-  	page_size
+	  page_size,
+	  firebase
 	} = props;
 	
   const [documents, setDocuments] = useState<any[]>([]);
@@ -41,7 +37,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [docError, setDocError] = useState<any[]>([]);
 
   useEffect(() => {
-    documentServices.getDocumentIds(name, page, page_size)
+    documentServices.getDocumentIds(name, page, page_size, firebase)
     .then(data => {
       setDocumentsIds(data)
     })
@@ -49,7 +45,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
   useEffect(() => {
     for (let child of document_ids) {
-      documentServices.getDocument(name, child._id)
+      documentServices.getDocument(name, child._id, firebase)
       .then(data => {
 				data.id = child._id
 				setDocuments(doc => [...doc, data])
@@ -58,7 +54,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}, [document_ids])
 	
 	useEffect(() => {
-		labelServices.getLabels(name)
+		labelServices.getLabels(name,firebase)
 		.then(data => {
 			setLabels(data)
 		})
@@ -89,9 +85,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 		setNewDocument(doc)
 
-		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id)
+		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id, firebase)
 		.then(() => { 
-			return documentServices.getDocument(name, documentIndex)
+			return documentServices.getDocument(name, documentIndex, firebase)
 		})
 		.then(data => {
 			data.id = documentIndex

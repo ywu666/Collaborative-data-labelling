@@ -39,7 +39,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
     <IonApp>
       <IonReactRouter>
           <IonRouterOutlet id="main">
-            <Route path="/project/:name" component={()=><ProjectPage />} exact />
+            <Route path="/project/:name" component={()=><ProjectPage firebase={firebase} />} exact />
             <Route path="/auth" component={LoginPage}  />
             <Route path="/signup" component={SignUpPage}  />
             <Route path="/" component={()=><MainPage firebase={firebase} />} exact />

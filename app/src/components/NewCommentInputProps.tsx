@@ -16,10 +16,10 @@ import {
   import { isNullOrWhitespace } from '../utils';
   import { documentServices } from '../services/DocumentService';
   export interface NewCommentInputProps {
-      //onCommentCreated:any
     projectName: string;
     inputRef: RefObject<HTMLIonTextareaElement>;
     postId: string;
+    firebase:any
   }
   
   const NewCommentInput: React.FC<NewCommentInputProps> = ({
@@ -27,14 +27,15 @@ import {
     projectName,
     inputRef,
     postId,
+    firebase
   }) => {
     const [content, setContent] = useState<string>();
 
     const handleSubmit = async () => {
       try {
-        documentServices.postNewComment(projectName, postId, content)
+        documentServices.postNewComment(projectName, postId, content ,firebase)
         .then(() => { 
-			return documentServices.getDocument(projectName, postId)
+			return documentServices.getDocument(projectName, postId, firebase)
         })
         //onCommentCreated(content);
         setContent('');
