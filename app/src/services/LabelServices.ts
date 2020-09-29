@@ -49,7 +49,30 @@ function setLabels(project: string, label_name: string, firebase:any) {
         })
  }
 
-function updateLabel(project: string, label_id: string, label_name: string){
+function updateLabel(project: string, label_id: number, label_name: string){
+    const requestOptions = {
+        method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ label_name })
+     };
+
+     /*const token = localStorage.getItem('user-token');
+     if (firebase.auth.currentUser != null) {
+         firebase.auth.currentUser.getIdToken().then((idToken: string) => {
+             if (token !== idToken) {
+                 localStorage.setItem('user-token', idToken)
+             }
+         })
+     } else {
+         window.location.href = '/auth';
+     }*/
+
+    return fetch(process.env.REACT_APP_API_URL +
+        '/projects/' + project + '/labels/' + label_id + '/update' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {

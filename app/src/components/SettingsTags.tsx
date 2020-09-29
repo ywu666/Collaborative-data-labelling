@@ -41,7 +41,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   function updateTag(label_name: string){
     console.log(tagID)
     console.log(label_name)
-
+    labelServices.updateLabel(project, tagID, label_name);
   }
 
   function updateButtonClick(_id: number){
