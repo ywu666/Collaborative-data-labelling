@@ -39,8 +39,6 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   }
 
   function updateTag(label_name: string){
-    console.log(tagID)
-    console.log(label_name)
     let tag = tags.find(check => check._id === tagID);
     if(tag != undefined){
         tag.name = label_name;
