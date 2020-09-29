@@ -310,3 +310,25 @@ def remove_user_from_project(project_name):
         remove_project_from_user(email, project_name)
         remove_all_labels_of_user(email, project_name)
     return "", 204
+
+@user_api.route("/user/<user_email>", methods=['Get'])
+def get_all_users_emails():
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col("users", "users")
+    all_users = users_col.find({}, {'email': 1})
+    all_users_dict = {"users": list(all_users)}
+    all_users_json = JSONEncoder().encode(all_users_dict)
+    return all_users_json, 200
