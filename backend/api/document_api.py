@@ -190,7 +190,7 @@ def set_label_for_user(project_name, document_id):
     col = get_db_collection(project_name, "documents")
     document = col.find_one({'_id': ObjectId(document_id)})
 
-    # If labels are already the same, prevent any further changes //TODO: this is giving me the error
+    # If labels are already the same, prevent any further changes
     if document['label_confirmed']:
         response = {'message': "Label already confirmed"}
         response = make_response(response)
