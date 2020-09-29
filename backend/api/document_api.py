@@ -203,10 +203,11 @@ def set_label_for_user(project_name, document_id):
             if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
                 label_is_confirmed = True
 
-    # if the label already exists for the user
     current_user_label = col.find_one(
         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
+    # if the label already exists for the user
     if current_user_label is not None:
+
         col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
                        {'$set': {
                            "user_and_labels.$.label": ObjectId(label_id),
@@ -330,6 +331,67 @@ def get_unlabelled_document_ids(project_name):
     col = get_db_collection(project_name, "documents")
     docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(
         page * page_size).limit(page_size)
+    docs_dict = {'docs': list(docs)}
+    docs = JSONEncoder().encode(docs_dict)
+    return docs, 200
+
+
+# Returns the ids of documents that have conflicting labels
+@document_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
+def get_conflicting_labels_document_ids(project_name):
+    id_token = request.args.get('id_token')
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    conflicting_doc_ids = []
+
+    # get all documents
+    doc_col = get_db_collection(project_name, "documents")
+    documents = doc_col.find(projection={'comments': 0})
+
+    # Check if labels match
+    for d in documents:
+        # Find final label id
+        user_and_labels = d['user_and_labels']
+
+        if len(user_and_labels) > 1:
+            final_label_id = user_and_labels[0]['label']
+            for item in user_and_labels:
+                # check that label is the same
+                if item['label'] != final_label_id:
+                    conflicting_doc_ids.append(ObjectId(d['_id']))
+                    break
+
+    # get documents that conflict
+    query = {'_id': {'$in': conflicting_doc_ids}}
+    projection = {'_id': 1}
+    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
+
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
