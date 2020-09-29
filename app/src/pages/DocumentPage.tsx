@@ -13,20 +13,19 @@ import {
   IonTextarea,
   IonInput,
   IonCard,
-    IonCardContent,
-    IonCardTitle,
-    IonSkeletonText,
+  IonCardContent,
+  IonCardTitle,
+  IonSkeletonText,
 } from '@ionic/react';
 import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
 import './DocumentPage.css';
-import { isNullOrUndefined } from 'util';
-import { documentServices } from '../services/DocumentService'
-import firebase from "firebase";
+import { documentServices } from '../services/DocumentService';
+import firebase from 'firebase';
 import app from 'firebase/app';
 import 'firebase/auth';
-import onLogout from '../helpers/logout'
+import onLogout from '../helpers/logout';
 import NewCommentInput from '../components/NewCommentInputProps';
 
 interface Document {
@@ -36,159 +35,185 @@ interface Document {
 }
 
 interface Users_and_Labels {
-    email: string;
-    label: string;
+  email: string;
+  label: string;
 }
 
 interface DocumentPageProps {
-    firebase: any
-  }
+  firebase: any;
+}
 
 interface Label {
-    _id: string;
-    name: string;
+  _id: string;
+  name: string;
+}
+
+interface Comments {
+  email: string;
+  comment_body: string;
+  time: any;
 }
 
 var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
-  const {document_id } = useParams<{document_id: string }>();
-  const {project } = useParams<{project: string }>();
+  const { document_id } = useParams<{ document_id: string }>();
+  const { project } = useParams<{ project: string }>();
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    firebase
-  } = props;
+  const { firebase } = props;
 
-    const id_Token = localStorage.getItem("user-token")
-    const [documentData, setDocumentData] = useState([[""]]);
-    const [labelData, setLabelData] = useState<Users_and_Labels[]>([])
-    const [labelList, setLabelList] = useState<Label[]>([])
-    const newCommentElement = useRef<HTMLIonTextareaElement>(null);
+  const id_Token = localStorage.getItem('user-token');
+  const [documentData, setDocumentData] = useState([['']]);
+  const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
+  const [labelList, setLabelList] = useState<Label[]>([]);
 
-    const handleReply = (author: string) => {
-      newCommentElement.current!.setFocus();
-      newCommentElement.current!.value = `@${author} `;
-    };
+  const [commentData, setCommentData] = useState<Comments[]>([]);
+  const newCommentElement = useRef<HTMLIonTextareaElement>(null);
 
-    useEffect(() => {
-      try {
-        documentServices.getLabels(project, firebase)
-        .then(data => {
-            setLabelList(data)
-        })
-      } catch (e) {
+  const handleReply = (author: string) => {
+    newCommentElement.current!.setFocus();
+    newCommentElement.current!.value = `@${author} `;
+  };
+
+  useEffect(() => {
+    try {
+      documentServices.getLabels(project, firebase).then((data) => {
+        setLabelList(data);
+      });
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      documentServices.getDocument(project, document_id).then((data) => {
+        setDocumentData(data.data);
+        setLabelData(data.user_and_labels);
+      });
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      documentServices.getDocument(project, document_id).then((data) => {
+        setDocumentData(data.data);
+        setLabelData(data.user_and_labels);
+        setCommentData(data.comments);
+      });
+    } catch (e) {}
+  }, []);
+
+  let list: Users_and_Labels[] = [];
+  labelData.forEach((element: any) => {
+    labelList.forEach((element1: any) => {
+      if (element.label === element1._id) {
+        let pair: Users_and_Labels = {
+          email: element.email,
+          label: element1.name,
+        };
+        list.push(pair);
       }
-    }, []);
+    });
+  });
 
-    useEffect(() => {
-      try {
-        documentServices.getDocument(project, document_id)
-        .then(data => {
-            setDocumentData(data.data)
-            setLabelData(data.user_and_labels)
-        })
-      } catch (e) {
-      }
-    }, []);
+  let commentList: Comments[] = [];
+  commentData.forEach((element: any) => {
+    list.push(element);
+  });
+  setTimeout(() => {
+    setIsLoading(false);
+  }, 1500);
 
-    useEffect(() => {
-      try {
-        documentServices.getDocument(project, document_id)
-        .then(data => {
-            setDocumentData(data.data)
-            setLabelData(data.user_and_labels)
-        })
-      } catch (e) {
-      }
-    }, []);
-
-    let list: Users_and_Labels[] = [];
-    labelData.forEach((element:any) => {
-       labelList.forEach((element1:any) => {
-            if(element.label === element1._id){
-                let pair: Users_and_Labels = {email: element.email, label: element1.name}
-                list.push(pair)
-
-            }
-       })
-    })
-    setTimeout(() => {
-      setIsLoading(false);
-    },
-    1500
-    )
-
-  const renderLabelModal = (i:number) => {
-    setShowModal(true)
-    setLabelIndex(i)
-  }
+  const renderLabelModal = (i: number) => {
+    setShowModal(true);
+    setLabelIndex(i);
+  };
 
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar className="header">
-          <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
+          <IonButton slot="start">
+            <IonIcon icon={arrowBack} />
+          </IonButton>
           <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+          <IonButton
+            onClick={onLogout}
+            slot="end"
+            routerLink="/auth"
+            routerDirection="back"
+          >
+            Log out
+          </IonButton>
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
-      {/**
+        {/**
          * skeleton is displayed if isLoading is true, otherwise projectData is displayed
          */}
-        {isLoading
-        ?<div className="container">
-          <IonCard>
-            <IonCardTitle>
-              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
-            </IonCardTitle>
-          </IonCard>
-          <IonCard>
-            <IonCardTitle>
-              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
-            </IonCardTitle>
-          </IonCard>
-          <IonCard>
-            <IonCardTitle>
-              <IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
-            </IonCardTitle>
-          </IonCard>
-        </div>
-        :<div className="container">
+        {isLoading ? (
+          <div className="container">
+            <IonCard>
+              <IonCardTitle>
+                <IonSkeletonText
+                  animated
+                  style={{ width: '100%' }}
+                ></IonSkeletonText>
+              </IonCardTitle>
+            </IonCard>
+            <IonCard>
+              <IonCardTitle>
+                <IonSkeletonText
+                  animated
+                  style={{ width: '100%' }}
+                ></IonSkeletonText>
+              </IonCardTitle>
+            </IonCard>
+            <IonCard>
+              <IonCardTitle>
+                <IonSkeletonText
+                  animated
+                  style={{ width: '100%' }}
+                ></IonSkeletonText>
+              </IonCardTitle>
+            </IonCard>
+          </div>
+        ) : (
+          <div className="container">
             <IonHeader className="pageTitle">Document</IonHeader>
-        <div className="container">
+            <div className="container">
+              <IonCardTitle>{document_id}</IonCardTitle>
+              <strong>{documentData}</strong>
+            </div>
 
-            <IonCardTitle>
-                {document_id}
-            </IonCardTitle>
-            <strong>{documentData}</strong>
-        </div>
-
-        <div className="container">
-          <IonList>
-            {list.map((data, i) => (
+            <div className="container">
+              <IonList>
+                {list.map((data, i) => (
+                  <IonItem key={i}>
+                    <IonLabel>{data.email}</IonLabel>
+                    <IonLabel>{data.label}</IonLabel>
+                  </IonItem>
+                ))}
+              </IonList>
+            </div>
+            <NewCommentInput
+              projectName={project}
+              inputRef={newCommentElement}
+              postId={document_id}
+            ></NewCommentInput>
+            <IonList>
+              {commentList.map((data, i) => (
                 <IonItem key={i}>
-                <IonLabel>{data.email}</IonLabel>
-                <IonLabel>{data.label}</IonLabel>
-              </IonItem>
-            ))}
-          </IonList>
-        </div>
-
-        </div>
-        }
-        <NewCommentInput projectName={project}
-        inputRef={newCommentElement}
-        postId={document_id}></NewCommentInput>
-
-
-
-
-
+                  <IonLabel>{data.email}</IonLabel>
+                  <IonLabel>{data.comment_body}</IonLabel>
+                  <IonLabel>{data.time}</IonLabel>
+                </IonItem>
+              ))}
+            </IonList>
+          </div>
+        )}
       </IonContent>
-
     </IonPage>
   );
 };
