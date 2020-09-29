@@ -12,7 +12,6 @@ export const projectServices = {
     setProjectTags,
     setUserPermissions,
     uploadDocuments
-}
 
 async function getProjectNames(firebase: any) {
    const requestOptions = {
