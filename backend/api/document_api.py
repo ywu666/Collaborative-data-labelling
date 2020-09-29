@@ -330,11 +330,15 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(
-        page * page_size).limit(page_size)
-    docs_dict = {'docs': list(docs)}
-    docs = JSONEncoder().encode(docs_dict)
-    return docs, 200
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 0})
+    docs_in_page = docs.skip(page * page_size).limit(page_size)
+    
+    count = docs.count()
+
+    docs_dict = {'docs': list(docs_in_page),
+                 'count': count}
+    docs_json = JSONEncoder().encode(docs_dict)
+    return docs_json, 200
 
 
 @document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
