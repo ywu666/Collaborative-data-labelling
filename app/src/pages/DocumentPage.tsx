@@ -17,16 +17,16 @@ import {
     IonCardTitle,
     IonSkeletonText,
 } from '@ionic/react';
-import { add, arrowBack, arrowUpOutline } from 'ionicons/icons';
+import { arrowBack } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router';
 import './DocumentPage.css';
-import { isNullOrUndefined } from 'util';
 import { documentServices } from '../services/DocumentService'
 import firebase from "firebase";
 import app from 'firebase/app';
 import 'firebase/auth';
 import onLogout from '../helpers/logout'
+import Header from '../components/Header'
 
 interface Document {
   title: string;
@@ -108,13 +108,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar className="header">
-          <IonButton slot="start"><IonIcon icon={arrowBack}/></IonButton>
-          <IonTitle slot="end">User</IonTitle>
-          <IonButton onClick={onLogout} slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
-        </IonToolbar>
-      </IonHeader>
+      <Header routerLink={"/project/" + project } name={localStorage.getItem("email") || "User"}/>
 
       <IonContent>
       {/**
