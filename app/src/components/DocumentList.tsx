@@ -39,6 +39,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
   const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
 	const [docError, setDocError] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     documentServices.getDocumentIds(name, page, page_size)
@@ -46,6 +47,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			console.log(data)
 			setDocuments(data.docs)
 			setCount(data.count)
+			setLoading(false)
     })
   }, [page])
 	
@@ -102,19 +104,18 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 	const documentItem = (doc: any, index: any) => {
 		let email = localStorage.getItem("email")
-		let document = documents.find(e => e._id === doc._id)
 		let error = docError.find(e => e.doc_id === doc._id)
-		let user_label = labels.find(e => e._id === document.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
+		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
 		
 		return (
-			<IonItem key = {index}>
-				<IonLabel>{document?.data}</IonLabel>
+			<IonItem key = {index} routerLink={"/project/" + name + "/document/" + doc._id} >
+				<IonLabel>{doc.data}</IonLabel>
 				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				{isNullOrUndefined(email)
 				? <div/>
 				:	isNullOrUndefined(user_label)
-					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}><IonIcon icon={add}/></IonButton>
-					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}>{user_label.name}</IonButton>
+					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}><IonIcon icon={add}/></IonButton>
+					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}>{user_label.name}</IonButton>
 				}
 			</IonItem>
 		)
@@ -130,15 +131,16 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</div>
 			</IonModal>
 			<IonList>
-				{documents.length !== 0
-				? documents.map((doc, index) =>
-						documentItem(doc, index)
-				)
-				:<IonItem>
+				{loading
+				? <IonItem>
 					<IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
 				</IonItem>
+				:documents?.map((doc, index) =>
+					documentItem(doc, index)
+				)
 				}
 			</IonList>
+			
 			<p className="item_count" color="medium">Number of Documents: {count}</p>
 		</div>
 	)
