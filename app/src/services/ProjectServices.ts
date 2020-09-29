@@ -10,6 +10,7 @@ export const projectServices = {
     setProjectUsers,
     createProject,
     uploadDocuments
+}
 
 async function createProject(project_name: any, firebase: any){
     console.log("We made it")

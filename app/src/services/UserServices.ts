@@ -47,7 +47,7 @@ function signup(email: string ,token: string){
         })
 }
 
-function getAllUsers() {
+function getAllUsers(page_num: any, page_size: any) {
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json',
@@ -57,7 +57,10 @@ function getAllUsers() {
  },
     };
     
-    return fetch(process.env.REACT_APP_API_URL + '/users/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + '/users/all'
+        + '?id_token=' + localStorage.getItem('user-token')
+        + '&page=' + page_num
+        + '&page_size=' + page_size, requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.users
