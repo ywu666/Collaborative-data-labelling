@@ -13,6 +13,9 @@ interface ContainerProps {
 
 const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showNewTag, setShowNewTag] = useState(false);
+    const [showUpdateTag, setShowUpdateTag] = useState(false);
+
+    const [tagID, setTagID] = useState(0);
 
   const initialTags = [
     { _id: 0, name: '' }
@@ -35,13 +38,24 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
     setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
+  function updateTag(label_name: string){
+    console.log(tagID)
+    console.log(label_name)
+
+  }
+
+  function updateButtonClick(_id: number){
+    setShowUpdateTag(true)
+    setTagID(_id)
+  }
+
   return (
     <div className="container">
       <h2>Tags</h2>
       {tags.map((tag) => {
         if (tag.name.length != 0) {
           return (
-            <IonButton key={tag.name} fill="outline" size="small">{tag.name}</IonButton>
+            <IonButton key={tag.name} fill="outline" size="small" onClick={(e) => updateButtonClick(tag._id)}>{tag.name}</IonButton>
           );
         }
       })}
@@ -81,6 +95,40 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
           }
         ]}
         />
+
+       <IonAlert
+        isOpen={showUpdateTag}
+        onDidDismiss={() => setShowUpdateTag(false)}
+        header={'Enter new name:'}
+        message={''}
+        inputs={[
+            {
+            name: 'updateTag',
+            type: 'text',
+            id: 'tagName',
+            placeholder: 'Update Tag' }
+        ]}
+        buttons={[
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            handler: (alertData) => {
+              if (alertData.updateTag.length > 0
+                && !tags.some(check => check.name === alertData.updateTag)) {
+                //let tag = tags.find(e => e.id === doc_id._id);
+                updateTag(alertData.updateTag);
+              } else {
+                alert('Name is invalid');
+                return false;
+              }
+            }
+          }
+        ]}
+        />
+
     </div>
   );
 };

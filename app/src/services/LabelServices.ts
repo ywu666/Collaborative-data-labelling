@@ -4,7 +4,8 @@
  */
 export const labelServices = {
     getLabels,
-    setLabels
+    setLabels,
+    updateLabel
 }
 
 function getLabels(project_name: any) {
@@ -47,6 +48,10 @@ function setLabels(project: string, label_name: string, firebase:any) {
             return data.users
         })
  }
+
+function updateLabel(project: string, label_id: string, label_name: string){
+}
+
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
