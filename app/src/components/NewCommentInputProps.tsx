@@ -16,12 +16,14 @@ import {
   import { isNullOrWhitespace } from '../utils';
   import { documentServices } from '../services/DocumentService';
   export interface NewCommentInputProps {
+      //onCommentCreated:any
     projectName: string;
     inputRef: RefObject<HTMLIonTextareaElement>;
     postId: string;
   }
   
   const NewCommentInput: React.FC<NewCommentInputProps> = ({
+   // onCommentCreated,
     projectName,
     inputRef,
     postId,
@@ -29,14 +31,13 @@ import {
     const [content, setContent] = useState<string>();
 
     const handleSubmit = async () => {
-      // TODO: add input validation and retrieve communityId from somewhere
       try {
         documentServices.postNewComment(projectName, postId, content)
         .then(() => { 
 			return documentServices.getDocument(projectName, postId)
-		})
+        })
+        //onCommentCreated(content);
         setContent('');
-       // onCommentCreated(data!.submitComment!.comment!);
       } catch (e) {
         console.error(e);
       }
