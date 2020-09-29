@@ -1,13 +1,42 @@
+
+import {downloadHelpers} from '../helpers/download'
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
 export const projectServices = {
     getProjectNames,
+    exportCsv,
     getProjectUsers,
     setProjectUsers,
-    getProjectTags,
-    setProjectTags,
+    createProject,
     uploadDocuments
+}
+
+async function createProject(project_name: any, firebase: any){
+    console.log("We made it")
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type' : 'application/json'},
+        body: JSON.stringify( {project_name} )
+    }
+       //await handleAuthorization(firebase);
+   const token = localStorage.getItem('user-token');
+   if(firebase.auth.currentUser != null){
+    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+        if(token !== idToken){
+            localStorage.setItem('user-token',idToken)
+        }
+       })
+   }else{
+    window.location.href = '/auth';
+   }
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    .then(handleResponse)
+    .then(data => {
+        console.log("call for creating project reached back end")
+        return data
+    })
 }
 
 async function getProjectNames(firebase: any) {
@@ -24,6 +53,7 @@ async function getProjectNames(firebase: any) {
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
+            console.log("token ID was changed to match current user token ID")
         }
        })
    }else{
@@ -37,7 +67,31 @@ async function getProjectNames(firebase: any) {
        })
 }
 
+function exportCsv(projectName: string) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        'Content-Disposition': 'attachment; filename=' + projectName + '-export.csv',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET",
+        "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+    const exportFields = ['ID', 'DOCUMENT', 'LABEL'];
+    //const exportFields = ['id'];
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    //return fetch('https://picsum.photos/list', requestOptions)
+    .then(handleResponse)
+    .then(downloadHelpers.collectionToCSV(exportFields))
+    .then(csv => {
+        console.log(csv)
+        const blob = new Blob([csv], {type: 'text/csv'});
+        downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
+    })
+    .catch(console.error);
+}
 async function getProjectUsers(project: string, firebase: any) {
+
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json',
@@ -63,34 +117,6 @@ async function getProjectUsers(project: string, firebase: any) {
         .then(handleResponse)
         .then(data => {
             return data.users
-        })
- }
-
- async function getProjectTags(project: string, firebase:any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-
-    const token = localStorage.getItem('user-token');
-     if (firebase.auth.currentUser != null) {
-         firebase.auth.currentUser.getIdToken().then((idToken: string) => {
-             if (token !== idToken) {
-                 localStorage.setItem('user-token', idToken)
-             }
-         })
-     } else {
-         window.location.href = '/auth';
-     }
-
-    return fetch(process.env.REACT_APP_API_URL +
-        '/projects/' + project + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data.labels
         })
  }
 
@@ -168,8 +194,10 @@ async function getProjectUsers(project: string, firebase: any) {
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
+    console.log(response)
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
+       console.log(data)
        if (!response.ok) {
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);
