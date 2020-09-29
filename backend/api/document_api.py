@@ -391,8 +391,8 @@ def get_conflicting_labels_document_ids(project_name):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         response = make_response(response)
+        users_col = get_col(project_name, "users")
         return response, 400
-          users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
