@@ -13,28 +13,34 @@ import {
   } from '@ionic/react';
   import React, { useState, RefObject } from 'react';
   import { send } from 'ionicons/icons';
+  import Moment from 'moment';
   import { isNullOrWhitespace } from '../utils';
   import { documentServices } from '../services/DocumentService';
   export interface NewCommentInputProps {
-      //onCommentCreated:any
     projectName: string;
     inputRef: RefObject<HTMLIonTextareaElement>;
+    email:any;
     postId: string;
+    //time:any
+    firebase:any
   }
   
   const NewCommentInput: React.FC<NewCommentInputProps> = ({
    // onCommentCreated,
     projectName,
     inputRef,
+    email,
     postId,
+    //time,
+    firebase
   }) => {
     const [content, setContent] = useState<string>();
 
     const handleSubmit = async () => {
       try {
-        documentServices.postNewComment(projectName, postId, content)
+        documentServices.postNewComment(projectName, postId, email, content , Moment(new Date()).format("YYYY-MM-DD hh:mm:ss"), firebase)
         .then(() => { 
-			return documentServices.getDocument(projectName, postId)
+			return documentServices.getDocument(projectName, postId, firebase)
         })
         //onCommentCreated(content);
         setContent('');

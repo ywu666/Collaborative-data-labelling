@@ -20,15 +20,19 @@ import onLogout from '../helpers/logout'
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
 import {projectServices} from "../services/ProjectServices";
-import firebase from "firebase";
 
-const ProjectPage: React.FC = () => {
+interface ProjectPageProps {
+  firebase: any
+}
+const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
   const page_size = 10;
   const [pageIndex] = useState(0);
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
-
+  const {
+    firebase
+  } = props;
   const downloadCSV = (projectName: string) => {
     try {
       projectServices.exportCsv(projectName)
@@ -52,7 +56,7 @@ const ProjectPage: React.FC = () => {
         <div className="container">        
           <h1>{name}</h1>
           <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          <DocumentList name={name} page={pageIndex} page_size={page_size}/>
+          <DocumentList name={name} page={pageIndex} page_size={page_size} firebase= {firebase}/>
         </div>
         <div>
         <form className="uploadFile" onSubmit={() =>

@@ -21,6 +21,7 @@
     "firebase-admin": "^9.2.0",
     "glamor": "^2.20.40",
     "ionicons": "^5.0.0",
+    "moment": "^2.29.0",
     "npm-watch": "^0.7.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",

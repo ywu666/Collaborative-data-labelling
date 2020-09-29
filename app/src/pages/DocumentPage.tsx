@@ -61,10 +61,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [showModal, setShowModal] = useState(false);
   const [labelIndex, setLabelIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
-
   const { firebase } = props;
-
-  const id_Token = localStorage.getItem('user-token');
   const [documentData, setDocumentData] = useState([['']]);
   const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
   const [labelList, setLabelList] = useState<Label[]>([]);
@@ -87,20 +84,24 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
   useEffect(() => {
     try {
-      documentServices.getDocument(project, document_id).then((data) => {
-        setDocumentData(data.data);
-        setLabelData(data.user_and_labels);
-      });
+      documentServices
+        .getDocument(project, document_id, firebase)
+        .then((data) => {
+          setDocumentData(data.data);
+          setLabelData(data.user_and_labels);
+        });
     } catch (e) {}
   }, []);
 
   useEffect(() => {
     try {
-      documentServices.getDocument(project, document_id).then((data) => {
-        setDocumentData(data.data);
-        setLabelData(data.user_and_labels);
-        setCommentData(data.comments);
-      });
+      documentServices
+        .getDocument(project, document_id, firebase)
+        .then((data) => {
+          setDocumentData(data.data);
+          setLabelData(data.user_and_labels);
+          setCommentData(data.comments);
+        });
     } catch (e) {}
   }, []);
 
@@ -201,12 +202,19 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
             <NewCommentInput
               projectName={project}
               inputRef={newCommentElement}
+              email={localStorage.getItem('email')}
               postId={document_id}
+              firebase={firebase}
             ></NewCommentInput>
             <IonList>
               {commentList.map((data, i) => (
                 <IonItem key={i}>
-                 <Comment onReply={handleReply} email={data.email} content= {data.comment_body} time={data.time}></Comment>
+                  <Comment
+                    onReply={handleReply}
+                    email={data.email}
+                    content={data.comment_body}
+                    time={data.time}
+                  ></Comment>
                 </IonItem>
               ))}
             </IonList>
