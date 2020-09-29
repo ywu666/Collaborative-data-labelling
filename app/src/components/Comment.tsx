@@ -12,21 +12,13 @@ import {
   import { timeOutline, heart, chatbox, star } from 'ionicons/icons';
   import Moment from 'react-moment';
   import firebaseApp from '../components/Firebase/firebase'
-//   import { useMutation, useQuery } from '@apollo/react-hooks';
-//   import { GET_LOCAL_USER } from '../common/graphql/localState';
-//   import { GetLocalUser } from '../types/GetLocalUser';
   import { css } from 'glamor';
-  export interface CommentData {
-    id: string;
-    creationTimestamp: number;
-    content: string;
-  }
-  
-  export interface CommentProps extends CommentData {
+ 
+  export interface CommentProps{
     onReply: (author: string) => void;
-    documentIdForComment: string | undefined;
-    isOriginalPoster?: boolean;
-    author?: string;
+    email:string;
+    content: string;
+    time:any
   }
   
   const timeLabelContainer = css({
@@ -47,23 +39,15 @@ import {
   
   const Comment: React.FC<CommentProps> = (props: CommentProps) => {
     const {
-      id,
-      content,
-      author,
       onReply,
-      creationTimestamp,
-      documentIdForComment,
+      email,
+      content,
+      time
     } = props;
   
-    const authorDisplayName = author? author : "No Name";
-    // const authorCommunity = author?.community?.abbreviation ?? '';
-  
-    // const localUserQuery = useQuery<GetLocalUser>(GET_LOCAL_USER, {
-    //   fetchPolicy: 'network-only',
-    // });
-  
+    const authorDisplayName = email? email : "No Name";
     const currentUser = localStorage.getItem('email');
-    const unixTimestamp = 198784740;
+    //const unixTimestamp = 198784740;
     return (
       <>
           <IonGrid>
@@ -85,7 +69,7 @@ import {
               >
                 <IonIcon color="medium" icon={timeOutline} size="medium" />
                 <IonLabel color="medium">
-                  <h6>   <Moment unix>{unixTimestamp}</Moment> </h6>
+                  <h6>  {time} </h6>
                 </IonLabel>
               </IonCol>
             </IonRow>
