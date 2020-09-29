@@ -92,7 +92,8 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         });
     } catch (e) {}
   }, []);
-
+  let list: Users_and_Labels[] = [];
+  let commentList: Comments[] = [];
   useEffect(() => {
     try {
       documentServices
@@ -101,29 +102,23 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           setDocumentData(data.data);
           setLabelData(data.user_and_labels);
           setCommentData(data.comments);
-          commentData.forEach((element: any) => {
-          commentList.push(element);})
+
+          labelData.forEach((element: any) => {
+            labelList.forEach((element1: any) => {
+              if (element.label === element1._id) {
+                let pair: Users_and_Labels = {
+                  email: element.email,
+                  label: element1.name,
+                };
+                list.push(pair);
+              }
+            });
+          });
         });
     } catch (e) {}
   }, []);
 
-  let list: Users_and_Labels[] = [];
-  useEffect(() => {
-    try {
-      labelData.forEach((element: any) => {
-        labelList.forEach((element1: any) => {
-          if (element.label === element1._id) {
-            let pair: Users_and_Labels = {
-              email: element.email,
-              label: element1.name,
-            };
-            list.push(pair);
-          }
-        });
-      });
-    } catch (e) {}
-  }, []);
-  let commentList: Comments[] = [];
+
 
   const renderLabelModal = (i: number) => {
     setShowModal(true);
@@ -206,7 +201,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               firebase={firebase}
             ></NewCommentInput>
             <IonList>
-              {commentList.map((data, i) => (
+              {commentData.map((data, i) => (
                 <IonItem key={i}>
                   <Comment
                     onReply={handleReply}
