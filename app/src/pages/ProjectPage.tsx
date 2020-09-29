@@ -15,8 +15,6 @@ import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, {useRef, useState} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
-import * as request from 'request';
-import onLogout from '../helpers/logout'
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
 import {projectServices} from "../services/ProjectServices";
@@ -70,7 +68,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             </IonButton>
         </form>
         <p className="note">The uploaded file should be CSV formatted.<br/>There should be two 'columns' in the<br/>following order: ID and BODY</p>
-
         </div>
 
         <div>
