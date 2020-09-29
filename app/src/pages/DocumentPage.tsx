@@ -82,18 +82,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     } catch (e) {}
   }, []);
 
-  useEffect(() => {
-    try {
-      documentServices
-        .getDocument(project, document_id, firebase)
-        .then((data) => {
-          setDocumentData(data.data);
-          setLabelData(data.user_and_labels);
-        });
-    } catch (e) {}
-  }, []);
   let list: Users_and_Labels[] = [];
-  let commentList: Comments[] = [];
   useEffect(() => {
     try {
       documentServices
@@ -102,7 +91,8 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           setDocumentData(data.data);
           setLabelData(data.user_and_labels);
           setCommentData(data.comments);
-
+          console.log(documentData)
+          console.log(commentData)
           labelData.forEach((element: any) => {
             labelList.forEach((element1: any) => {
               if (element.label === element1._id) {
@@ -117,8 +107,12 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         });
     } catch (e) {}
   }, []);
-
-
+  
+  setTimeout(() => {
+    setIsLoading(false);
+  },
+  1500
+  )
 
   const renderLabelModal = (i: number) => {
     setShowModal(true);
