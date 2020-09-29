@@ -42,7 +42,7 @@ function getDocumentIds(project:any, page:number, page_size:number) {
         + '&id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
-            return data.docs;
+            return data;
         })
 }
 
