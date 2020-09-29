@@ -2,11 +2,12 @@ import {
   IonButton,
   IonItem,
   IonLabel,
-  IonAlert
+  IonAlert,
+  IonIcon
 } from '@ionic/react';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
 import { projectServices } from '../services/ProjectServices'
-import { isNullOrUndefined } from 'util';
 
 interface ContainerProps {
   project: string;
@@ -87,6 +88,7 @@ if (canEdit) {
     <div>
     <IonItem>
         <IonLabel>{user}</IonLabel>
+        <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
         <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
         {currentRole}
         </IonButton>

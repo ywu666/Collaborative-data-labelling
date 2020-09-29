@@ -40,9 +40,10 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [allUsers, setAllUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        userService.getAllUsers()
+        userService.getAllUsers(0, 10) //change when creating tables of user
         .then(data => {
             setAllUsers(data)
+            console.log(data)
         })
       } catch (e) {
         

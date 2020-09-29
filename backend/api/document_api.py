@@ -330,11 +330,15 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 1}).skip(
-        page * page_size).limit(page_size)
-    docs_dict = {'docs': list(docs)}
-    docs = JSONEncoder().encode(docs_dict)
-    return docs, 200
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 0})
+    docs_in_page = docs.skip(page * page_size).limit(page_size)
+    
+    count = docs.count()
+
+    docs_dict = {'docs': list(docs_in_page),
+                 'count': count}
+    docs_json = JSONEncoder().encode(docs_dict)
+    return docs_json, 200
 
 
 @document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
@@ -393,6 +397,20 @@ def get_conflicting_labels_document_ids(project_name):
         response = make_response(response)
         users_col = get_col(project_name, "users")
         return response, 400
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+    
+    users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
