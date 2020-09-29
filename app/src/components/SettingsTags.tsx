@@ -41,6 +41,11 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   function updateTag(label_name: string){
     console.log(tagID)
     console.log(label_name)
+    let tag = tags.find(check => check._id === tagID);
+    if(tag != undefined){
+        tag.name = label_name;
+    }
+
     labelServices.updateLabel(project, tagID, label_name);
   }
 
@@ -118,7 +123,6 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
             handler: (alertData) => {
               if (alertData.updateTag.length > 0
                 && !tags.some(check => check.name === alertData.updateTag)) {
-                //let tag = tags.find(e => e.id === doc_id._id);
                 updateTag(alertData.updateTag);
               } else {
                 alert('Name is invalid');
