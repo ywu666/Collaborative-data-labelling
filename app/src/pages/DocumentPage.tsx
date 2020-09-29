@@ -101,30 +101,29 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           setDocumentData(data.data);
           setLabelData(data.user_and_labels);
           setCommentData(data.comments);
+          commentData.forEach((element: any) => {
+          commentList.push(element);})
         });
     } catch (e) {}
   }, []);
 
   let list: Users_and_Labels[] = [];
-  labelData.forEach((element: any) => {
-    labelList.forEach((element1: any) => {
-      if (element.label === element1._id) {
-        let pair: Users_and_Labels = {
-          email: element.email,
-          label: element1.name,
-        };
-        list.push(pair);
-      }
-    });
-  });
-
+  useEffect(() => {
+    try {
+      labelData.forEach((element: any) => {
+        labelList.forEach((element1: any) => {
+          if (element.label === element1._id) {
+            let pair: Users_and_Labels = {
+              email: element.email,
+              label: element1.name,
+            };
+            list.push(pair);
+          }
+        });
+      });
+    } catch (e) {}
+  }, []);
   let commentList: Comments[] = [];
-  commentData.forEach((element: any) => {
-    list.push(element);
-  });
-  setTimeout(() => {
-    setIsLoading(false);
-  }, 1500);
 
   const renderLabelModal = (i: number) => {
     setShowModal(true);
