@@ -1,3 +1,4 @@
+import datetime
 from api.methods import JSONEncoder
 from bson import ObjectId
 from firebase_auth import get_email
@@ -77,7 +78,7 @@ def get_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    count = col.find({}).count()
+    count = col.count_documents({})
     docs = col.find({}).skip(page * page_size).limit(page_size)
     docs_dict = {'docs': list(docs),
                  'count': count}
@@ -336,18 +337,9 @@ def get_unlabelled_document_ids(project_name):
     return docs, 200
 
 
-# Returns the ids of documents that have conflicting labels
-@document_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
-def get_conflicting_labels_document_ids(project_name):
+@document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
+def post_comment_on_document(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
 
     if id_token is None or id_token == "":
         response = {'message': "ID Token is not included with the request uri in args"}
@@ -360,8 +352,47 @@ def get_conflicting_labels_document_ids(project_name):
         response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
+    if 'comment' in request.json:
+        comment = request.json['comment']
+    else:
+        response = {'message': "Missing comment"}
+        response = make_response(response)
+        return response, 400
 
+    # have to be contributor, should include email, time and content of comment for every comment
     users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to do this"}
+        response = make_response(response)
+        return response, 403
+
+    documents_col = get_col(project_name, "documents")
+    current_time = datetime.datetime.now()
+    documents_col.update_one({'_id': ObjectId(document_id)},
+                             {'$push': {
+                                 'comments': {
+                                     'email': requestor_email,
+                                     'comment_body': comment,
+                                     'time': str(current_time)
+                                 }
+                             }})
+    return '', 204
+
+
+# Returns the ids of documents that have conflicting labels
+@document_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
+def get_conflicting_labels_document_ids(project_name):
+    id_token = request.args.get('id_token')
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+          users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
