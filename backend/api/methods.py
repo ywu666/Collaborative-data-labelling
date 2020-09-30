@@ -35,5 +35,28 @@ def remove_all_labels_of_user(user_email, project_name):
             "$pull": {
                 "user_and_labels": {
                     "email": user_email
-            }
-        }})
+                }
+            }})
+
+
+def set_user_document_label(col, email, document_id, label_id, label_is_confirmed):
+    # col = get_col(project_name, "documents")
+    col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": email}}},
+                   {'$set': {
+                       "user_and_labels.$.label": ObjectId(label_id),
+                       "user_and_labels.$.label_confirmed": label_is_confirmed,
+                       "label_confirmed": label_is_confirmed}
+                   })
+
+
+def update_user_document_label(col, email, document_id, label_id, label_is_confirmed):
+    # col = get_col(project_name, "documents")
+    col.update_one({'_id': ObjectId(document_id)},
+                   {'$push': {
+                       "user_and_labels": {
+                           "email": email,
+                           "label": ObjectId(label_id),
+                           "label_confirmed": label_is_confirmed}
+                   },
+                       '$set': {"label_confirmed": label_is_confirmed}
+                   })
