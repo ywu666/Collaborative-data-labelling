@@ -18,6 +18,7 @@ import './ProjectPage.css';
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
 import {projectServices} from "../services/ProjectServices";
+import {Tooltip} from '@material-ui/core';
 
 interface ProjectPageProps {
   firebase: any
@@ -62,22 +63,23 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             <IonItem>
             <input ref={inputFile} type="file" />
             </IonItem>
-            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
+              <Tooltip title="The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY" placement="right">
+                <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
-            </IonButton>
+                </IonButton>
+              </Tooltip>
         </form>
-        <p className="note">The uploaded file should be CSV formatted.<br/>There should be two 'columns' in the<br/>following order: ID and BODY</p>
         </div>
 
         <div>
         <form className="downloadFile">
           <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
+            <Tooltip title="The downloaded file will be a CSV file. There will be three 'columns' in the following order: ID, BODY, and LABEL" placement="right">
             <IonButton fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
                 download
             </IonButton>
+            </Tooltip>
         </form>
-        <p className="note">The downloaded file will be a CSV file.<br/>There will be three 'columns' in the following<br/>order: ID, BODY, and LABEL</p>
-
         </div>
       </IonContent>
 
