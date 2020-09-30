@@ -7,6 +7,7 @@ import { StringDecoder } from "string_decoder";
      login,
      logout,
      getAllUsers,
+     getAllUsersInDatabase,
      signup
  }
 
