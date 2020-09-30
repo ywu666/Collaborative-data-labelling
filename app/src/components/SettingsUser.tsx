@@ -25,8 +25,8 @@ const SettingsUser: React.FC<ContainerProps> = ({ user, admin, contributor }) =>
     return (
         <div>
             <IonItem >
-                <IonLabel>{user}</IonLabel>
-                <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!admin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!contributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
+                <IonLabel slot="start">{user}</IonLabel>
+                <IonLabel><IonIcon icon = {buildOutline} hidden={!admin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!contributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
                 <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
                     Edit Permissions
                 </IonButton>

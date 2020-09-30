@@ -3,6 +3,7 @@ import {
     IonItem,
     IonModal,
     IonList,
+    IonLabel,
   } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
@@ -57,6 +58,11 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   return (
     <div className="container">
       <h2>Users</h2>
+        <IonItem>
+          <IonLabel slot="start">User Email</IonLabel>
+          <IonLabel>Permissions</IonLabel>
+          <IonLabel slot="end">Edit Permissions</IonLabel>
+        </IonItem>
           {users.map((user, i: number) => {
             return (
                 <SettingsUser key={i} user={user.email} admin={user.isAdmin} contributor={user.isContributor}></SettingsUser>
