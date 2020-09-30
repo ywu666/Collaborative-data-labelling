@@ -19,12 +19,7 @@ import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-//import './DocumentList.css'
-const labels: string[] = [
-	"tag1",
-	"tag2",
-	"tag3",
-]
+import './DocumentList.css'
 
 interface DocumentListProps {
 	name: string,
@@ -78,7 +73,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	useEffect(() => {
 		setDocuments(
 			documents.map((e) => {
-				if (e.id === newDocument.id) return newDocument
+				if (e._id === newDocument._id) return newDocument
 				else return e 
 			})
 		)
@@ -97,7 +92,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			doc.user_and_labels.find((e: { email: string | null; }) => e.email === email).label = label._id 
 
 		else doc.user_and_labels.push({'email': email, 'label':label._id})
-
+		
 		setNewDocument(doc)
 
 		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id)
@@ -105,6 +100,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			return documentServices.getDocument(name, documentIndex)
 		})
 		.then(data => {
+			console.log(data)
 			data.id = documentIndex
 			setNewDocument(data)
 			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
@@ -131,8 +127,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				{isNullOrUndefined(email)
 				? <div/>
 				:	isNullOrUndefined(user_label)
-					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}><IonIcon icon={add}/></IonButton>
-					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}>{user_label.name}</IonButton>
+					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
 				}
 			</IonItem>
 		)
