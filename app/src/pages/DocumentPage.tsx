@@ -55,6 +55,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [documentData, setDocumentData] = useState([['']]);
   const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
   const [labelList, setLabelList] = useState<Label[]>([]);
+  const [list, setList] = useState<Users_and_Labels[]>([]);
 
   const [commentData, setCommentData] = useState<Comments[]>([]);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
@@ -77,7 +78,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     ;
   }, []);
 
-  let list: Users_and_Labels[] = [];
   useEffect(() => {
     documentServices
       .getDocument(project, document_id, firebase)
@@ -90,6 +90,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
+    let temp: Users_and_Labels[] = []
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
@@ -97,10 +98,11 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
             email: element.email,
             label: element1.name,
           };
-          list.push(pair);
+          temp.push(pair)
         }
       });
     });
+    setList(temp)
   }, [labelData, labelList])
 
   const onSubmitComment = (content:any) => {
