@@ -219,7 +219,7 @@ async function getProjectUsers(project: string, firebase: any) {
          localStorage.getItem('user-token'), requestOptions)
          .then(handleResponse)
          .then(data => {
-             return data.inputFile
+             //return data.inputFile
          })
 
  }
