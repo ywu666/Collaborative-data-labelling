@@ -1,22 +1,27 @@
 import {
-    IonButton,
-    IonItem,
-    IonModal,
-    IonList,
-    IonLabel,
-  } from '@ionic/react';
+  IonButton,
+  IonItem,
+  IonModal,
+  IonList,
+  IonLabel,
+  IonAlert,
+  IonInput,
+  IonRow
+} from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
 import { projectServices } from '../services/ProjectServices'
 import { userService } from '../services/UserServices'
 
 interface ContainerProps {
-    project: string;
-    firebase:any
+  project: string;
+  firebase: any
 }
 
 const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
-    const [showUserModal, setShowUserModal] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [newUser, setNewUser] = useState<string>();
 
     var canEdit = true; // can the current user edit permissions?
 
@@ -27,35 +32,35 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        // console.log("firebase " + firebase.auth.currentUser)
         projectServices.getProjectUsers(project, firebase)
-        // userService.getAllUsers() // testing only
         .then(data => {
           setUsers(data)
         })
-      } catch (e) {
-        
-      }
-    }, [])
+    } catch (e) {
+    }
+  }, [])
 
     const [allUsers, setAllUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        userService.getAllUsers(0, 10) //change when creating tables of user
+        userService.getAllUsersInDatabase() //change when creating tables of user
         .then(data => {
             setAllUsers(data)
             console.log(data)
         })
-      } catch (e) {
-        
-      }
-    }, [])
+    } catch (e) {
 
-    function addUser(user: string) {
-      console.log("add user " + firebase.auth)
-        projectServices.setProjectUsers(project, user, firebase);
-        setShowUserModal(false)
-      }
+    }
+  }, [])
+
+  function addUser(user: string) {
+    try {
+      projectServices.setProjectUsers(project, user, firebase);
+      setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
+    } catch (e) {
+
+    }
+  }
 
   return (
     <div className="container">
@@ -72,26 +77,42 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
                 firebase={firebase}></SettingsUser>
             );
           })}
+        <IonRow>
+        <IonInput type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
 
-        <IonButton size="small" fill="outline" onClick={() => setShowUserModal(true)}>
-            + Add user
+        <IonButton size="small" fill="outline" onClick={() => {
+          if (typeof newUser !== 'undefined' && newUser) {
+            if (users.some(check => check.email === newUser)) {
+              setErrorMessage('User has already been added');
+              setShowAlert(true);
+            } else if (!allUsers.some(check => check.email === newUser)) {
+              setErrorMessage('User does not exist');
+              setShowAlert(true);
+            } else {
+              addUser(newUser)
+            }
+          } else {
+            setErrorMessage('Please enter a user email');
+            setShowAlert(true);
+          }
+        }}>
+          + Add user
         </IonButton>
 
-          <IonModal isOpen={showUserModal}>
-          <IonItem text-align="center"><h3>Add user to project</h3></IonItem>
-              <IonList>
-              {allUsers.map((user, i: number) => {
-                  if (!users.some(check => check.email === user.email)) {
-                      return (
-                          <IonItem key={i} button onClick={() => { addUser(user.email) }}>{user.email}</IonItem>
-                      );
-                  }
-              })}
-              </IonList>
-              <IonButton fill="outline" onClick={() => setShowUserModal(false)}>Close</IonButton>
-        </IonModal>
-        </div>
-    );
+      </IonRow>
+
+        <IonAlert 
+        isOpen={showAlert}
+        onDidDismiss={() => setShowAlert(false)}
+        message={errorMessage}
+        buttons={[
+          {
+            text: 'OK',
+            role: 'cancel'
+          }
+        ]}/>
+    </div>
+  );
 };
 
 export default SettingsUsers;
