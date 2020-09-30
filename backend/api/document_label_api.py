@@ -1,4 +1,5 @@
-from api.methods import JSONEncoder
+from api import methods
+from api.methods import JSONEncoder, set_user_document_label, update_user_document_label
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -58,37 +59,28 @@ def set_label_for_user(project_name, document_id):
         return response, 400
 
     # Check if other contributor has labelled document
+    two_contributors_have_labelled = len(document['user_and_labels']) == 2
     label_is_confirmed = False
-    if len(document['user_and_labels']) > 1:
+    if two_contributors_have_labelled:
         for item in document['user_and_labels']:
             # If label assignments match, set confirmed
             if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
                 label_is_confirmed = True
+                # Update other contributor
+                update_user_document_label(col, item['email'], document_id, label_id, label_is_confirmed)
 
     current_user_label = col.find_one(
         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
     # if the label already exists for the user
     if current_user_label is not None:
-
-        col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
-                       {'$set': {
-                           "user_and_labels.$.label": ObjectId(label_id),
-                           "label_confirmed": label_is_confirmed}
-                       })
+        set_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
     else:
         # if the label assignment does not exist for the user
-        col.update_one({'_id': ObjectId(document_id)},
-                       {'$push': {
-                           "user_and_labels": {
-                               "email": requestor_email,
-                               "label": ObjectId(label_id)},
-                       },
-                           '$set': {"label_confirmed": label_is_confirmed}
-                       })
+        update_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
 
     return '', 204
 
-
+# TODO: Change this later? Needs to include label_confirmed/label as params
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-agreement', methods=['POST'])
 def set_final_label_after_agreement(project_name, document_id):
     id_token = request.args.get('id_token')
@@ -262,7 +254,7 @@ def get_conflicting_labels_document_ids(project_name):
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
 
-
+# TODO:? do we need this for individual users too?
 # This end point returns the IDs of documents for which the final label is not confirmed
 @document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
 def get_documents_with_unconfirmed_labels(project_name):
