@@ -17,11 +17,8 @@ import {
   import { add, arrowBack} from 'ionicons/icons';
   import React, { useState, useEffect, useRef } from 'react';
   import './MainPage.css';
-  import app from 'firebase/app';
   import 'firebase/auth';
-  import firebase from "firebase";
   import { projectServices } from '../services/ProjectServices'
-  import onLogout from '../helpers/logout'
   import Header from '../components/Header'
   
   interface MainPageProps {
