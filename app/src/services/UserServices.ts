@@ -85,6 +85,23 @@ function getAllUsers(page_num: any, page_size: any) {
         })
  }
 
+function getCurrentUser() {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+        },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/user'
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+}
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
     return response.text().then((text: string) => {
