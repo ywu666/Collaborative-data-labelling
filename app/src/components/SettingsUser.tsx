@@ -5,7 +5,7 @@ import {
   IonAlert,
   IonIcon
 } from '@ionic/react';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
 import { Tooltip } from '@material-ui/core';
 import { projectServices } from '../services/ProjectServices'
@@ -28,6 +28,7 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
   const [localIsAdmin, setLocalIsAdmin] = useState(isAdmin);
   const refContributor = useRef(localIsContributor)
   const refAdmin = useRef(localIsAdmin)
+
 
   const alert = 
   <IonAlert
@@ -60,24 +61,29 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
           if (data.includes("Contributor")) {
             setLocalIsContributor(true);
             refContributor.current = true
+            console.log("trying to make contributor")
           } else {
             setLocalIsContributor(false);
             refContributor.current = false
+            console.log("trying to set contributor to false")
           }
           if (data.includes("Admin")) {
             setLocalIsAdmin(true);
             refAdmin.current = true
+            console.log("trying to make admin")
           } else {
             setLocalIsAdmin(false);
             refAdmin.current = false
+            console.log("trying to set admin to false")
           }
           projectServices.setUserPermissions(project, user, refAdmin.current, refContributor.current, firebase)
             .catch(e => {
             setLocalIsContributor(isContributor)
             setLocalIsAdmin(isAdmin)
             setShowError(true)
-        })
-          }
+          })
+
+        }
       }
     ]}
   />
@@ -104,12 +110,12 @@ if (canEdit) {
       <IonLabel slot="start">{user}</IonLabel>
                 <IonLabel>
                     <Tooltip title="User has administrative permissions">
-                        <IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon>
+                        <IonIcon icon = {buildOutline} hidden={!localIsAdmin}></IonIcon>
                     </Tooltip>
                 </IonLabel>
                 <IonLabel>
                     <Tooltip title="User has collaborator permissions">
-                        <IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon>
+                        <IonIcon icon = {peopleOutline} hidden={!localIsContributor}></IonIcon>
                     </Tooltip>
                 </IonLabel>
                 <IonLabel>
