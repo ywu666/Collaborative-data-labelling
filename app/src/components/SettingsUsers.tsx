@@ -49,8 +49,12 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   }, [])
 
   function addUser(user: string) {
-    console.log("add user " + firebase.auth)
-    projectServices.setProjectUsers(project, user, firebase);
+    try {
+      projectServices.setProjectUsers(project, user, firebase);
+      setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
+    } catch (e) {
+
+    }
   }
 
   return (
