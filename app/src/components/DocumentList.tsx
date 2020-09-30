@@ -19,7 +19,7 @@ import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-import './DocumentList.css'
+// import './DocumentList.css'
 const labels: string[] = [
 	"tag1",
 	"tag2",
