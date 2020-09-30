@@ -60,7 +60,7 @@ import {
     return (
       
       <IonPage>
-      <Header name={"User"}/>
+      <Header name={localStorage.getItem("email") || "User"}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
          */}
