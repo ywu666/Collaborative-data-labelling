@@ -265,7 +265,7 @@ def get_conflicting_labels_document_ids(project_name):
 
 
 # This end point returns the IDs of documents for which the final label is not confirmed
-@document_label_api.route("/project/<project_name>/documents/<document_id>/get-unconfirmed", methods=['GET'])
+@document_label_api.route("/project/<project_name>/unconfirmed/documents", methods=['GET'])
 def get_documents_with_unconfirmed_labels(project_name, document_id):
     id_token = request.args.get('id_token')
 
@@ -297,9 +297,7 @@ def get_documents_with_unconfirmed_labels(project_name, document_id):
 
     doc_col = get_db_collection(project_name, "documents")
     # get documents that are not confirmed (i.e not labelled by both contributors OR the labels are conflicting)
-    query = {'_id': ObjectId(document_id), 'label_confirmed': False}
-    projection = {'_id': 1}
-    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
+    docs = doc_col.find({'label_confirmed': False}, {'_id': 1}).skip(page * page_size).limit(page_size)
 
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
