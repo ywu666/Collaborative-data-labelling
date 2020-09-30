@@ -8,6 +8,7 @@ from mongoDBInterface import get_col
 
 document_label_api = Blueprint('document_label_api', __name__)
 
+
 # Endpoint to allow adding of labels to a document
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label', methods=['Post'])
 def set_label_for_user(project_name, document_id):
@@ -255,6 +256,48 @@ def get_conflicting_labels_document_ids(project_name):
 
     # get documents that conflict
     query = {'_id': {'$in': conflicting_doc_ids}}
+    projection = {'_id': 1}
+    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
+
+    docs_dict = {'docs': list(docs)}
+    docs = JSONEncoder().encode(docs_dict)
+    return docs, 200
+
+
+# This end point returns the IDs of documents for which the final label is not confirmed
+@document_label_api.route("/project/<project_name>/documents/<document_id>/get-unconfirmed", methods=['GET'])
+def get_documents_with_unconfirmed_labels(project_name, document_id):
+    id_token = request.args.get('id_token')
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        response = make_response(response)
+        return response, 400
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    doc_col = get_db_collection(project_name, "documents")
+    # get documents that are not confirmed (i.e not labelled by both contributors OR the labels are conflicting)
+    query = {'_id': ObjectId(document_id), 'label_confirmed': False}
     projection = {'_id': 1}
     docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
 
