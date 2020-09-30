@@ -17,14 +17,16 @@ interface ContainerProps {
 const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [showUserModal, setShowUserModal] = useState(false);
 
+    var canEdit = true; // can the current user edit permissions?
+
     const initialUsers = [
-        { id: 0, email: 'No users', isAdmin: false, isContributor: false}
+        { id: 0, email: 'No users', isAdmin: false, isContributor: false }
     ]
 
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        console.log("firebase " + firebase.auth.currentUser)
+        // console.log("firebase " + firebase.auth.currentUser)
         projectServices.getProjectUsers(project, firebase)
         // userService.getAllUsers() // testing only
         .then(data => {
@@ -59,7 +61,9 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
       <h2>Users</h2>
           {users.map((user, i: number) => {
             return (
-                <SettingsUser key={i} user={user.email} admin={user.isAdmin} contributor={user.isContributor}></SettingsUser>
+                <SettingsUser key={i} project={project} user={user.email} 
+                isAdmin={user.isAdmin} isContributor={user.isContributor} canEdit={canEdit}
+                firebase={firebase}></SettingsUser>
             );
           })}
 
