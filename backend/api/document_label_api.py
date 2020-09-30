@@ -1,9 +1,8 @@
-import datetime
 from api.methods import JSONEncoder
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
-from model.document import Document, get_db_collection
+from model.document import get_db_collection
 from mongoDBInterface import get_col
 
 document_label_api = Blueprint('document_label_api', __name__)
@@ -265,8 +264,8 @@ def get_conflicting_labels_document_ids(project_name):
 
 
 # This end point returns the IDs of documents for which the final label is not confirmed
-@document_label_api.route("/project/<project_name>/unconfirmed/documents", methods=['GET'])
-def get_documents_with_unconfirmed_labels(project_name, document_id):
+@document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
+def get_documents_with_unconfirmed_labels(project_name):
     id_token = request.args.get('id_token')
 
     try:
