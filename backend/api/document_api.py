@@ -395,6 +395,7 @@ def get_conflicting_labels_document_ids(project_name):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         response = make_response(response)
+        users_col = get_col(project_name, "users")
         return response, 400
 
     if id_token is None or id_token == "":
