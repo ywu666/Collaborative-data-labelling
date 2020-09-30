@@ -29,6 +29,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
   const refContributor = useRef(localIsContributor)
   const refAdmin = useRef(localIsAdmin)
 
+  useEffect(() => {
+    setLocalIsContributor(isContributor)
+  }, [isContributor])
+
+  useEffect(() => {
+    setLocalIsAdmin(isAdmin)
+  }, [isAdmin])
 
   const alert = 
   <IonAlert
