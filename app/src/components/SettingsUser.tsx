@@ -110,12 +110,12 @@ if (canEdit) {
       <IonLabel slot="start">{user}</IonLabel>
                 <IonLabel>
                     <Tooltip title="User has administrative permissions">
-                        <IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon>
+                        <IonIcon icon = {buildOutline} hidden={!localIsAdmin}></IonIcon>
                     </Tooltip>
                 </IonLabel>
                 <IonLabel>
                     <Tooltip title="User has collaborator permissions">
-                        <IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon>
+                        <IonIcon icon = {peopleOutline} hidden={!localIsContributor}></IonIcon>
                     </Tooltip>
                 </IonLabel>
                 <IonLabel>
