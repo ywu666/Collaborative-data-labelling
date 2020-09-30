@@ -15,39 +15,22 @@ import {
   import { send } from 'ionicons/icons';
   import Moment from 'moment';
   import { isNullOrWhitespace } from '../utils';
-  import { documentServices } from '../services/DocumentService';
+  
   export interface NewCommentInputProps {
-    projectName: string;
     inputRef: RefObject<HTMLIonTextareaElement>;
-    email:any;
-    postId: string;
-    //time:any
-    firebase:any
+    onSubmit:any
+    disabled:boolean
   }
   
-  const NewCommentInput: React.FC<NewCommentInputProps> = ({
-   // onCommentCreated,
-    projectName,
-    inputRef,
-    email,
-    postId,
-    //time,
-    firebase
-  }) => {
-    const [content, setContent] = useState<string>();
+  const NewCommentInput: React.FC<NewCommentInputProps>  = (props:NewCommentInputProps) => {
+    const {
+      inputRef,
+      onSubmit,
+      disabled
+    } = props;
 
-    const handleSubmit = async () => {
-      try {
-        documentServices.postNewComment(projectName, postId, email, content , Moment(new Date()).format("YYYY-MM-DD hh:mm:ss"), firebase)
-        .then(() => { 
-			return documentServices.getDocument(projectName, postId, firebase)
-        })
-        //onCommentCreated(content);
-        setContent('');
-      } catch (e) {
-        console.error(e);
-      }
-    };
+    const [content, setContent] = useState<string>();
+    const [loading, setLoading] = useState(false);
   
     return (
       <>
@@ -64,9 +47,10 @@ import {
                         onIonChange={(e) => {
                           setContent(e.detail.value!);
                         }}
-                        autofocus={true}
+                        autofocus={false}
                         rows={5}
                         ref={inputRef}
+                        disabled={disabled}
                       />
                     </IonItem>
                   </IonCol>
@@ -77,19 +61,22 @@ import {
                     style={{ padding: '0px' }}
                     size="12"
                   >
-                    <IonButton
-                      size="small"
-                      disabled={isNullOrWhitespace(content) || !postId}
-                      onClick={handleSubmit}
-                    >
-                        Submit
-                      {/* {(loading && <IonSpinner />) || (
-                        <>
-                          Submit
+                      {(loading && <IonSpinner />) || (
+                        <IonButton
+                          fill="outline"
+                          size="small"
+                          disabled={isNullOrWhitespace(content) || disabled}
+                          onClick={() => {
+                            setLoading(true)
+                            onSubmit(content).then(() => {
+                              setLoading(false)
+                            })
+                            setContent('')
+                          }}
+                        >
                           <IonIcon size="small" slot="icon-only" icon={send} />
-                        </>
-                      )} */}
-                    </IonButton>
+                        </IonButton>
+                      )}
                   </IonCol>
                 </IonRow>
               </IonGrid>

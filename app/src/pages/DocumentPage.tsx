@@ -2,32 +2,23 @@ import {
   IonContent,
   IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
-  IonButton,
   IonList,
   IonItem,
   IonLabel,
-  IonIcon,
-  IonModal,
-  IonTextarea,
-  IonInput,
   IonCard,
-  IonCardContent,
   IonCardTitle,
   IonSkeletonText,
 } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
+import Moment from 'moment';
 import './DocumentPage.css';
 import { documentServices } from '../services/DocumentService'
 import firebase from "firebase";
 import app from 'firebase/app';
 import 'firebase/auth';
-import onLogout from '../helpers/logout'
 import Header from '../components/Header'
-import NewCommentInput from '../components/NewCommentInputProps';
+import NewCommentInput from '../components/NewCommentInput';
 import Comment from '../components/Comment'
 
 interface Document {
@@ -59,8 +50,6 @@ interface Comments {
 var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const { document_id } = useParams<{ document_id: string }>();
   const { project } = useParams<{ project: string }>();
-  const [showModal, setShowModal] = useState(false);
-  const [labelIndex, setLabelIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(true);
   const { firebase } = props;
   const [documentData, setDocumentData] = useState([['']]);
@@ -70,55 +59,63 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [commentData, setCommentData] = useState<Comments[]>([]);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
 
+  const [error, setError] = useState("")
+
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
     newCommentElement.current!.value = `@${author} `;
   };
 
   useEffect(() => {
-    try {
-      documentServices.getLabels(project, firebase).then((data) => {
-        setLabelList(data);
-      });
-    } catch (e) {}
+    documentServices.getLabels(project, firebase).then((data) => {
+      setLabelList(data);
+    })
+    .catch(e => {
+      let err = "Error fetching labels"
+      setError(err)
+    })
+    ;
   }, []);
 
   let list: Users_and_Labels[] = [];
   useEffect(() => {
-    try {
-      documentServices
-        .getDocument(project, document_id, firebase)
-        .then((data) => {
-          setDocumentData(data.data);
-          setLabelData(data.user_and_labels);
-          setCommentData(data.comments);
-          console.log(documentData)
-          console.log(commentData)
-          labelData.forEach((element: any) => {
-            labelList.forEach((element1: any) => {
-              if (element.label === element1._id) {
-                let pair: Users_and_Labels = {
-                  email: element.email,
-                  label: element1.name,
-                };
-                list.push(pair);
-              }
-            });
-          });
-        });
-    } catch (e) {}
+    documentServices
+      .getDocument(project, document_id, firebase)
+      .then((data) => {
+        setDocumentData(data.data);
+        setLabelData(data.user_and_labels);
+        setCommentData(data.comments);
+        setIsLoading(false);
+      });
   }, []);
-  
-  setTimeout(() => {
-    setIsLoading(false);
-  },
-  1500
-  )
 
-  const renderLabelModal = (i: number) => {
-    setShowModal(true);
-    setLabelIndex(i);
-  };
+  useEffect(() => {
+    labelData.forEach((element: any) => {
+      labelList.forEach((element1: any) => {
+        if (element.label === element1._id) {
+          let pair: Users_and_Labels = {
+            email: element.email,
+            label: element1.name,
+          };
+          list.push(pair);
+        }
+      });
+    });
+  }, [labelData, labelList])
+
+  const onSubmitComment = (content:any) => {
+    try {
+      return documentServices.postNewComment(project, document_id, localStorage.getItem('email'), content , Moment(new Date()).format("YYYY-MM-DD hh:mm:ss"), firebase)
+      .then(() => { 
+        documentServices.getDocument(project, document_id, firebase)
+        .then((data) => {
+          setCommentData(data.comments)
+        })
+      })
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
   return (
     <IonPage>
@@ -173,13 +170,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 ))}
               </IonList>
             </div>
-            <NewCommentInput
-              projectName={project}
-              inputRef={newCommentElement}
-              email={localStorage.getItem('email')}
-              postId={document_id}
-              firebase={firebase}
-            ></NewCommentInput>
             <IonList>
               {commentData.map((data, i) => (
                 <IonItem key={i}>
@@ -192,6 +182,11 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 </IonItem>
               ))}
             </IonList>
+            <NewCommentInput
+              inputRef={newCommentElement}
+              onSubmit={onSubmitComment}
+              disabled={false}
+            ></NewCommentInput>
           </div>
         )}
       </IonContent>
