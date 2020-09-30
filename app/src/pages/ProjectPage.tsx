@@ -15,19 +15,21 @@ import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, {useRef, useState} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
-import * as request from 'request';
-import onLogout from '../helpers/logout'
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
 import {projectServices} from "../services/ProjectServices";
-import firebase from "firebase";
 
-const ProjectPage: React.FC = () => {
+interface ProjectPageProps {
+  firebase: any
+}
+const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
   const page_size = 10;
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
-
+  const {
+    firebase
+  } = props;
   const downloadCSV = (projectName: string) => {
     try {
       projectServices.exportCsv(projectName)
@@ -51,7 +53,7 @@ const ProjectPage: React.FC = () => {
         <div className="container">        
           <h1>{name}</h1>
           <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          <DocumentList name={name} page_size={page_size}/>
+          <DocumentList name={name} page_size={page_size} firebase= {firebase}/>
         </div>
         <div>
         <form className="uploadFile" onSubmit={() =>
@@ -65,7 +67,6 @@ const ProjectPage: React.FC = () => {
             </IonButton>
         </form>
         <p className="note">The uploaded file should be CSV formatted.<br/>There should be two 'columns' in the<br/>following order: ID and BODY</p>
-
         </div>
 
         <div>
