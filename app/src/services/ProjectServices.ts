@@ -8,8 +8,12 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
+    //getProjectTags,
+    setProjectTags,
+    setUserPermissions,
+    uploadDocuments,
     createProject,
-    uploadDocuments
+    //uploadDocuments
 }
 
 async function createProject(project_name: any, firebase: any){
@@ -170,6 +174,33 @@ async function getProjectUsers(project: string, firebase: any) {
         .then(data => {
             return data.users
         })
+ }
+
+ async function setUserPermissions(project: string, user: string, isAdmin: boolean, isContributor: boolean, firebase:any) {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(
+            {
+                "user": user,
+                "permissions": { "isAdmin": isAdmin, "isContributor": isContributor }
+            })
+    };
+
+    const token = localStorage.getItem('user-token');
+     if (firebase.auth.currentUser != null) {
+         firebase.auth.currentUser.getIdToken().then((idToken: string) => {
+             if (token !== idToken) {
+                 localStorage.setItem('user-token', idToken)
+             }
+         })
+     } else {
+         window.location.href = '/auth';
+     }
+    
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/users/update?id_token=' 
+                    + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
  }
 
  async function uploadDocuments(project : string, file : File, firebase: any){

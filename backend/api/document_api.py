@@ -330,7 +330,7 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 0})
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
     docs_in_page = docs.skip(page * page_size).limit(page_size)
     
     count = docs.count()
@@ -395,6 +395,7 @@ def get_conflicting_labels_document_ids(project_name):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         response = make_response(response)
+        users_col = get_col(project_name, "users")
         return response, 400
 
     if id_token is None or id_token == "":
