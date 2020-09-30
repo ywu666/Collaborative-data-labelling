@@ -146,7 +146,7 @@ def delete_document(project_name, document_id):
     col.delete_one({'_id': ObjectId(document_id)})
     return "", 204
 
-
+  
 @document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
 def post_comment_on_document(project_name, document_id):
     id_token = request.args.get('id_token')
@@ -191,4 +191,5 @@ def post_comment_on_document(project_name, document_id):
 
 
 if __name__ == '__main__':
-    int('a')
+    col = get_col("New_Project", "documents")
+    print(col.count_documents({}))
