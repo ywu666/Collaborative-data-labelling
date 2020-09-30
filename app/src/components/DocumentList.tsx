@@ -19,17 +19,18 @@ import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-import './DocumentList.css'
 
 interface DocumentListProps {
-	name: string,
-	page_size: number
+  name: string,
+  page_size: number,
+  firebase:any
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const {
 		name,
-  	page_size
+	  page_size,
+	  firebase
 	} = props;
 	
   const [page, setPage] = useState(0);
@@ -43,7 +44,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState(false)
 
-  useEffect(() => {
+	useEffect(() => {
 		if (filter) {
 			documentServices.getUnlabelledDocuments(name, page, page_size)
 			.then(data => {
@@ -53,7 +54,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				setLoading(false)
 			})
 		} else {
-			documentServices.getDocumentIds(name, page, page_size)
+			documentServices.getDocumentIds(name, page, page_size, firebase)
 			.then(data => {
 				console.log(data)
 				setDocuments(data.docs)
@@ -64,7 +65,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}, [page, filter])
 	
 	useEffect(() => {
-		labelServices.getLabels(name)
+		labelServices.getLabels(name,firebase)
 		.then(data => {
 			setLabels(data)
 		})
@@ -95,9 +96,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		
 		setNewDocument(doc)
 
-		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id)
+		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id, firebase)
 		.then(() => { 
-			return documentServices.getDocument(name, documentIndex)
+			return documentServices.getDocument(name, documentIndex, firebase)
 		})
 		.then(data => {
 			console.log(data)
@@ -122,7 +123,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		
 		return (
 			<IonItem key = {index} >
-				<IonLabel><IonRouterLink color="dark" href={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink></IonLabel>
+				<IonLabel><IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink></IonLabel>
 				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				{isNullOrUndefined(email)
 				? <div/>

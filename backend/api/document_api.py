@@ -445,5 +445,48 @@ def get_conflicting_labels_document_ids(project_name):
     return docs, 200
 
 
+# Gets number of unlabelled docs for each user
+@document_api.route('/projects/<project_name>/unlabelled/contributors', methods=['Get'])
+def get_number_of_unlabelled_docs_for_contributors(project_name):
+    id_token = request.args.get('id_token')
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    user_col = get_col(project_name, "users")
+    contributors = user_col.find({"isContributor": True})
+
+    output = []
+    for user in contributors:
+        if user['isContributor']:
+            col = get_col(project_name, "documents")
+            num_docs = col.count_documents({"user_and_labels": {'$not': {'$elemMatch': {"email": user['email']}}}})
+            current_user_dict = \
+                {
+                    'email': user['email'],
+                    'number_unlabelled': num_docs
+                }
+            output.append(current_user_dict)
+
+    output_dict = {'contributors': output}
+    return output_dict, 200
+
+
 if __name__ == '__main__':
-    int('a')
+    col = get_col("New_Project", "documents")
+    print(col.count_documents({}))
