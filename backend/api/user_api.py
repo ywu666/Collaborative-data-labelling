@@ -339,3 +339,26 @@ def get_all_users_emails():
     all_users_dict = {"users": list(all_users)}
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
+
+
+@user_api.route("/projects/<project_name>/user", methods=["Get"])
+def get_current_user_for_proj(project_name):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    project_user_col = get_col(project_name, "users")
+    requestor = project_user_col.find_one({'email': requestor_email})
+    user_json = JSONEncoder().encode(requestor)
+    return user_json, 200
+
