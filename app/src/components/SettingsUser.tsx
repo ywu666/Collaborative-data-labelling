@@ -5,7 +5,7 @@ import {
   IonAlert,
   IonIcon
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
 import { projectServices } from '../services/ProjectServices'
 
@@ -22,10 +22,11 @@ interface ContainerProps {
 const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase }) => {
 
   const [showPermissions, setShowPermissions] = useState(false);
-  const [localIsContributor, setLocalIsContributor] = useState<boolean>(isContributor);
-  const [localIsAdmin, setLocalIsAdmin] = useState<boolean>(isAdmin);
-
-  var currentRole = "Observer";
+  const [showError, setShowError] = useState(false);
+  const [localIsContributor, setLocalIsContributor] = useState(isContributor);
+  const [localIsAdmin, setLocalIsAdmin] = useState(isAdmin);
+  const refContributor = useRef(localIsContributor)
+  const refAdmin = useRef(localIsAdmin)
 
   const alert = 
   <IonAlert
@@ -38,13 +39,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
         type: 'checkbox',
         label: 'Contributor',
         value: 'Contributor',
-        checked: localIsContributor
+        checked: refContributor.current
       },
       {
         type: 'checkbox',
         label: 'Admin',
         value: 'Admin',
-        checked: localIsAdmin
+        checked: refAdmin.current
       }
     ]}
     buttons={[
@@ -57,43 +58,58 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
         handler: (data) => {
           if (data.includes("Contributor")) {
             setLocalIsContributor(true);
+            refContributor.current = true
           } else {
             setLocalIsContributor(false);
+            refContributor.current = false
           }
           if (data.includes("Admin")) {
             setLocalIsAdmin(true);
+            refAdmin.current = true
           } else {
             setLocalIsAdmin(false);
+            refAdmin.current = false
           }
-          setPermissions()
+          projectServices.setUserPermissions(project, user, refAdmin.current, refContributor.current, firebase)
+            .catch(e => {
+            setLocalIsContributor(isContributor)
+            setLocalIsAdmin(isAdmin)
+            setShowError(true)
+        })
           }
       }
     ]}
   />
 
-  function setPermissions() {
-    isContributor = localIsContributor;
-    isAdmin = localIsAdmin;
-    projectServices.setUserPermissions(project, user, isAdmin, isContributor, firebase);
-  }
+  const errorAlert = 
+    <IonAlert 
+    isOpen={showError}
+    onDidDismiss={() => setShowError(false)}
+    message={'You can only add 2 contributors'}
+    buttons={[
+        {
+          text: 'OK',
+          role: 'cancel'
+        }
+    ]}
+    />
 
-    if (localIsAdmin) {
-    currentRole = "Admin";
-  } else if (localIsContributor) {
-    currentRole = "Contributor";
-  }
 
 if (canEdit) {
   return (
     <div>
     <IonItem>
         <IonLabel>{user}</IonLabel>
-        <IonLabel slot="end"><IonIcon icon = {buildOutline} hidden={!localIsAdmin}></IonIcon><IonIcon icon = {peopleOutline} hidden={!localIsContributor}></IonIcon><IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
-        <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)}>
-        {currentRole}
+        <IonLabel slot="end">
+            <IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon>
+            <IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon>
+            <IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
+        <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
+        Edit Permissions
         </IonButton>
     </IonItem>
     {alert}
+    {errorAlert}
     </div>
   );
 } else {
@@ -101,11 +117,12 @@ if (canEdit) {
     <div>
     <IonItem>
         <IonLabel>{user}</IonLabel>
-        <IonButton fill="outline" slot="end" onClick={() => setShowPermissions(true)} disabled>
-        {currentRole}
+        <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)} disabled>
+        Edit Permissions
         </IonButton>
     </IonItem>
     {alert}
+    {errorAlert}
     </div>
   );
 }
