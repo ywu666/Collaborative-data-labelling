@@ -1,5 +1,9 @@
 import {
   IonButton,
+  IonItem,
+  IonModal,
+  IonList,
+  IonLabel,
   IonAlert,
   IonInput,
   IonRow
@@ -61,6 +65,11 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   return (
     <div className="container">
       <h2>Users</h2>
+        <IonItem>
+          <IonLabel slot="start">User Email</IonLabel>
+          <IonLabel>Permissions</IonLabel>
+          <IonLabel slot="end">Edit Permissions</IonLabel>
+        </IonItem>
           {users.map((user, i: number) => {
             return (
                 <SettingsUser key={i} project={project} user={user.email} 

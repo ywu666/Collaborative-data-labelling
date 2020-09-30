@@ -7,6 +7,7 @@ import {
 } from '@ionic/react';
 import React, { useState, useRef } from 'react';
 import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
+import { Tooltip } from '@material-ui/core';
 import { projectServices } from '../services/ProjectServices'
 
 interface ContainerProps {
@@ -95,17 +96,29 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     />
 
 
+
 if (canEdit) {
   return (
     <div>
     <IonItem>
-        <IonLabel>{user}</IonLabel>
-        <IonLabel slot="end">
-            <IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon>
-            <IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon>
-            <IonIcon icon = {eyeOutline}></IonIcon></IonLabel>
+      <IonLabel slot="start">{user}</IonLabel>
+                <IonLabel>
+                    <Tooltip title="User has administrative permissions">
+                        <IonIcon icon = {buildOutline} hidden={!isAdmin}></IonIcon>
+                    </Tooltip>
+                </IonLabel>
+                <IonLabel>
+                    <Tooltip title="User has collaborator permissions">
+                        <IonIcon icon = {peopleOutline} hidden={!isContributor}></IonIcon>
+                    </Tooltip>
+                </IonLabel>
+                <IonLabel>
+                    <Tooltip title="User has observer permissions">
+                        <IonIcon icon = {eyeOutline}></IonIcon>
+                    </Tooltip>
+                </IonLabel>
         <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
-        Edit Permissions
+          Edit Permissions
         </IonButton>
     </IonItem>
     {alert}
