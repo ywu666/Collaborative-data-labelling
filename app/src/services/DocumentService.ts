@@ -1,3 +1,5 @@
+import { DH_UNABLE_TO_CHECK_GENERATOR } from "constants";
+
 /**
  * The document service encapsulates all backend api calls for performing CRUD operations on document data
  */
@@ -47,6 +49,7 @@ async function getDocumentIds(project:any, page:number, page_size:number ,fireba
     };
 
     const token = localStorage.getItem('user-token');
+    console.log(token)
     if(firebase.auth.currentUser != null){
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
          if(token !== idToken){

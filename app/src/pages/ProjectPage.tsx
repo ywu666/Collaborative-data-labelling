@@ -53,7 +53,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
         <div className="container">        
           <h1>{name}</h1>
           <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          <DocumentList name={name} page={pageIndex} page_size={page_size} firebase= {firebase}/>
+          <DocumentList name={name} page_size={page_size} firebase= {firebase}/>
         </div>
         <div>
         <form className="uploadFile" onSubmit={() =>
