@@ -1,23 +1,20 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonButton,
   IonItem,
   IonIcon,
-  IonModal,
-  IonSkeletonText,
   IonToast
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import DocumentList from '../components/DocumentList'
 import Header from '../components/Header'
-import {projectServices} from "../services/ProjectServices";
+import { projectServices } from "../services/ProjectServices";
+import { userService } from "../services/UserServices";
+import { documentServices } from "../services/DocumentService"
 import {Tooltip} from '@material-ui/core';
 
 interface ProjectPageProps {
@@ -28,6 +25,8 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const page_size = 10;
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
+  const [currentUser, setCurrentUser] = useState<any>({});
+  
   const {
     firebase
   } = props;
@@ -39,6 +38,15 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     }
   }
 
+
+  useEffect(() => {
+    userService.getCurrentProjectUser(name)
+    .then(data => {
+      setCurrentUser(data)
+    })
+  }, [])
+
+
   function handleUpload() {
     console.log("upload")
     try {
@@ -49,6 +57,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   }    
   }
   
+
   // @ts-ignore
     // @ts-ignore
     // @ts-ignore
@@ -62,8 +71,10 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
       <IonContent>
         <div className="container">        
           <h1>{name}</h1>
-          <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          <DocumentList name={name} page_size={page_size} firebase= {firebase}/>
+          {currentUser.isAdmin
+          ? <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
+          : <div/>}
+          <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>
         </div>
         <div>
         <form className="uploadFile">
