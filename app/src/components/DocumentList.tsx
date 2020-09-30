@@ -1,13 +1,20 @@
 import {
 	IonModal,
-  IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonIcon,
-  IonSkeletonText
+	IonButton,
+	IonList,
+	IonItem,
+	IonLabel,
+	IonIcon,
+	IonSkeletonText,
+	IonRouterLink,
+	IonText,
+	IonInput,
+	IonCol,
+	IonRow,
+	IonSegment,
+	IonSegmentButton
 } from '@ionic/react';
-import { add } from 'ionicons/icons' 
+import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
@@ -21,23 +28,26 @@ interface DocumentListProps {
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
-  const {
+	const {
 		name,
 	  page,
 	  page_size,
 	  firebase
 	} = props;
 	
+  const [page, setPage] = useState(0);
 	const [documents, setDocuments] = useState<any[]>([]);
 	const [count, setCount] = useState(0);
 	const [labels, setLabels] = useState<any[]>([]);
-  const [documentIndex, setDocumentIndex] = useState("");
-  const [showModal, setShowModal] = useState(false);
+	const [documentIndex, setDocumentIndex] = useState("");
+	const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
 	const [docError, setDocError] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
+	const [filter, setFilter] = useState(false)
 
   useEffect(() => {
+
     documentServices.getDocumentIds(name, page, page_size, firebase)
     .then(data => {
 			console.log(data)
@@ -46,6 +56,25 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			setLoading(false)
     })
   }, [page])
+
+		if (filter) {
+			documentServices.getUnlabelledDocuments(name, page, page_size)
+			.then(data => {
+				console.log(data)
+				setDocuments(data.docs)
+				setCount(data.count)
+				setLoading(false)
+			})
+		} else {
+			documentServices.getDocumentIds(name, page, page_size)
+			.then(data => {
+				console.log(data)
+				setDocuments(data.docs)
+				setCount(data.count)
+				setLoading(false)
+			})
+		}
+	}, [page, filter])
 	
 	useEffect(() => {
 		labelServices.getLabels(name,firebase)
@@ -57,18 +86,18 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	useEffect(() => {
 		setDocuments(
 			documents.map((e) => {
-				if (e.id === newDocument.id) return newDocument
+				if (e._id === newDocument._id) return newDocument
 				else return e 
 			})
 		)
 	}, [newDocument])
 
-  const renderLabelModal = (id:string) => {
-    setShowModal(true)
-    setDocumentIndex(id)
-  }
+	const renderLabelModal = (id:string) => {
+		setShowModal(true)
+		setDocumentIndex(id)
+	}
 
-  const changeTag = (documentIndex:any, label:any) => {
+	const changeTag = (documentIndex:any, label:any) => {
 		let doc = documents.find(e => e._id == documentIndex)
 		let email = localStorage.getItem("email")
 
@@ -76,7 +105,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			doc.user_and_labels.find((e: { email: string | null; }) => e.email === email).label = label._id 
 
 		else doc.user_and_labels.push({'email': email, 'label':label._id})
-
+		
 		setNewDocument(doc)
 
 		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id, firebase)
@@ -84,6 +113,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			return documentServices.getDocument(name, documentIndex, firebase)
 		})
 		.then(data => {
+			console.log(data)
 			data.id = documentIndex
 			setNewDocument(data)
 			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
@@ -104,21 +134,65 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
 		
 		return (
-			<IonItem key = {index} routerLink={"/project/" + name + "/document/" + doc._id} >
-				<IonLabel>{doc.data}</IonLabel>
+			<IonItem key = {index} >
+				<IonLabel><IonRouterLink color="dark" href={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink></IonLabel>
 				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				{isNullOrUndefined(email)
 				? <div/>
 				:	isNullOrUndefined(user_label)
-					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}><IonIcon icon={add}/></IonButton>
-					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}>{user_label.name}</IonButton>
+					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
 				}
 			</IonItem>
 		)
 	}
 
+	const beforePage = () => {
+		setLoading(true)
+		setDocuments([])
+		setPage(page - 1)
+	}
+
+	const nextPage = () => {
+		setLoading(true)
+		setDocuments([])
+		setPage(page + 1)
+	}
+
+	const onPageNumberChange = (e: any) => {
+		let v = parseInt(e.detail.value)
+		if (v > Math.trunc(count/page_size)+1) {
+			v = Math.trunc(count/page_size)+1
+		} else if (v <= 0) {
+			v = 1
+		}
+
+		setLoading(true)
+		setDocuments([])
+		setPage(v - 1)
+	}
+
+	const filterOnChange = (value: string | undefined) => {
+		console.log(value)
+		if (!(value === "all" && !filter)) {
+			setLoading(true)
+			setDocuments([])
+		}
+		setFilter(value === "unlabelled")
+	}
+
 	return (
 		<div>
+			<div>
+				<IonSegment onIonChange={e => filterOnChange(e.detail.value)}>
+					<IonSegmentButton value="all">
+						<IonLabel>All</IonLabel>
+					</IonSegmentButton>
+					<IonSegmentButton value="unlabelled">
+						<IonLabel>Unlabelled</IonLabel>
+					</IonSegmentButton>
+				</IonSegment>
+			</div>
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
 					{labels.map((label, i) =>
@@ -133,11 +207,35 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</IonItem>
 				:documents?.map((doc, index) =>
 					documentItem(doc, index)
-				)
-				}
+				)}
 			</IonList>
+			<IonItem lines="none">
+				<IonText slot="start" color="medium">
+					Number of Documents: {count}
+				</IonText>
+			</IonItem>
+			<IonRow>
+				<IonCol>
+					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
+				</IonCol>
+				<IonCol>
+					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
+				</IonCol>
+				<IonCol>
+					<div className="text-align-bottom">
+						/
+					</div>
+				</IonCol>
+				<IonCol>
+					<div className="text-align-bottom">
+						{Math.trunc(count/page_size)+1}
+					</div>
+				</IonCol>
+				<IonCol>
+					<IonButton disabled={page >= Math.trunc(count/page_size)} size="small" fill="clear" onClick={()=>nextPage()}><IonIcon icon={chevronForwardOutline}/></IonButton>
+				</IonCol>
+			</IonRow>
 			
-			<p className="item_count" color="medium">Number of Documents: {count}</p>
 		</div>
 	)
 }

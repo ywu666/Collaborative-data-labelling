@@ -46,7 +46,8 @@ def create_user():
     #    response = make_response(response)
     #    return response, 400
     else:
-        all_users.insert_one({'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+        all_users.insert_one(
+            {'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
 
     # is part of! When a new user is created it should be empty
 
@@ -87,12 +88,14 @@ def add_user_to_project(project_name):
         return response, 400
 
     project_user_col = get_col(project_name, "users")
-    if project_user_col.find_one({'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
+    if project_user_col.find_one(
+            {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
         response = {'message': "Not authorised to perform this action"}
         response = make_response(response)
         return response, 401
 
-    if not project_user_col.find_one({'email': requestor_email})['isAdmin']:  # if the requestor is not an admin, return forbidden
+    if not project_user_col.find_one({'email': requestor_email})[
+        'isAdmin']:  # if the requestor is not an admin, return forbidden
         response = {'message': "Forbidden to perform this action"}
         response = make_response(response)
         return response, 403
@@ -139,12 +142,14 @@ def update_user(project_name):
         return response, 400
 
     project_user_col = get_col(project_name, "users")
-    if project_user_col.find_one({'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
+    if project_user_col.find_one(
+            {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
         response = {'message': "Not authorised to perform this action"}
         response = make_response(response)
         return response, 401
 
-    if not project_user_col.find_one({'email': requestor_email})['isAdmin']:  # if the requestor is not an admin, return forbidden
+    if not project_user_col.find_one({'email': requestor_email})[
+        'isAdmin']:  # if the requestor is not an admin, return forbidden
         response = {'message': "Forbidden to perform this action"}
         response = make_response(response)
         return response, 403
@@ -305,8 +310,32 @@ def remove_user_from_project(project_name):
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
-    if requestor_email == email or requestor['isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
+    if requestor_email == email or requestor[
+        'isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
         users_col.delete_one({'email': email})
         remove_project_from_user(email, project_name)
         remove_all_labels_of_user(email, project_name)
     return "", 204
+
+
+@user_api.route("/user/all", methods=['Get'])
+def get_all_users_emails():
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col("users", "users")
+    all_users = users_col.find({}, {'email': 1})
+    all_users_dict = {"users": list(all_users)}
+    all_users_json = JSONEncoder().encode(all_users_dict)
+    return all_users_json, 200

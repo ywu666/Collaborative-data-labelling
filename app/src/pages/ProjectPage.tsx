@@ -25,7 +25,6 @@ interface ProjectPageProps {
 const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
   const page_size = 10;
-  const [pageIndex] = useState(0);
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
   const {

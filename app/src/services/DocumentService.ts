@@ -6,6 +6,7 @@ export const documentServices = {
     getDocumentIds,
     postDocumentLabel,
     getLabels,
+    getUnlabelledDocuments,
     postNewComment
 }
 
@@ -65,6 +66,26 @@ async function getDocumentIds(project:any, page:number, page_size:number ,fireba
             return data;
         })
 }
+
+function getUnlabelledDocuments(project:any, page:number, page_size:number) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unlabelled/documents'
+        + '?page=' + page
+        + '&page_size=' + page_size
+        + '&id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        .then(handleResponse)
+        .then(data => {
+            return data;
+        })
+}
+
 
 async function postDocumentLabel(project: any, document_id: any, email:any, label_id: any, firebase:any) {
     const requestOptions = {

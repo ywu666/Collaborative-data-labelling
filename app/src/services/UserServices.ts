@@ -47,6 +47,24 @@ function signup(email: string ,token: string){
         })
 }
 
+function getAllUsersInDatabase() {
+     const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+ },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/users/all'
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.users
+        })
+}
+
 function getAllUsers(page_num: any, page_size: any) {
     const requestOptions = {
         method: 'GET',
