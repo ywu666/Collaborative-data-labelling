@@ -14,8 +14,8 @@ import {
     IonInput,
     IonSkeletonText
   } from '@ionic/react';
-  import { add } from 'ionicons/icons';
-  import React, { useState, useEffect } from 'react';
+  import { add, arrowBack} from 'ionicons/icons';
+  import React, { useState, useEffect, useRef } from 'react';
   import './MainPage.css';
   import app from 'firebase/app';
   import 'firebase/auth';
@@ -29,12 +29,12 @@ import {
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
+
     const {
       firebase
     } = props;
     const [isLoading, setIsLoading] = useState(true);
 
-    
     useEffect(() => {
       try {
         projectServices.getProjectNames(firebase)
@@ -49,10 +49,42 @@ import {
     setTimeout(() => {
       setIsLoading(false);
     }, 1500)
-    
+
+    function createProject(projectName: any){
+      try {
+        projectServices.createProject(projectName, firebase)
+
+        setProjectData(projectData => [...projectData, projectName]);
+      } catch (e) {
+        console.log(e)
+      }    
+      
+    }
     return (
+      
       <IonPage>
-        <Header name={localStorage.getItem("email") || "User"}/>
+      <Header name={"User"}/>
+
+      {/**will add an onclick function which will parse the new project name information to the system
+         */}
+          <form className="createProject" onSubmit={(e: React.FormEvent) => {
+            
+            console.log("project name value below");
+            e.preventDefault();
+            const formData = new FormData(e.target as HTMLFormElement);
+            console.log(formData);
+            createProject(formData.get("projectName"));
+            formData.delete("projectName");
+          }}>
+            <IonItem>
+              <IonLabel position="floating">New Project</IonLabel>
+              <IonInput name="projectName" id="projectName" type="text"/>	            
+            </IonItem>
+            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block">	
+            <IonIcon icon={add} />            
+                create            
+            </IonButton>	            
+            </form>	 	     
 
       <IonContent>
         {/**
@@ -93,23 +125,7 @@ import {
         }
 
 
-        {/**will add an onclick function which will parse the new project name information to the system
-         */}
-        <form className="createProject">
-          <IonItem>
-            <IonLabel position="floating">New Project</IonLabel>
-            <IonInput />
-          </IonItem>
-          <IonButton
-            fill="outline"
-            className="ion-margin-top"
-            type="submit"
-            expand="block"
-          >
-            <IonIcon icon={add} />
-            Create
-          </IonButton>
-        </form>
+         
       </IonContent>
     </IonPage>
   );

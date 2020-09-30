@@ -19,9 +19,9 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [newUser, setNewUser] = useState<string>();
 
-  const initialUsers = [
-    { id: 0, email: 'No users' }
-  ]
+    const initialUsers = [
+        { id: 0, email: 'No users', isAdmin: false, isContributor: false}
+    ]
 
   const [users, setUsers] = useState(initialUsers);
   useEffect(() => {
@@ -32,16 +32,16 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
           setUsers(data)
         })
     } catch (e) {
-
     }
   }, [])
 
-  const [allUsers, setAllUsers] = useState(initialUsers);
-  useEffect(() => {
-    try {
-      userService.getAllUsers()
+    const [allUsers, setAllUsers] = useState(initialUsers);
+    useEffect(() => {
+      try {
+        userService.getAllUsers(0, 10) //change when creating tables of user
         .then(data => {
-          setAllUsers(data)
+            setAllUsers(data)
+            console.log(data)
         })
     } catch (e) {
 
@@ -56,14 +56,12 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   return (
     <div className="container">
       <h2>Users</h2>
-      {users.map((user, i: number) => {
-        return (
-          <SettingsUser key={i} user={user.email}></SettingsUser>
-        );
-      })}
-
-      <IonRow>
-
+          {users.map((user, i: number) => {
+            return (
+                <SettingsUser key={i} user={user.email} admin={user.isAdmin} contributor={user.isContributor}></SettingsUser>
+            );
+          })}
+        <IonRow>
         <IonInput type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
 
         <IonButton size="small" fill="outline" onClick={() => {

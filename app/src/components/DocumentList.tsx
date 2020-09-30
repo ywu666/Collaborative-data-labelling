@@ -1,61 +1,72 @@
 import {
 	IonModal,
-  IonButton,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonIcon,
-  IonSkeletonText
+	IonButton,
+	IonList,
+	IonItem,
+	IonLabel,
+	IonIcon,
+	IonSkeletonText,
+	IonRouterLink,
+	IonText,
+	IonInput,
+	IonCol,
+	IonRow,
+	IonSegment,
+	IonSegmentButton
 } from '@ionic/react';
-import { add } from 'ionicons/icons' 
+import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-
+import './DocumentList.css'
 const labels: string[] = [
-  "tag1",
-  "tag2",
-  "tag3",
+	"tag1",
+	"tag2",
+	"tag3",
 ]
 
 interface DocumentListProps {
 	name: string,
-  page: number,
-  page_size: number
+	page_size: number
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
-  const {
+	const {
 		name,
-	  page,
   	page_size
 	} = props;
 	
-  const [documents, setDocuments] = useState<any[]>([]);
-	const [document_ids, setDocumentsIds] = useState<any[]>([]);
+  const [page, setPage] = useState(0);
+	const [documents, setDocuments] = useState<any[]>([]);
+	const [count, setCount] = useState(0);
 	const [labels, setLabels] = useState<any[]>([]);
-  const [documentIndex, setDocumentIndex] = useState("");
-  const [showModal, setShowModal] = useState(false);
+	const [documentIndex, setDocumentIndex] = useState("");
+	const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
 	const [docError, setDocError] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [filter, setFilter] = useState(false)
 
   useEffect(() => {
-    documentServices.getDocumentIds(name, page, page_size)
-    .then(data => {
-      setDocumentsIds(data)
-    })
-  }, [])
-
-  useEffect(() => {
-    for (let child of document_ids) {
-      documentServices.getDocument(name, child._id)
-      .then(data => {
-				data.id = child._id
-				setDocuments(doc => [...doc, data])
-      })
-    }
-	}, [document_ids])
+		if (filter) {
+			documentServices.getUnlabelledDocuments(name, page, page_size)
+			.then(data => {
+				console.log(data)
+				setDocuments(data.docs)
+				setCount(data.count)
+				setLoading(false)
+			})
+		} else {
+			documentServices.getDocumentIds(name, page, page_size)
+			.then(data => {
+				console.log(data)
+				setDocuments(data.docs)
+				setCount(data.count)
+				setLoading(false)
+			})
+		}
+	}, [page, filter])
 	
 	useEffect(() => {
 		labelServices.getLabels(name)
@@ -73,13 +84,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		)
 	}, [newDocument])
 
-  const renderLabelModal = (id:string) => {
-    setShowModal(true)
-    setDocumentIndex(id)
-  }
+	const renderLabelModal = (id:string) => {
+		setShowModal(true)
+		setDocumentIndex(id)
+	}
 
-  const changeTag = (documentIndex:any, label:any) => {
-		let doc = documents.find(e => e.id == documentIndex)
+	const changeTag = (documentIndex:any, label:any) => {
+		let doc = documents.find(e => e._id == documentIndex)
 		let email = localStorage.getItem("email")
 
 		if (doc.user_and_labels.some((e: { email: string | null; }) => e.email === email))
@@ -108,37 +119,71 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		setShowModal(false)
 	}
 
-	const documentItem = (doc_id: any, index: any) => {
+	const documentItem = (doc: any, index: any) => {
 		let email = localStorage.getItem("email")
-		if (documents.some(e=> e.id === doc_id._id)) {
-			let document = documents.find(e => e.id === doc_id._id)
-			let error = docError.find(e => e.doc_id === doc_id._id)
-			let user_label = labels.find(e => e._id === document.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
+		let error = docError.find(e => e.doc_id === doc._id)
+		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
+		
+		return (
+			<IonItem key = {index} >
+				<IonLabel><IonRouterLink color="dark" href={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink></IonLabel>
+				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
+				{isNullOrUndefined(email)
+				? <div/>
+				:	isNullOrUndefined(user_label)
+					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}><IonIcon icon={add}/></IonButton>
+					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc.id)}>{user_label.name}</IonButton>
+				}
+			</IonItem>
+		)
+	}
 
-			return (
-				<IonItem key = {index}>
-					<IonLabel>{document?.data}</IonLabel>
-					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
-					{isNullOrUndefined(email)
-					? <div/>
-					:	isNullOrUndefined(user_label)
-						? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}><IonIcon icon={add}/></IonButton>
-						: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(document.id)}>{user_label.name}</IonButton>
-					}
-				</IonItem>
-			)
+	const beforePage = () => {
+		setLoading(true)
+		setDocuments([])
+		setPage(page - 1)
+	}
+
+	const nextPage = () => {
+		setLoading(true)
+		setDocuments([])
+		setPage(page + 1)
+	}
+
+	const onPageNumberChange = (e: any) => {
+		let v = parseInt(e.detail.value)
+		if (v > Math.trunc(count/page_size)+1) {
+			v = Math.trunc(count/page_size)+1
+		} else if (v <= 0) {
+			v = 1
 		}
-		else {
-			return (
-				<IonItem key = {index}>
-					<IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
-				</IonItem>
-			)
+
+		setLoading(true)
+		setDocuments([])
+		setPage(v - 1)
+	}
+
+	const filterOnChange = (value: string | undefined) => {
+		console.log(value)
+		if (!(value === "all" && !filter)) {
+			setLoading(true)
+			setDocuments([])
 		}
+		setFilter(value === "unlabelled")
 	}
 
 	return (
 		<div>
+			<div>
+				<IonSegment onIonChange={e => filterOnChange(e.detail.value)}>
+					<IonSegmentButton value="all">
+						<IonLabel>All</IonLabel>
+					</IonSegmentButton>
+					<IonSegmentButton value="unlabelled">
+						<IonLabel>Unlabelled</IonLabel>
+					</IonSegmentButton>
+				</IonSegment>
+			</div>
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
 					{labels.map((label, i) =>
@@ -147,10 +192,41 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</div>
 			</IonModal>
 			<IonList>
-				{document_ids.map((doc_id, index) =>
-						documentItem(doc_id, index)
+				{loading
+				? <IonItem>
+					<IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+				</IonItem>
+				:documents?.map((doc, index) =>
+					documentItem(doc, index)
 				)}
 			</IonList>
+			<IonItem lines="none">
+				<IonText slot="start" color="medium">
+					Number of Documents: {count}
+				</IonText>
+			</IonItem>
+			<IonRow>
+				<IonCol>
+					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
+				</IonCol>
+				<IonCol>
+					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
+				</IonCol>
+				<IonCol>
+					<div className="text-align-bottom">
+						/
+					</div>
+				</IonCol>
+				<IonCol>
+					<div className="text-align-bottom">
+						{Math.trunc(count/page_size)+1}
+					</div>
+				</IonCol>
+				<IonCol>
+					<IonButton disabled={page >= Math.trunc(count/page_size)} size="small" fill="clear" onClick={()=>nextPage()}><IonIcon icon={chevronForwardOutline}/></IonButton>
+				</IonCol>
+			</IonRow>
+			
 		</div>
 	)
 }
