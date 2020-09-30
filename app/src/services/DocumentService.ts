@@ -9,7 +9,8 @@ export const documentServices = {
     postDocumentLabel,
     getLabels,
     getUnlabelledDocuments,
-    postNewComment
+    postNewComment,
+    getNumberOfUnlabelledDocs
 }
 
 async function getDocument(project:any, document_id:any, firebase: any) {
@@ -49,7 +50,6 @@ async function getDocumentIds(project:any, page:number, page_size:number ,fireba
     };
 
     const token = localStorage.getItem('user-token');
-    console.log(token)
     if(firebase.auth.currentUser != null){
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
          if(token !== idToken){
@@ -173,6 +173,23 @@ async function postNewComment(project_name: string, document_id: string, email:a
         .then(handleResponse)
         .then(data => {
             return null
+        })
+}
+
+function getNumberOfUnlabelledDocs(project:any) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unlabelled/contributors'
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        .then(handleResponse)
+        .then(data => {
+            return data.contributors;
         })
 }
 
