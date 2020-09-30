@@ -11,11 +11,15 @@ interface ContainerProps {
   firebase:any
 }
 
-const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
+const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     const [showNewTag, setShowNewTag] = useState(false);
     const [showUpdateTag, setShowUpdateTag] = useState(false);
-
     const [tagID, setTagID] = useState(0);
+
+    const {
+      project,
+      firebase
+    } = props;
 
   const initialTags = [
     { _id: 0, name: '' }
@@ -24,7 +28,7 @@ const SettingsTags: React.FC<ContainerProps> = ({ project, firebase }) => {
   const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
-      labelServices.getLabels(project)
+      labelServices.getLabels(project, firebase)
       .then(data => {
         setTags(data)
       })

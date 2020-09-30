@@ -7,6 +7,7 @@ import { StringDecoder } from "string_decoder";
      login,
      logout,
      getAllUsers,
+     getAllUsersInDatabase,
      signup
  }
 
@@ -57,7 +58,7 @@ function getAllUsersInDatabase() {
  },
     };
 
-    return fetch(process.env.REACT_APP_API_URL + '/users/all'
+    return fetch(process.env.REACT_APP_API_URL + '/user/all'
         + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
