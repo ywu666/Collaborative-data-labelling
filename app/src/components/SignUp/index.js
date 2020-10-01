@@ -108,7 +108,7 @@ class SignUpFormBase extends Component {
                     value={username}
                     onChange={this.onChange}
                     type="text"
-                    placeholder="Full Name"
+                    placeholder="User Name"
                 />
                  </div>
                  <div {...inputBoxStyling}>

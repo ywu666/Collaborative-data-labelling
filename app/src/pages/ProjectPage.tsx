@@ -26,7 +26,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
   const [currentUser, setCurrentUser] = useState<any>({});
-  
+  const [currentDisplayName,setCurrentDisplayName] = useState("");
   const {
     firebase
   } = props;
@@ -38,7 +38,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     }
   }
 
-
   useEffect(() => {
     userService.getCurrentProjectUser(name)
     .then(data => {
@@ -46,6 +45,16 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     })
   }, [])
 
+  useEffect(() => {
+    try{
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
+      .then(data => {
+        setCurrentDisplayName(data.username)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }, [])
 
   function handleUpload() {
     console.log("upload")
@@ -67,7 +76,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     // @ts-ignore
     return (
     <IonPage>
-      <Header routerLink={"/"} name={localStorage.getItem("email") || "User"}/>
+      <Header routerLink={"/"} name={currentDisplayName}/>
       <IonContent>
         <div className="container">        
           <h1>{name}</h1>

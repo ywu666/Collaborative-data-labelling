@@ -67,13 +67,14 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     <div className="container">
       <h2>Users</h2>
         <IonItem>
+        <IonLabel slot="start">User Name</IonLabel>
           <IonLabel slot="start">User Email</IonLabel>
           <IonLabel>Permissions</IonLabel>
           <IonLabel slot="end">Edit Permissions</IonLabel>
         </IonItem>
           {users.map((user, i: number) => {
             return (
-                <SettingsUser key={i} project={project} user={user.email} 
+                <SettingsUser key={i} project={project} user={user.email}
                 isAdmin={user.isAdmin} isContributor={user.isContributor} canEdit={canEdit}
                 firebase={firebase}></SettingsUser>
             );
