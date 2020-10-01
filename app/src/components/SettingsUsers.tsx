@@ -109,7 +109,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
                   setShowAlert(true);
                 }
               }}>
-                + Add User
+                + Add
               </IonButton>
             </TableCell>
           </TableRow>

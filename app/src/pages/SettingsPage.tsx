@@ -49,7 +49,7 @@ import {
               <h1>{project} Settings</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
-              <IonCol size="12" size-md="10" size-lg="5" size-xl="6">
+              <IonCol size="12" size-md="10" size-lg="4" size-xl="5">
                 <IonCard>
                 <IonCardHeader><IonCardTitle>Project Tags</IonCardTitle></IonCardHeader>
                   <IonCardContent>
@@ -57,7 +57,7 @@ import {
                   </IonCardContent>
                 </IonCard>
               </IonCol>
-              <IonCol size="12" size-md="10" size-lg="7" size-xl="6">
+              <IonCol size="12" size-md="10" size-lg="8" size-xl="7">
                 <IonCard>
                   <IonCardContent>
                     <SettingsUsers project={project} firebase={firebase} />
