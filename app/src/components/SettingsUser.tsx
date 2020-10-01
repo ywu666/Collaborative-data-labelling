@@ -8,6 +8,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
 import { Tooltip, TableRow, TableCell } from '@material-ui/core';
 import { projectServices } from '../services/ProjectServices'
+import { userService } from '../services/UserServices';
 
 interface ContainerProps {
   project: string;
@@ -27,6 +28,7 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
   const [localIsAdmin, setLocalIsAdmin] = useState(isAdmin);
   const refContributor = useRef(localIsContributor)
   const refAdmin = useRef(localIsAdmin)
+  const [currentDisplayName,setCurrentDisplayName] = useState("");
 
   useEffect(() => {
     setLocalIsContributor(isContributor)
@@ -36,6 +38,18 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     setLocalIsAdmin(isAdmin)
   }, [isAdmin])
 
+  useEffect(() => {
+    try{
+      userService.getCurrentUser(user, firebase)
+      .then(data => {
+        console.log(data)
+        setCurrentDisplayName(data.username)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }, [user])
+  
   const alert = 
   <IonAlert
     isOpen={showPermissions}
@@ -109,7 +123,8 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
 
   return (
     <TableRow>
-      <TableCell><IonLabel slot="start">{user}</IonLabel></TableCell>
+      <TableCell><IonLabel>{currentDisplayName}</IonLabel></TableCell>
+      <TableCell><IonLabel>{user}</IonLabel></TableCell>
       <TableCell align="center">
         <IonLabel>
         <Tooltip title="User has administrative permissions">

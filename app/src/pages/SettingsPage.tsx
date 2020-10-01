@@ -9,12 +9,12 @@ import {
     IonCardHeader,
     IonCardTitle
   } from '@ionic/react';
-  import React from 'react';
+  import React, { useState, useEffect } from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
   import SettingsUsers from '../components/SettingsUsers';
   import Header from '../components/Header';
-  
+  import { userService } from "../services/UserServices";
   import './SettingsPage.css';
   
   interface SettingsPageProps {
@@ -25,10 +25,22 @@ import {
     const {
       firebase
     } = props;
+    const [currentDisplayName,setCurrentDisplayName] = useState("");
+
+    useEffect(() => {
+      try{
+        userService.getCurrentUser(localStorage.getItem("email"), firebase)
+        .then(data => {
+          setCurrentDisplayName(data.username)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }, [])
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={localStorage.getItem("email") || "User"}/>
+        <Header routerLink={"/project/" + project} name={currentDisplayName}/>
 
         <IonContent className="settings-page">
 

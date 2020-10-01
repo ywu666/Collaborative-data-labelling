@@ -72,6 +72,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
 
       <Table size="small">
         <TableHead className="user-table-head">
+        <TableCell><IonLabel>User Name</IonLabel></TableCell>
           <TableCell><IonLabel>User Email</IonLabel></TableCell>
           <TableCell colSpan={3} align="center"><IonLabel>Permissions</IonLabel></TableCell>
           <TableCell></TableCell>
@@ -88,7 +89,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         </TableBody>
         <TableFooter>
           <TableRow className="add-user">
-            <TableCell colSpan={4}>
+            <TableCell colSpan={5}>
               <IonInput value={newUser} type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
             </TableCell>
             <TableCell align="right">

@@ -13,10 +13,14 @@ interface ContainerProps {
 
 const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     const [showNewTag, setShowNewTag] = useState(false);
+    const [showUpdateTag, setShowUpdateTag] = useState(false);
+    const [tagID, setTagID] = useState(0);
+
     const {
       project,
       firebase
     } = props;
+
   const initialTags = [
     { _id: 0, name: '' }
   ]
@@ -38,12 +42,26 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
+  function updateTag(label_name: string){
+    let tag = tags.find(check => check._id === tagID);
+    if(tag != undefined){
+        tag.name = label_name;
+    }
+
+    labelServices.updateLabel(project, tagID, label_name, firebase);
+  }
+
+  function updateButtonClick(_id: number){
+    setShowUpdateTag(true)
+    setTagID(_id)
+  }
+
   return (
     <div className="container">
       {tags.map((tag) => {
         if (tag.name.length != 0) {
           return (
-            <IonButton class="tag" key={tag.name} fill="outline" size="small">{tag.name}</IonButton>
+            <IonButton key={tag.name} fill="outline" size="small" onClick={(e) => updateButtonClick(tag._id)}>{tag.name}</IonButton>
           );
         }
       })}
@@ -83,6 +101,39 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
           }
         ]}
         />
+
+       <IonAlert
+        isOpen={showUpdateTag}
+        onDidDismiss={() => setShowUpdateTag(false)}
+        header={'Enter new name:'}
+        message={''}
+        inputs={[
+            {
+            name: 'updateTag',
+            type: 'text',
+            id: 'tagName',
+            placeholder: 'Update Tag' }
+        ]}
+        buttons={[
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            handler: (alertData) => {
+              if (alertData.updateTag.length > 0
+                && !tags.some(check => check.name === alertData.updateTag)) {
+                updateTag(alertData.updateTag);
+              } else {
+                alert('Name is invalid');
+                return false;
+              }
+            }
+          }
+        ]}
+        />
+
     </div>
   );
 };
