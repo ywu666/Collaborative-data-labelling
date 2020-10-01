@@ -14,6 +14,7 @@ import { useParams } from 'react-router';
 import Moment from 'moment';
 import './DocumentPage.css';
 import { documentServices } from '../services/DocumentService'
+import { userService } from "../services/UserServices";
 import firebase from "firebase";
 import app from 'firebase/app';
 import 'firebase/auth';
@@ -56,7 +57,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
   const [labelList, setLabelList] = useState<Label[]>([]);
   const [list, setList] = useState<Users_and_Labels[]>([]);
-
+  const [currentDisplayName,setCurrentDisplayName] = useState("");
   const [commentData, setCommentData] = useState<Comments[]>([]);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
 
@@ -90,20 +91,37 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
-    let temp: Users_and_Labels[] = []
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
-          let pair: Users_and_Labels = {
-            email: element.email,
-            label: element1.name,
-          };
-          temp.push(pair)
+          try{
+            userService.getCurrentUser(element.email, firebase)
+            .then(data => {
+              let pair: Users_and_Labels = {
+                email: data.username,
+                label: element1.name,
+              };    
+              setList(e => [...e, pair])
+            })
+          } catch (e) {
+            console.log(e)
+          }
         }
       });
     });
-    setList(temp)
   }, [labelData, labelList])
+
+
+  useEffect(() => {
+    try{
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
+      .then(data => {
+        setCurrentDisplayName(data.username)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }, [])
 
   const onSubmitComment = (content:any) => {
     try {
@@ -121,7 +139,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
 
   return (
     <IonPage>
-      <Header routerLink={"/project/" + project } name={localStorage.getItem("email") || "User"}/>
+      <Header routerLink={"/project/" + project } name={currentDisplayName}/>
 
       <IonContent>
         {/**
@@ -180,6 +198,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                     email={data.email}
                     content={data.comment_body}
                     time={data.time}
+                    firebase={firebase}
                   ></Comment>
                 </IonItem>
               ))}
