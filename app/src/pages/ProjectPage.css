@@ -68,3 +68,10 @@ ion-modal.auto-height ion-button {
      float:left;
      margin-left: 1em;
 }
+
+.fab{
+    float:right;
+    margin-right:10%;
+    margin-bottom:5%;
+
+}
