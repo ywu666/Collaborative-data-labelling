@@ -1,5 +1,5 @@
 from api import methods
-from api.methods import JSONEncoder, set_user_document_label, update_user_document_label
+from api.methods import JSONEncoder,update_user_document_label, create_user_document_label
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -73,10 +73,10 @@ def set_label_for_user(project_name, document_id):
         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
     # if the label already exists for the user
     if current_user_label is not None:
-        set_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
+        update_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
     else:
         # if the label assignment does not exist for the user
-        update_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
+        create_user_document_label(col, requestor_email, document_id, label_id, label_is_confirmed)
 
     return '', 204
 

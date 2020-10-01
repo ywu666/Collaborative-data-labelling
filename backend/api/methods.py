@@ -39,7 +39,7 @@ def remove_all_labels_of_user(user_email, project_name):
             }})
 
 
-def set_user_document_label(col, email, document_id, label_id, label_is_confirmed):
+def update_user_document_label(col, email, document_id, label_id, label_is_confirmed):
     # col = get_col(project_name, "documents")
     col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": email}}},
                    {'$set': {
@@ -49,7 +49,7 @@ def set_user_document_label(col, email, document_id, label_id, label_is_confirme
                    })
 
 
-def update_user_document_label(col, email, document_id, label_id, label_is_confirmed):
+def create_user_document_label(col, email, document_id, label_id, label_is_confirmed):
     # col = get_col(project_name, "documents")
     col.update_one({'_id': ObjectId(document_id)},
                    {'$push': {
