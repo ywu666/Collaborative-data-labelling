@@ -1,5 +1,5 @@
 import firebase_admin
-from api import document_api, label_api, project_api, user_api, import_export_api
+from api import document_api, label_api, project_api, user_api, import_export_api, document_label_api
 from firebase_admin import auth
 from firebase_admin import credentials
 from flask import Flask
@@ -7,6 +7,7 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 app.register_blueprint(document_api.document_api)
+app.register_blueprint(document_label_api.document_label_api)
 app.register_blueprint(label_api.label_api)
 app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)

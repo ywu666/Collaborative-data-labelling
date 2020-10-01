@@ -40,18 +40,48 @@ def create_user():
             return response, 400
         else:
             all_users.insert_one({'email': requestor_email, 'projects': [],
-                                  'username': username})  # projects should just include the project IDs which the user
-    # else:
-    #    response = {'message': "Missing username"}
-    #    response = make_response(response)
-    #    return response, 400
+                                  'username': username})
     else:
-        all_users.insert_one(
-            {'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+        response = {'message': "Missing username"}
+        response = make_response(response)
+        return response, 400
 
     # is part of! When a new user is created it should be empty
 
     return "", 204
+
+
+@user_api.route("/users", methods=["GET"])
+def get_user_info_from_email():
+    # inputs: id_token of requestor, project name, email of user to be added to project
+    id_token = request.args.get('id_token')
+    email = request.args.get('email')
+    if email is None or email == "":
+        response = {'message': "Email is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_to_add = get_col("users", "users").find_one({'email': email})
+
+    if user_to_add is None:
+        response = {'message': "User does not exist/does not have an account"}
+        response = make_response(response)
+        return response, 400
+
+    user_to_add = JSONEncoder().encode(user_to_add)
+    return user_to_add, 200
 
 
 @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
