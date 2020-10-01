@@ -40,11 +40,10 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
 
   return (
     <div className="container">
-      <h2>Tags</h2>
       {tags.map((tag) => {
         if (tag.name.length != 0) {
           return (
-            <IonButton key={tag.name} fill="outline" size="small">{tag.name}</IonButton>
+            <IonButton class="tag" key={tag.name} fill="outline" size="small">{tag.name}</IonButton>
           );
         }
       })}

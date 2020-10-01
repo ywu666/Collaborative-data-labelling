@@ -9,6 +9,8 @@ import {
     IonCol,
     IonButton,
     IonIcon,
+    IonCard,
+    IonCardContent
   } from '@ionic/react';
   import { arrowBack } from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
@@ -16,10 +18,10 @@ import {
   import SettingsTags from '../components/SettingsTags';
   import onLogout from '../helpers/logout'
   import SettingsUsers from '../components/SettingsUsers';
-  import { projectServices } from '../services/ProjectServices'
   import Header from '../components/Header';
   
   import './SettingsPage.css';
+import Card from '@material-ui/core/Card';
   
   interface SettingsPageProps {
     firebase: any
@@ -29,30 +31,31 @@ import {
     const {
       firebase
     } = props;
-
-    const [tags, setTags] = useState([""]);
   
     return (
       <IonPage>
         <Header routerLink={"/project/" + project} name={localStorage.getItem("email") || "User"}/>
 
-        <IonContent>
+        <IonContent className="settings-page">
 
-          <IonGrid>
+          <IonGrid className="settings-grid">
             <IonRow class="ion-justify-content-center">
-              <h1>Settings</h1>
+              <h1>{project} Settings</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
-              <h1>{project}</h1>
-            </IonRow>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="6">
-                <SettingsUsers project={project} firebase={firebase} />
+              <IonCol size="12" size-md="10" size-lg="5" size-xl="6">
+                <IonCard>
+                  <IonCardContent>
+                    <SettingsTags project={project} firebase={firebase} />
+                  </IonCardContent>
+                </IonCard>
               </IonCol>
-            </IonRow>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="6">
-                <SettingsTags project={project} firebase={firebase} />
+              <IonCol size="12" size-md="10" size-lg="7" size-xl="6">
+                <IonCard>
+                  <IonCardContent>
+                    <SettingsUsers project={project} firebase={firebase} />
+                  </IonCardContent>
+                </IonCard>
               </IonCol>
             </IonRow>
           </IonGrid>

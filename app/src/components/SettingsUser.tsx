@@ -7,7 +7,7 @@ import {
 } from '@ionic/react';
 import React, { useState, useRef, useEffect } from 'react';
 import { eyeOutline, peopleOutline, buildOutline} from 'ionicons/icons';
-import { Tooltip } from '@material-ui/core';
+import { Tooltip, TableRow, TableCell } from '@material-ui/core';
 import { projectServices } from '../services/ProjectServices'
 
 interface ContainerProps {
@@ -108,50 +108,40 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     ]}
     />
 
-
-
-if (canEdit) {
   return (
-    <div>
-    <IonItem>
-      <IonLabel slot="start">{user}</IonLabel>
-                <IonLabel>
-                    <Tooltip title="User has administrative permissions">
-                        <IonIcon icon = {buildOutline} hidden={!localIsAdmin}></IonIcon>
-                    </Tooltip>
-                </IonLabel>
-                <IonLabel>
-                    <Tooltip title="User has collaborator permissions">
-                        <IonIcon icon = {peopleOutline} hidden={!localIsContributor}></IonIcon>
-                    </Tooltip>
-                </IonLabel>
-                <IonLabel>
-                    <Tooltip title="User has observer permissions">
-                        <IonIcon icon = {eyeOutline}></IonIcon>
-                    </Tooltip>
-                </IonLabel>
-        <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)}>
-          Edit Permissions
+    <TableRow>
+      <TableCell><IonLabel slot="start">{user}</IonLabel></TableCell>
+      <TableCell align="center">
+        <IonLabel>
+        <Tooltip title="User has administrative permissions">
+          <IonIcon icon={buildOutline} hidden={!localIsAdmin}></IonIcon>
+        </Tooltip>
+      </IonLabel>
+      </TableCell>
+      <TableCell align="center">
+        <IonLabel>
+          <Tooltip title="User has collaborator permissions">
+            <IonIcon icon={peopleOutline} hidden={!localIsContributor}></IonIcon>
+          </Tooltip>
+        </IonLabel>
+      </TableCell>
+      <TableCell align="center">
+        <IonLabel>
+          <Tooltip title="User has observer permissions">
+            <IonIcon icon={eyeOutline}></IonIcon>
+          </Tooltip>
+        </IonLabel>
+      </TableCell>
+      <TableCell align="right">
+        <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
+          Edit
         </IonButton>
-    </IonItem>
-    {alert}
-    {errorAlert}
-    </div>
+      </TableCell>
+      {alert}
+      {errorAlert}
+    </TableRow>
+
   );
-} else {
-  return (
-    <div>
-    <IonItem>
-        <IonLabel>{user}</IonLabel>
-        <IonButton fill="clear" slot="end" onClick={() => setShowPermissions(true)} disabled>
-        Edit Permissions
-        </IonButton>
-    </IonItem>
-    {alert}
-    {errorAlert}
-    </div>
-  );
-}
 }
 
 export default SettingsUser;
