@@ -213,7 +213,7 @@ async function getProjectUsers(project: string, firebase: any) {
         method : "POST",
         body : formData
     }
-    //await handleAuthorization(firebase)
+    await handleAuthorization(firebase)
 
      return fetch(process.env.REACT_APP_API_URL + '/projects/upload' + '?id_token=' +
          localStorage.getItem('user-token'), requestOptions)

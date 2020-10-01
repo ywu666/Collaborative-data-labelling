@@ -43,12 +43,14 @@ const theme = createMuiTheme({
 
 
 interface UploadProps {
-    name: string
+    name: string;
+    firebase: any;
 }
 
 const Upload: React.FC<UploadProps> = (props:UploadProps) => {
     const {
         name,
+        firebase,
     } = props;
     const inputFile = useRef(null);
 

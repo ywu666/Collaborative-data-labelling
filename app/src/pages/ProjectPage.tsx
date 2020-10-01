@@ -75,7 +75,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
           <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>
         </div>
         <div className="fab">
-        <Upload name={name}/>
+        <Upload name={name} firebase={firebase}/>
         <Download name={name}/>
         </div>
 
