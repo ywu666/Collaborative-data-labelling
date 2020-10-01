@@ -95,20 +95,28 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
-          let pair: Users_and_Labels = {
-            email: element.email,
-            label: element1.name,
-          };
-          temp.push(pair)
+          try{
+            userService.getCurrentUser(element.email, firebase)
+            .then(data => {
+              let pair: Users_and_Labels = {
+                email: data.username,
+                label: element1.name,
+              };
+              temp.push(pair)
+            })
+          } catch (e) {
+            console.log(e)
+          }
         }
       });
     });
     setList(temp)
   }, [labelData, labelList])
 
+
   useEffect(() => {
     try{
-      userService.getCurrentLoggedInUser(localStorage.getItem("email"), firebase)
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
       .then(data => {
         setCurrentDisplayName(data.username)
       })

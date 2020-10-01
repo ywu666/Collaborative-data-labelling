@@ -10,7 +10,7 @@ import { StringDecoder } from "string_decoder";
      getAllUsersInDatabase,
      signup,
      getCurrentProjectUser,
-     getCurrentLoggedInUser
+     getCurrentUser
  }
 
  function logout() {
@@ -50,7 +50,7 @@ function signup(email: string  ,token: string){
         })
 }
 
-function getCurrentLoggedInUser(email: any, firebase: any){
+function getCurrentUser(email: any, firebase: any){
     const requestOptions = {
         method: 'GET',
         headers: { 'Content-Type': 'application/json',

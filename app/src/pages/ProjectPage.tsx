@@ -47,7 +47,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
 
   useEffect(() => {
     try{
-      userService.getCurrentLoggedInUser(localStorage.getItem("email"), firebase)
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
       .then(data => {
         setCurrentDisplayName(data.username)
       })

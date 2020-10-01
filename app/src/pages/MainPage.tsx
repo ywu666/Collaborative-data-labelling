@@ -61,7 +61,7 @@ import { userService } from '../services/UserServices';
 
     useEffect(() => {
       try{
-        userService.getCurrentLoggedInUser(localStorage.getItem("email"), firebase)
+        userService.getCurrentUser(localStorage.getItem("email"), firebase)
         .then(data => {
           setCurrentDisplayName(data.username)
         })
