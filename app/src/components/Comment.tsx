@@ -10,8 +10,6 @@ import {
   } from '@ionic/react';
   import React from 'react';
   import { timeOutline, heart, chatbox, star } from 'ionicons/icons';
-  import Moment from 'react-moment';
-  import firebaseApp from '../components/Firebase/firebase'
   import { css } from 'glamor';
  
   export interface CommentProps{

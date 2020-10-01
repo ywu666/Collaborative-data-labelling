@@ -18,7 +18,7 @@ import {
   import SettingsUsers from '../components/SettingsUsers';
   import { projectServices } from '../services/ProjectServices'
   import Header from '../components/Header';
-  
+  import { userService } from "../services/UserServices";
   import './SettingsPage.css';
   
   interface SettingsPageProps {
@@ -29,12 +29,23 @@ import {
     const {
       firebase
     } = props;
-
+    const [currentDisplayName,setCurrentDisplayName] = useState("");
     const [tags, setTags] = useState([""]);
+
+    useEffect(() => {
+      try{
+        userService.getCurrentLoggedInUser(localStorage.getItem("email"), firebase)
+        .then(data => {
+          setCurrentDisplayName(data.username)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }, [])
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={localStorage.getItem("email") || "User"}/>
+        <Header routerLink={"/project/" + project} name={currentDisplayName}/>
 
         <IonContent>
 
