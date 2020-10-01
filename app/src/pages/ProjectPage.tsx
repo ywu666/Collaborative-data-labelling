@@ -35,11 +35,10 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const page_size = 10;
   const [downloadError, setDownloadError] = useState<string>();
   const [currentUser, setCurrentUser] = useState<any>({});
-  
+  const [currentDisplayName,setCurrentDisplayName] = useState("");
   const {
     firebase
   } = props;
-
 
   useEffect(() => {
     userService.getCurrentProjectUser(name)
@@ -48,6 +47,16 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     })
   }, [])
 
+  useEffect(() => {
+    try{
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
+      .then(data => {
+        setCurrentDisplayName(data.username)
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }, [])
 
 
   
@@ -61,7 +70,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     // @ts-ignore
     return (
     <IonPage>
-      <Header routerLink={"/"} name={localStorage.getItem("email") || "User"}/>
+      <Header routerLink={"/"} name={currentDisplayName}/>
       <IonContent>
         <div className="container">
 
