@@ -133,7 +133,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		return (
 			<IonItem key = {index} >
 				<IonLabel>
-					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0)
+					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
 					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 					: <p>{doc.data}</p>}
 				</IonLabel>
