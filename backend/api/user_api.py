@@ -41,13 +41,10 @@ def create_user():
         else:
             all_users.insert_one({'email': requestor_email, 'projects': [],
                                   'username': username})  # projects should just include the project IDs which the user
-    # else:
-    #    response = {'message': "Missing username"}
-    #    response = make_response(response)
-    #    return response, 400
-    else:
-        all_users.insert_one(
-            {'email': requestor_email, 'projects': []})  # projects should just include the project IDs which the user
+     else:
+        response = {'message': "Missing username"}
+        response = make_response(response)
+        return response, 400
 
     # is part of! When a new user is created it should be empty
 
