@@ -25,9 +25,9 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
 
   return (
     <IonHeader>
-      <IonToolbar className="header">
+      <IonToolbar className="header" color="primary">
         {routerLink
-        ? <IonButton fill="clear" slot="start" routerLink={props.routerLink??"/"} routerDirection="back">
+        ? <IonButton fill="clear" slot="start" routerLink={props.routerLink??"/"} routerDirection="back" color="light">
           <IonIcon icon={arrowBack}/>
         </IonButton>
         : <img src="assets/icon/icon.png" slot="start"/>
@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
           }
         </IonTitle>
         <IonTitle slot="end">{props.name}</IonTitle>
-        <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back">Log out</IonButton>
+        <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back" color="light">Log out</IonButton>
       </IonToolbar>
     </IonHeader>
   )
