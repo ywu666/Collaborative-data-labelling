@@ -43,12 +43,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     try{
       userService.getCurrentUser(user, firebase)
       .then(data => {
+        console.log(data)
         setCurrentDisplayName(data.username)
       })
     } catch (e) {
       console.log(e)
     }
-  }, [])
+  }, [user])
   
   const alert = 
   <IonAlert
