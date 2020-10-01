@@ -34,9 +34,6 @@ const LoginPage: React.FC = () => {
         <div className="login-container">
           <SignInPage />
         </div>
-        <div className="center">
-        <p>Don't have an account? <a href="http://localhost:3000/signup">Sign up here</a></p>
-        </div>
       </IonContent>
     </IonPage>
   );
