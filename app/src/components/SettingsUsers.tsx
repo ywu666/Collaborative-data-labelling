@@ -1,12 +1,8 @@
 import {
   IonButton,
-  IonItem,
-  IonModal,
-  IonList,
   IonLabel,
   IonAlert,
   IonInput,
-  IonRow
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
