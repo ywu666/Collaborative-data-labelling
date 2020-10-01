@@ -19,18 +19,21 @@ import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
+import './DocumentList.css'
 
 interface DocumentListProps {
   name: string,
   page_size: number,
-  firebase:any
+  currentUser: any,
+  firebase: any
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const {
 		name,
-	  page_size,
-	  firebase
+		page_size,
+		currentUser,
+		firebase,
 	} = props;
 	
   const [page, setPage] = useState(0);
@@ -41,6 +44,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
 	const [docError, setDocError] = useState<any[]>([]);
+	const [contributor, setContributor] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState(false)
 
@@ -48,7 +52,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		if (filter) {
 			documentServices.getUnlabelledDocuments(name, page, page_size)
 			.then(data => {
-				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -56,7 +59,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		} else {
 			documentServices.getDocumentIds(name, page, page_size, firebase)
 			.then(data => {
-				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -68,6 +70,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		labelServices.getLabels(name,firebase)
 		.then(data => {
 			setLabels(data)
+		})
+	}, [])
+
+	useEffect(() => {
+		documentServices.getNumberOfUnlabelledDocs(name)
+		.then(data => {
+		  setContributor(data)
 		})
 	}, [])
 
@@ -120,16 +129,22 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let email = localStorage.getItem("email")
 		let error = docError.find(e => e.doc_id === doc._id)
 		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
-		
+
 		return (
 			<IonItem key = {index} >
-				<IonLabel><IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink></IonLabel>
+				<IonLabel>
+					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
+					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
+					: <p>{doc.data}</p>}
+				</IonLabel>
 				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				{isNullOrUndefined(email)
-				? <div/>
-				:	isNullOrUndefined(user_label)
-					? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
-					: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
+					? <div/>
+					: currentUser.isContributor
+						? isNullOrUndefined(user_label)
+							? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+							: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
+						: <div/>	
 				}
 			</IonItem>
 		)

@@ -8,7 +8,9 @@ import { StringDecoder } from "string_decoder";
      logout,
      getAllUsers,
      getAllUsersInDatabase,
-     signup
+     signup,
+     getCurrentProjectUser,
+     getCurrentUser
  }
 
  function logout() {
@@ -33,7 +35,7 @@ import { StringDecoder } from "string_decoder";
         });
 }
 
-function signup(email: string ,token: string){
+function signup(email: string  ,token: string){
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -48,6 +50,32 @@ function signup(email: string ,token: string){
         })
 }
 
+function getCurrentUser(email: any, firebase: any){
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
+    };
+
+    const token = localStorage.getItem('user-token');
+   if(firebase.auth.currentUser != null){
+    firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+        if(token !== idToken){
+            localStorage.setItem('user-token',idToken)
+        }
+       })
+   }else{
+    window.location.href = '/auth';
+   }
+
+   return fetch(process.env.REACT_APP_API_URL + "/users" + "?id_token=" + token + "&email=" + email ,  requestOptions)
+   .then(handleResponse)
+   .then(data => {
+       return data
+   })
+}
 function getAllUsersInDatabase() {
      const requestOptions = {
         method: 'GET',
@@ -86,6 +114,23 @@ function getAllUsers(page_num: any, page_size: any) {
         })
  }
 
+function getCurrentProjectUser(project_name: any) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+        },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/'+ project_name + '/user'
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data
+        })
+}
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
     return response.text().then((text: string) => {

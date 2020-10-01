@@ -20,13 +20,14 @@ import {
   import 'firebase/auth';
   import { projectServices } from '../services/ProjectServices'
   import Header from '../components/Header'
+import { userService } from '../services/UserServices';
   
   interface MainPageProps {
     firebase: any
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     const [projectData, setProjectData] = useState([""]);
-
+    const [currentDisplayName,setCurrentDisplayName] = useState("");
     const {
       firebase
     } = props;
@@ -57,19 +58,27 @@ import {
       }    
       
     }
+
+    useEffect(() => {
+      try{
+        userService.getCurrentUser(localStorage.getItem("email"), firebase)
+        .then(data => {
+          setCurrentDisplayName(data.username)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }, [])
     return (
       
       <IonPage>
-      <Header name={localStorage.getItem("email") || "User"}/>
+      <Header name={currentDisplayName}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
          */}
           <form className="createProject" onSubmit={(e: React.FormEvent) => {
-            
-            console.log("project name value below");
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
-            console.log(formData);
             createProject(formData.get("projectName"));
             formData.delete("projectName");
           }}>
