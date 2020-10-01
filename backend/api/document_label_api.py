@@ -1,5 +1,5 @@
 from api import methods
-from api.methods import JSONEncoder,update_user_document_label, create_user_document_label
+from api.methods import JSONEncoder, update_user_document_label, create_user_document_label
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -80,9 +80,9 @@ def set_label_for_user(project_name, document_id):
 
     return '', 204
 
-# TODO: Change this later? Needs to include label_confirmed/label as params
+
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-agreement', methods=['POST'])
-def set_final_label_after_agreement(project_name, document_id):
+def set_user_final_label(project_name, document_id):
     id_token = request.args.get('id_token')
 
     if id_token is None or id_token == "":
@@ -129,7 +129,7 @@ def set_final_label_after_agreement(project_name, document_id):
 
     # check that doc is fully labelled
     if len(doc['user_and_labels']) < 2:
-        response = {'message': "Labelling for document incomplete!"}
+        response = {'message': "Not all contributors have finished labelling documents!"}
         response = make_response(response)
         return response, 400
 
@@ -139,14 +139,8 @@ def set_final_label_after_agreement(project_name, document_id):
         response = make_response(response)
         return response, 400
 
-    # Confirm label is final and set labels for users
-    for user_label in doc['user_and_labels']:
-        doc_col.update_one({'_id': ObjectId(document_id),
-                            "user_and_labels": {'$elemMatch': {"email": user_label['email']}}},
-                           {'$set': {
-                               "user_and_labels.$.label": ObjectId(label_id),
-                               "label_confirmed": True}
-                           })
+    # Confirm user's label
+    update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
 
     return '', 200
 
@@ -253,6 +247,7 @@ def get_conflicting_labels_document_ids(project_name):
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
+
 
 # TODO:? do we need this for individual users too?
 # This end point returns the IDs of documents for which the final label is not confirmed
