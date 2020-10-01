@@ -91,7 +91,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
-    let temp: Users_and_Labels[] = []
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
@@ -101,8 +100,8 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               let pair: Users_and_Labels = {
                 email: data.username,
                 label: element1.name,
-              };
-              temp.push(pair)
+              };    
+              setList(e => [...e, pair])
             })
           } catch (e) {
             console.log(e)
@@ -110,7 +109,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         }
       });
     });
-    setList(temp)
   }, [labelData, labelList])
 
 
