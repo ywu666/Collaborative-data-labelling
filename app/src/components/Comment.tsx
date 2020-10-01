@@ -44,7 +44,7 @@ import {
     } = props;
   
     const authorDisplayName = email? email : "No Name";
-    const currentUser = localStorage.getItem('email');
+    
     //const unixTimestamp = 198784740;
     return (
       <>
