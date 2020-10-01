@@ -69,7 +69,7 @@ import {
                           onClick={() => {
                             setLoading(true)
                             onSubmit(content).then(() => {
-                              setLoading(false)
+                            setLoading(false)
                             })
                             setContent('')
                           }}

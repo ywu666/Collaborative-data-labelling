@@ -23,17 +23,26 @@ import {
   import { projectServices } from '../services/ProjectServices'
   import { documentServices } from '../services/DocumentService';
   import Header from '../components/Header'
+<<<<<<< HEAD
   import { isNullOrUndefined } from 'util';
+=======
+import { userService } from '../services/UserServices';
+>>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
   
   interface MainPageProps {
     firebase: any
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
+<<<<<<< HEAD
     const [projectNames, setProjectNames] = useState<any[]>([]);
     const [projectLoading, setProjectLoading] = useState<any[]>([]);
     const [projectData, setProjectData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
+=======
+    const [projectData, setProjectData] = useState([""]);
+    const [currentDisplayName,setCurrentDisplayName] = useState("");
+>>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
     const {
       firebase
     } = props;
@@ -125,6 +134,7 @@ import {
       }    
     }
 
+<<<<<<< HEAD
     const progressProject = (data: any) => {
       let agreed_number = data.agreed_number / data.analysed_number * 100
 
@@ -141,10 +151,22 @@ import {
       }
     }
 
+=======
+    useEffect(() => {
+      try{
+        userService.getCurrentUser(localStorage.getItem("email"), firebase)
+        .then(data => {
+          setCurrentDisplayName(data.username)
+        })
+      } catch (e) {
+        console.log(e)
+      }
+    }, [])
+>>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
     return (
       
       <IonPage>
-      <Header name={localStorage.getItem("email") || "User"}/>
+      <Header name={currentDisplayName}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
          */}
