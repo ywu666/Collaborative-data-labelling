@@ -81,7 +81,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
           <TableCell></TableCell>
         </TableHead>
         <TableBody>
-          {(users.slice(page * 10, page * 10 + 10)
+          {(users.slice(page * 5, page * 5 + 5)
           ).map((user, i: number) => {
             return (
               <SettingsUser key={i} project={project} user={user.email}
@@ -120,8 +120,8 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
             <TablePagination
               colSpan={5}
               count={users.length}
-              rowsPerPage={10}
-              rowsPerPageOptions={[10]}
+              rowsPerPage={5}
+              rowsPerPageOptions={[5]}
               page={page}
               onChangePage={handleChangePage}
             />
