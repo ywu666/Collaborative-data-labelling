@@ -1,9 +1,6 @@
 import {
     IonContent,
-    IonHeader,
     IonPage,
-    IonTitle,
-    IonToolbar,
     IonButton,
     IonItem,
     IonLabel,
@@ -12,10 +9,9 @@ import {
     IonCardContent,
     IonCardTitle,
     IonInput,
-    IonSkeletonText
   } from '@ionic/react';
-  import { add, arrowBack} from 'ionicons/icons';
-  import React, { useState, useEffect, useRef } from 'react';
+  import { add } from 'ionicons/icons';
+  import React, { useState, useEffect } from 'react';
   import Masonry from 'react-masonry-component'
   import CircularProgress from '@material-ui/core/CircularProgress';
   import './MainPage.css';
@@ -23,26 +19,18 @@ import {
   import { projectServices } from '../services/ProjectServices'
   import { documentServices } from '../services/DocumentService';
   import Header from '../components/Header'
-<<<<<<< HEAD
   import { isNullOrUndefined } from 'util';
-=======
-import { userService } from '../services/UserServices';
->>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
+  import { userService } from '../services/UserServices';
   
   interface MainPageProps {
     firebase: any
   }
   const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
-<<<<<<< HEAD
     const [projectNames, setProjectNames] = useState<any[]>([]);
     const [projectLoading, setProjectLoading] = useState<any[]>([]);
     const [projectData, setProjectData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-
-=======
-    const [projectData, setProjectData] = useState([""]);
     const [currentDisplayName,setCurrentDisplayName] = useState("");
->>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
     const {
       firebase
     } = props;
@@ -134,7 +122,6 @@ import { userService } from '../services/UserServices';
       }    
     }
 
-<<<<<<< HEAD
     const progressProject = (data: any) => {
       let agreed_number = data.agreed_number / data.analysed_number * 100
 
@@ -151,7 +138,6 @@ import { userService } from '../services/UserServices';
       }
     }
 
-=======
     useEffect(() => {
       try{
         userService.getCurrentUser(localStorage.getItem("email"), firebase)
@@ -162,7 +148,6 @@ import { userService } from '../services/UserServices';
         console.log(e)
       }
     }, [])
->>>>>>> f061c9e5c6066ed6b8594a56e5c26b7ac0a12c95
     return (
       
       <IonPage>
