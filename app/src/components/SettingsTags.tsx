@@ -1,9 +1,11 @@
 import {
     IonButton,
     IonAlert,
+    IonInput,
   } from '@ionic/react';
   import React, { useState, useEffect } from 'react';
   import { labelServices } from '../services/LabelServices'
+  import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
 import './SettingsTags.css';
 
 interface ContainerProps {
@@ -12,9 +14,11 @@ interface ContainerProps {
 }
 
 const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
-    const [showNewTag, setShowNewTag] = useState(false);
+    const [showError, setShowError] = useState(false);
     const [showUpdateTag, setShowUpdateTag] = useState(false);
     const [tagID, setTagID] = useState(0);
+    const [newTag, setNewTag] = useState<string>();
+
 
     const {
       project,
@@ -56,48 +60,79 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     setTagID(_id)
   }
 
-  return (
-    <div className="container">
-      {tags.map((tag) => {
-        if (tag.name.length != 0) {
-          return (
-            <IonButton key={tag.name} class="tag" fill="outline" size="small" onClick={(e) => updateButtonClick(tag._id)}>{tag.name}</IonButton>
-          );
-        }
-      })}
+  const [page, setPage] = React.useState(0);
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage);
+  };
 
-        <IonButton size="small" fill="clear" onClick={() => setShowNewTag(true)}>
-            + Add new tag
-        </IonButton>
+  return (
+    <TableContainer component={Paper}>
+
+      <Table size="small">
+        <TableHead className="user-table-head">
+          <TableRow>
+            <TableCell colSpan={2}>
+            <IonInput value={newTag} type="text" placeholder="Enter new label..." onIonChange={e => setNewTag(e.detail.value!)}></IonInput>
+            </TableCell>
+            <TableCell align="right">
+              <IonButton disabled={newTag == "" || newTag == null} size="small" fill="clear" onClick={() => {
+                if (typeof newTag !== 'undefined' && !tags.some(check => check.name === newTag)) {
+                  addTag(newTag);
+                } else {
+                  setShowError(true);
+                }
+              }}>
+                + Add new label
+              </IonButton>
+            </TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>#</TableCell>
+            <TableCell align="left" colSpan={2}>Name</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {(tags.slice(page * 5, page * 5 + 5)
+          ).map((tag, i: number) => {
+            if (tag.name.length != 0) {
+              return (
+                <TableRow key={i}>
+                  <TableCell>{1 + i + page * 5}</TableCell>
+                  <TableCell align="left">
+                    <IonButton class="tag" fill="outline" size="small">{tag.name}</IonButton>
+                  </TableCell>
+                  <TableCell align="right">
+                    <IonButton  fill="clear" size="small" 
+                    onClick={(e) => updateButtonClick(tag._id)}>Edit</IonButton>
+                  </TableCell>
+                </TableRow>
+              );
+            }
+          })}
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TablePagination
+              colSpan={6}
+              count={tags.length}
+              rowsPerPage={5}
+              rowsPerPageOptions={[5]}
+              page={page}
+              onChangePage={handleChangePage}
+            />
+          </TableRow>
+        </TableFooter>
+      </Table>
+
 
         <IonAlert 
-        isOpen={showNewTag}
-        onDidDismiss={() => setShowNewTag(false)}
-        header={'Enter new name:'}
-        message={''}
-        inputs={[
-            { 
-            name: 'newTag',
-            type: 'text',
-            id: 'tagName',
-            placeholder: 'New Tag' }
-        ]}
+        isOpen={showError}
+        onDidDismiss={() => setShowError(false)}
+        message={'A label with this name already exists'}
         buttons={[
           {
-            text: 'Cancel',
+            text: 'OK',
             role: 'cancel'
-          },
-          {
-            text: 'Confirm',
-            handler: (alertData) => {
-              if (alertData.newTag.length > 0
-                && !tags.some(check => check.name === alertData.newTag)) {
-                addTag(alertData.newTag);
-              } else {
-                alert('Name is invalid');
-                return false;
-              }
-            }
           }
         ]}
         />
@@ -126,7 +161,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
                 && !tags.some(check => check.name === alertData.updateTag)) {
                 updateTag(alertData.updateTag);
               } else {
-                alert('Name is invalid');
+                setShowError(true);
                 return false;
               }
             }
@@ -134,7 +169,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
         ]}
         />
 
-    </div>
+    </TableContainer>
   );
 };
 

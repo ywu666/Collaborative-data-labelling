@@ -8,7 +8,7 @@ import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
 import { projectServices } from '../services/ProjectServices'
 import { userService } from '../services/UserServices'
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination } from '@material-ui/core';
+import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
 
 import '../pages/SettingsPage.css';
 
@@ -68,7 +68,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   };
 
   return (
-    <div className="container">
+    <TableContainer component={Paper}>
 
       <Table size="small">
         <TableHead className="user-table-head">
@@ -136,7 +136,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
             role: 'cancel'
           }
         ]}/>
-    </div>
+    </TableContainer>
   );
 };
 

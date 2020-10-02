@@ -40,7 +40,7 @@ import {
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={currentDisplayName}/>
+        <Header routerLink={"/project/" + project} name={currentDisplayName} />
 
         <IonContent className="settings-page">
 
@@ -50,19 +50,10 @@ import {
             </IonRow>
             <IonRow class="ion-justify-content-center">
               <IonCol size="12" size-md="10" size-lg="4" size-xl="5">
-                <IonCard>
-                <IonCardHeader><IonCardTitle>Project Tags</IonCardTitle></IonCardHeader>
-                  <IonCardContent>
-                    <SettingsTags project={project} firebase={firebase} />
-                  </IonCardContent>
-                </IonCard>
+                <SettingsTags project={project} firebase={firebase} />
               </IonCol>
               <IonCol size="12" size-md="10" size-lg="8" size-xl="7">
-                <IonCard>
-                  <IonCardContent>
-                    <SettingsUsers project={project} firebase={firebase} />
-                  </IonCardContent>
-                </IonCard>
+                <SettingsUsers project={project} firebase={firebase} />
               </IonCol>
             </IonRow>
           </IonGrid>
