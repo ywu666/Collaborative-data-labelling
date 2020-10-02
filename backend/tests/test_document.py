@@ -6,7 +6,7 @@ from model.user import User
 
 # tests whether or not setting up a document works
 def test_setup_document():
-    my_document = Document("data", [], [])
+    my_document = Document(1, "data", [], [])
     assert (my_document.data == "data")
 
 
