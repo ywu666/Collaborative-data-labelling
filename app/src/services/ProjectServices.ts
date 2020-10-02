@@ -13,11 +13,11 @@ export const projectServices = {
     setUserPermissions,
     uploadDocuments,
     createProject,
+    getProjectAgreementScore,
     //uploadDocuments
 }
 
 async function createProject(project_name: any, firebase: any){
-    console.log("We made it")
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type' : 'application/json'},
@@ -70,6 +70,35 @@ async function getProjectNames(firebase: any) {
            return data.projects
        })
 }
+
+async function getProjectAgreementScore(projectName: any, firebase: any) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+    //await handleAuthorization(firebase);
+    const token = localStorage.getItem('user-token');
+    if(firebase.auth.currentUser != null){
+     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+         if(token !== idToken){
+             localStorage.setItem('user-token',idToken)
+             console.log("token ID was changed to match current user token ID")
+         }
+        })
+    }else{
+     window.location.href = '/auth';
+    }
+ 
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName
+        + '/agreement_score?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        .then(handleResponse)
+        .then(data => {
+            return data
+        })
+ }
 
 function exportCsv(projectName: string) {
     const requestOptions = {
@@ -227,10 +256,8 @@ async function getProjectUsers(project: string, firebase: any) {
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
-    console.log(response)
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
-       console.log(data)
        if (!response.ok) {
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);

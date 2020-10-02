@@ -10,20 +10,14 @@ import {
 import React from 'react';
 import { useParams } from 'react-router';
 import './LoginPage.css';
+import Header from "../components/Header"
 import SignInPage from "../components/SignIn";
 const LoginPage: React.FC = () => {
   const { name } = useParams<{ name: string }>();
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton />
-          </IonButtons>
-          <IonTitle>{name}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
+      <Header name='' logout={false}/>
 
       <IonContent>
         <IonHeader collapse="condense">
