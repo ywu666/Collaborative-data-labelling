@@ -25,6 +25,10 @@
     padding: 16px;
   }
 
+  .projectCard {
+    width:20%;
+  }
+
   .container {
     text-align: center;
     position: relative;
