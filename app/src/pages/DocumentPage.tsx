@@ -59,6 +59,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [list, setList] = useState<Users_and_Labels[]>([]);
   const [currentDisplayName,setCurrentDisplayName] = useState("");
   const [commentData, setCommentData] = useState<Comments[]>([]);
+  const [isNotLabeled, setIsNotLabeled] = useState(true);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
 
   const [error, setError] = useState("")
@@ -108,7 +109,11 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           }
         }
       });
-    });
+    }
+    );
+    if (labelData.length > 0){
+      setIsNotLabeled(false);
+    }  
   }, [labelData, labelList])
 
 
@@ -136,6 +141,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
       console.error(e);
     }
   }
+
 
   return (
     <IonPage>
@@ -188,12 +194,23 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                   <IonLabel><h2 >Assignee</h2></IonLabel>
                 </IonItem>
                 </div>
+                 
+                {
+                }
+
+
                 {list.map((data, i) => (
+                  
                   <IonItem key={i}>
                     <IonLabel><h3>{data.label}</h3></IonLabel>
                     <IonLabel><h3>{data.email}</h3></IonLabel>
                   </IonItem>
-                ))}
+                ))
+                }
+                  {isNotLabeled &&
+                  <h5 className ="promptMessage">No labels have yet been set for this document</h5>
+                  }
+
               </IonList>
             </div>
 

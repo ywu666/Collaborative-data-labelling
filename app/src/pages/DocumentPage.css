@@ -97,14 +97,14 @@ ion-modal.auto-height ion-button {
   margin-right: 0;
   margin-top: 2px;
   margin-bottom: 2px;
-  font-size: 1.2em;
+  font-size: 1.5em;
   font-weight: bold;
   text-align: center;
 }
 
 .sc-ion-label-md-s h3{
   text-align: center;
-  font-size: 1em;
+  font-size: 1.4em;
 }
 
 .item-complex .item-content, .item {
@@ -119,4 +119,9 @@ ion-modal.auto-height ion-button {
 .commentsTitle{
   text-align: left;
   margin: 1em;
+}
+
+.promptMessage{
+  opacity: 0.8;
+  color: crimson;
 }
