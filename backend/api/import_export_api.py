@@ -109,11 +109,13 @@ def upload_file():
                             response = {'message': 'File formatted incorrectly: second field should be DOCUMENT'}
                             break
                 else:
+                    doc_value = row[doc_value_index].strip()
+
                     if not generate_display_ids:  # CASE 1: Do not need to generate display IDs
                         # Check that ID is type int
                         try:
                             int(row[id_value_index])
-                        except:
+                        except ValueError:
                             if len(documents_to_import) > 0:
                                 ids_incorrectly_formatted.append(row[id_value_index])
                                 continue
@@ -125,7 +127,7 @@ def upload_file():
                         if row[id_value_index] in ids_in_db:
                             conflicting_display_id_docs.append(row[id_value_index])
                         else:
-                            document = Document(row[id_value_index], row[doc_value_index], [], [])
+                            document = Document(row[id_value_index], doc_value, [], [])
                             documents_to_import.append(document.__dict__)
                             ids_in_db.append(row[id_value_index])
                     else:  # CASE 2: Generate display IDs
@@ -137,7 +139,7 @@ def upload_file():
                             new_id += 1
                             id_counter += 1
 
-                        document = Document(new_id, row[doc_value_index], [], [])
+                        document = Document(new_id, doc_value, [], [])
                         documents_to_import.append(document.__dict__)
                         ids_in_db.append(new_id)
                         id_counter += 1
