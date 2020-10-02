@@ -90,7 +90,9 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             <IonItem>
             <input ref={inputFile} type="file" />
             </IonItem>
-              <Tooltip title="The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY" placement="right">
+              <Tooltip title="The uploaded file should be CSV formatted. If there are preset IDs, there should be two
+              'columns' in the following order: ID and DOCUMENT, where ID only consists of integers. Otherwise,there should
+               only be one column, DOCUMENT." placement="right">
                 <IonButton  style={{ maxWidth: '400px', minWidth: '270px' }} fill="outline" className="ion-margin-top" onClick={handleUpload} expand="block"><IonIcon icon={arrowUpOutline}/>
                 upload
                 </IonButton>
