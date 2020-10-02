@@ -97,8 +97,12 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
 
         </div>
         <div className="fab">
-        <Upload name={name} firebase={firebase} isUploading={isUploading}/>
-        <Download name={name}/>
+            <div className="fableft">
+                <Upload name={name} firebase={firebase} isUploading={isUploading}/>
+            </div>
+            <div className="fabright">
+                <Download name={name}/>
+            </div>
         </div>
 
 
