@@ -15,6 +15,8 @@ interface ContainerProps {
 
 const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>();
+    const [showNewTag, setShowNewTag] = useState(false);
     const [showUpdateTag, setShowUpdateTag] = useState(false);
     const [tagID, setTagID] = useState(0);
     const [newTag, setNewTag] = useState<string>();
@@ -71,17 +73,8 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
       <Table size="small">
         <TableHead className="user-table-head">
           <TableRow>
-            <TableCell colSpan={2}>
-            <IonInput value={newTag} type="text" placeholder="Enter new label..." onIonChange={e => setNewTag(e.detail.value!)}></IonInput>
-            </TableCell>
-            <TableCell align="right">
-              <IonButton disabled={newTag == "" || newTag == null} size="small" fill="clear" onClick={() => {
-                if (typeof newTag !== 'undefined' && !tags.some(check => check.name === newTag)) {
-                  addTag(newTag);
-                } else {
-                  setShowError(true);
-                }
-              }}>
+            <TableCell align="center" colSpan={3}>
+              <IonButton size="small" fill="clear" onClick={() => setShowNewTag(true)}>
                 + Add new label
               </IonButton>
             </TableCell>
@@ -99,7 +92,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
                 <TableRow key={i}>
                   <TableCell>{1 + i + page * 5}</TableCell>
                   <TableCell align="left">
-                    <IonButton class="tag" fill="outline" size="small">{tag.name}</IonButton>
+                    <IonButton class="tag" fill="outline" size="small" disabled>{tag.name}</IonButton>
                   </TableCell>
                   <TableCell align="right">
                     <IonButton  fill="clear" size="small" 
@@ -128,11 +121,47 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
         <IonAlert 
         isOpen={showError}
         onDidDismiss={() => setShowError(false)}
-        message={'A label with this name already exists'}
+        message={errorMessage}
         buttons={[
           {
             text: 'OK',
             role: 'cancel'
+          }
+        ]}
+        />
+
+      <IonAlert
+        isOpen={showNewTag}
+        onDidDismiss={() => setShowNewTag(false)}
+        header={'Add new label:'}
+        message={''}
+        inputs={[
+            { 
+            name: 'newTag',
+            type: 'text',
+            id: 'tagName',
+            placeholder: 'New Tag' }
+        ]}
+        buttons={[
+          {
+            text: 'Cancel',
+            role: 'cancel'
+          },
+          {
+            text: 'Confirm',
+            handler: (alertData) => {
+              if (alertData.newTag == '' || alertData.newTag == null) {
+                setErrorMessage('Label cannot be empty');
+                setShowError(true);
+                return false;
+              } else if (!tags.some(check => check.name === alertData.newTag)) {
+                addTag(alertData.newTag);
+              } else {
+                setErrorMessage('A label with this name already exists');
+                setShowError(true);
+                return false;
+              }
+            }
           }
         ]}
         />
@@ -157,10 +186,14 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
           {
             text: 'Confirm',
             handler: (alertData) => {
-              if (alertData.updateTag.length > 0
-                && !tags.some(check => check.name === alertData.updateTag)) {
+              if (alertData.updateTag == '' || alertData.updateTag == null) {
+                setErrorMessage('Label cannot be empty');
+                setShowError(true);
+                return false;
+              } else if (!tags.some(check => check.name === alertData.updateTag)) {
                 updateTag(alertData.updateTag);
               } else {
+                setErrorMessage('A label with this name already exists');
                 setShowError(true);
                 return false;
               }

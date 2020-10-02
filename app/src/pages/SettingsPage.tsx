@@ -49,10 +49,10 @@ import {
               <h1>{project} Settings</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
-              <IonCol size="12" size-md="10" size-lg="4" size-xl="5">
+              <IonCol size="12" size-md="10" size-lg="4" size-xl="4" class="settings-left">
                 <SettingsTags project={project} firebase={firebase} />
               </IonCol>
-              <IonCol size="12" size-md="10" size-lg="8" size-xl="7">
+              <IonCol size="12" size-md="10" size-lg="7" size-xl="7" class="settings-right">
                 <SettingsUsers project={project} firebase={firebase} />
               </IonCol>
             </IonRow>

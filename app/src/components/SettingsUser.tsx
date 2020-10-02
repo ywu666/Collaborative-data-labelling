@@ -126,25 +126,19 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
       <TableCell><IonLabel>{currentDisplayName}</IonLabel></TableCell>
       <TableCell><IonLabel>{user}</IonLabel></TableCell>
       <TableCell align="center">
-        <IonLabel>
         <Tooltip title="User has administrative permissions">
           <IonIcon icon={buildOutline} hidden={!localIsAdmin}></IonIcon>
         </Tooltip>
-      </IonLabel>
       </TableCell>
       <TableCell align="center">
-        <IonLabel>
           <Tooltip title="User has collaborator permissions">
             <IonIcon icon={peopleOutline} hidden={!localIsContributor}></IonIcon>
           </Tooltip>
-        </IonLabel>
       </TableCell>
       <TableCell align="center">
-        <IonLabel>
           <Tooltip title="User has observer permissions">
             <IonIcon icon={eyeOutline}></IonIcon>
           </Tooltip>
-        </IonLabel>
       </TableCell>
       <TableCell align="right">
         <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>

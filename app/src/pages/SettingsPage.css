@@ -1,3 +1,11 @@
 .settings-grid {
-    max-width: 80em;
+    max-width: 90em;
+}
+.settings-left {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+.settings-right {
+    padding-left: 1em;
+    padding-right: 1em;
 }
