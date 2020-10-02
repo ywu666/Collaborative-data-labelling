@@ -13,15 +13,19 @@ import './Header.css';
 interface HeaderProps {
   routerLink?: string,
   title?: string,
-  name: string
+  name: string,
+  logout?: boolean,
 }
 
 const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   const {
     routerLink,
     title,
-		name
+		name,
+		logout
   } = props;
+
+
 
   return (
     <IonHeader>
@@ -39,7 +43,10 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
           }
         </IonTitle>
         <IonTitle slot="end">{props.name}</IonTitle>
-        <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back" color="light">Log out</IonButton>
+        {logout === false
+         ? <div/>
+         : <IonButton onClick={onLogout} fill="clear" slot="end" routerLink="/auth" routerDirection="back" color="light">Log out</IonButton>}
+
       </IonToolbar>
     </IonHeader>
   )
