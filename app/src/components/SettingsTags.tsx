@@ -90,11 +90,11 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
             if (tag.name.length != 0) {
               return (
                 <TableRow key={i}>
-                  <TableCell>{1 + i + page * 5}</TableCell>
+                  <TableCell style={ {width: '60px'} }>{1 + i + page * 5}</TableCell>
                   <TableCell align="left">
                     <IonButton class="tag" fill="outline" size="small" disabled>{tag.name}</IonButton>
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" style={ {width: '60px'} }>
                     <IonButton  fill="clear" size="small" 
                     onClick={(e) => updateButtonClick(tag._id)}>Edit</IonButton>
                   </TableCell>
