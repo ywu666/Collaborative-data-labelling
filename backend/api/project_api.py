@@ -123,3 +123,52 @@ def delete_project(project_name):
         return response, 400
 
     return "", 204
+
+
+@project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])
+def get_agreement_score(project_name):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    user_col = get_col(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    doc_col = get_col(project_name, "documents")
+
+    all_docs = doc_col.find({})
+    agreed = 0
+    not_agreed = 0
+    for doc in all_docs:
+        if len(doc['user_and_labels']) == 2:
+            label_1 = doc['user_and_labels'][0]['label']
+            label_2 = doc['user_and_labels'][1]['label']
+            if label_1 == label_2:
+                agreed = agreed + 1
+            else:
+                not_agreed = not_agreed + 1
+
+    analysed = agreed + not_agreed
+
+    return_dict = {
+        "agreed_number": agreed,
+        "not_agreed_number": not_agreed,
+        "analysed_number": analysed,
+        "total_number": doc_col.count_documents({})
+    }
+
+    return return_dict, 200

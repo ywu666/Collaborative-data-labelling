@@ -1,4 +1,6 @@
-from api.methods import JSONEncoder
+from api import methods
+from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
+    check_all_labels_for_document_match
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -52,45 +54,36 @@ def set_label_for_user(project_name, document_id):
     document = col.find_one({'_id': ObjectId(document_id)})
 
     # If labels are already the same, prevent any further changes
-    if document['label_confirmed']:
+    if check_all_labels_for_document_match(document):
         response = {'message': "Label already confirmed"}
         response = make_response(response)
         return response, 400
 
     # Check if other contributor has labelled document
-    label_is_confirmed = False
-    if len(document['user_and_labels']) > 1:
+    two_contributors_have_labelled = len(document['user_and_labels']) == 2
+    labels_are_match = False
+    if two_contributors_have_labelled:
         for item in document['user_and_labels']:
             # If label assignments match, set confirmed
             if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
-                label_is_confirmed = True
+                labels_are_match = True
+                # Update other contributor
+                update_user_document_label(col, item['email'], document_id, label_id, labels_are_match)
 
     current_user_label = col.find_one(
         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
     # if the label already exists for the user
     if current_user_label is not None:
-
-        col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
-                       {'$set': {
-                           "user_and_labels.$.label": ObjectId(label_id),
-                           "label_confirmed": label_is_confirmed}
-                       })
+        update_user_document_label(col, requestor_email, document_id, label_id, labels_are_match)
     else:
         # if the label assignment does not exist for the user
-        col.update_one({'_id': ObjectId(document_id)},
-                       {'$push': {
-                           "user_and_labels": {
-                               "email": requestor_email,
-                               "label": ObjectId(label_id)},
-                       },
-                           '$set': {"label_confirmed": label_is_confirmed}
-                       })
+        create_user_document_label(col, requestor_email, document_id, label_id)
 
     return '', 204
 
 
-@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-agreement', methods=['POST'])
-def set_final_label_after_agreement(project_name, document_id):
+@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-confirmation', methods=['PUT'])
+def set_user_final_label(project_name, document_id):
     id_token = request.args.get('id_token')
 
     if id_token is None or id_token == "":
@@ -137,24 +130,18 @@ def set_final_label_after_agreement(project_name, document_id):
 
     # check that doc is fully labelled
     if len(doc['user_and_labels']) < 2:
-        response = {'message': "Labelling for document incomplete!"}
+        response = {'message': "Not all contributors have finished labelling documents!"}
         response = make_response(response)
         return response, 400
 
-    # check for labelling confirmed
-    if doc['label_confirmed']:
+    # check for document final label not confirmed
+    if check_all_labels_for_document_match(doc):
         response = {'message': "Label already confirmed!"}
         response = make_response(response)
         return response, 400
 
-    # Confirm label is final and set labels for users
-    for user_label in doc['user_and_labels']:
-        doc_col.update_one({'_id': ObjectId(document_id),
-                            "user_and_labels": {'$elemMatch': {"email": user_label['email']}}},
-                           {'$set': {
-                               "user_and_labels.$.label": ObjectId(label_id),
-                               "label_confirmed": True}
-                           })
+    # Confirm user's label
+    update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
 
     return '', 200
 
@@ -295,8 +282,13 @@ def get_documents_with_unconfirmed_labels(project_name):
         return response, 403
 
     doc_col = get_db_collection(project_name, "documents")
+    unconfirmed_doc_ids = []
     # get documents that are not confirmed (i.e not labelled by both contributors OR the labels are conflicting)
-    docs = doc_col.find({'label_confirmed': False}, {'_id': 1}).skip(page * page_size).limit(page_size)
+    for doc in doc_col.find({}):
+        if not check_all_labels_for_document_match(doc):
+            unconfirmed_doc_ids.append(ObjectId(doc['_id']))
+
+    docs = doc_col.find({'_id': {'$in': unconfirmed_doc_ids}}, {'_id': 1}).skip(page * page_size).limit(page_size)
 
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)

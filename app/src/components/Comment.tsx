@@ -8,17 +8,17 @@ import {
     IonCol,
     IonToast,
   } from '@ionic/react';
-  import React from 'react';
+  import React, { useEffect, useState } from 'react';
   import { timeOutline, heart, chatbox, star } from 'ionicons/icons';
-  import Moment from 'react-moment';
-  import firebaseApp from '../components/Firebase/firebase'
   import { css } from 'glamor';
+import { userService } from '../services/UserServices';
  
   export interface CommentProps{
     onReply: (author: string) => void;
     email:string;
     content: string;
-    time:any
+    time:any;
+    firebase:any
   }
   
   const timeLabelContainer = css({
@@ -42,11 +42,23 @@ import {
       onReply,
       email,
       content,
-      time
+      time,
+      firebase
     } = props;
   
     const authorDisplayName = email? email : "No Name";
-    const currentUser = localStorage.getItem('email');
+    const [displayName, setDisplayName] = useState("");
+
+    useEffect(() => {
+        try{
+          userService.getCurrentUser(email, firebase)
+          .then(data => {
+            setDisplayName(data.username)
+          })
+        } catch (e) {
+          console.log(e)
+        }
+      }, [])
     //const unixTimestamp = 198784740;
     return (
       <>
@@ -56,7 +68,7 @@ import {
                 <div>
                   <IonLabel>
                     <h6>
-                      {authorDisplayName}
+                      {displayName}
                     </h6>
                   </IonLabel>
                 </div>
@@ -83,7 +95,7 @@ import {
                     fill="clear"
                     expand="full"
                     color="medium"
-                    onClick={() => onReply(authorDisplayName)}
+                    onClick={() => onReply(displayName)}
                   >
                     <IonIcon color="medium" icon={chatbox} />
                   </IonButton>
