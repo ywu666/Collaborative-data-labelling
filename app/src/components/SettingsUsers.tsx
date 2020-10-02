@@ -72,23 +72,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
 
       <Table size="small">
         <TableHead className="user-table-head">
-        <TableCell><IonLabel>User Name</IonLabel></TableCell>
-          <TableCell><IonLabel>User Email</IonLabel></TableCell>
-          <TableCell colSpan={3} align="center"><IonLabel>Permissions</IonLabel></TableCell>
-          <TableCell></TableCell>
-        </TableHead>
-        <TableBody>
-          {(users.slice(page * 5, page * 5 + 5)
-          ).map((user, i: number) => {
-            return (
-              <SettingsUser key={i} project={project} user={user.email}
-                isAdmin={user.isAdmin} isContributor={user.isContributor} canEdit={canEdit}
-                firebase={firebase}></SettingsUser>
-            );
-          })}
-        </TableBody>
-        <TableFooter>
-          <TableRow className="add-user">
+        <TableRow className="add-user">
             <TableCell colSpan={5}>
               <IonInput value={newUser} type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
             </TableCell>
@@ -113,9 +97,25 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
               </IonButton>
             </TableCell>
           </TableRow>
+        <TableCell><IonLabel>User Name</IonLabel></TableCell>
+          <TableCell><IonLabel>User Email</IonLabel></TableCell>
+          <TableCell colSpan={3} align="center"><IonLabel>Permissions</IonLabel></TableCell>
+          <TableCell></TableCell>
+        </TableHead>
+        <TableBody>
+          {(users.slice(page * 5, page * 5 + 5)
+          ).map((user, i: number) => {
+            return (
+              <SettingsUser key={i} project={project} user={user.email}
+                isAdmin={user.isAdmin} isContributor={user.isContributor} canEdit={canEdit}
+                firebase={firebase}></SettingsUser>
+            );
+          })}
+        </TableBody>
+        <TableFooter>
           <TableRow>
             <TablePagination
-              colSpan={5}
+              colSpan={6}
               count={users.length}
               rowsPerPage={5}
               rowsPerPageOptions={[5]}
