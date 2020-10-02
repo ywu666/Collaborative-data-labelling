@@ -14,8 +14,9 @@ class Document:
         self.data = data
         self.comments = comments
         self.user_and_labels = user_and_labels
-        self.label_confirmed = False
         self.display_id = display_id
+        self.final_label = None
+
 
     def upload(self, project_name):
         col = get_db_collection(project_name, "documents")
