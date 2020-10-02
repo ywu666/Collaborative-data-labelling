@@ -75,3 +75,7 @@ ion-modal.auto-height ion-button {
     margin-bottom:5%;
 
 }
+
+.spinner{
+    transform: scale(1.5);
+}

@@ -45,25 +45,36 @@ const theme = createMuiTheme({
 interface UploadProps {
     name: string;
     firebase: any;
+    isUploading(val:boolean): any;
 }
 
 const Upload: React.FC<UploadProps> = (props:UploadProps) => {
     const {
         name,
         firebase,
+        isUploading,
     } = props;
     const inputFile = useRef(null);
+    const [data, setData] = useState("");
+    const [upload, setUpload] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
-    function handleUpload() {
-        console.log("upload")
-        try {
-            // @ts-ignore
-            projectServices.uploadDocuments(name, inputFile.current.files[0], firebase)
+    useEffect(() => {
+        if(upload === true){
+            try {
+                isUploading(true);
 
-        } catch (e) {
-            console.log(e)
+                // @ts-ignore
+                projectServices.uploadDocuments(name, inputFile.current.files[0], firebase).then(data => {
+                console.log(data);
+                isUploading(false);})
+            } catch (e) {
+                console.log(e)
+
+            }
+            setUpload(false)
         }
-    }
+    }, [upload])
 
   return (
     <Tooltip title={<h5>The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY</h5>} placement="left">
@@ -74,7 +85,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         name="upload-button"
         type="file"
         ref={inputFile}
-        onChange={handleUpload}
+        onChange={e => setUpload(true)}
         />
 
             <MuiThemeProvider theme={theme}>
@@ -90,14 +101,3 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
 
 export default Upload;
 
-
-/*<form className="uploadFile" onSubmit={handleUpload}>
-            <IonItem>
-            <input ref={inputFile} type="file" />
-            </IonItem>
-              <Tooltip title="The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY" placement="right">
-                <IonButton  style={{ maxWidth: '400px', minWidth: '270px' }} fill="outline" className="ion-margin-top" onClick={handleUpload} expand="block"><IonIcon icon={arrowUpOutline}/>
-                upload
-                </IonButton>
-              </Tooltip>
-        </form>*/
