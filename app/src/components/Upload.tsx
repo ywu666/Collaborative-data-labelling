@@ -66,7 +66,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
     }
 
   return (
-
+    <Tooltip title={<h5>The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY</h5>} placement="left">
     <label htmlFor="upload-button">
         <input
         style={{ display: 'none' }}
@@ -76,14 +76,15 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         ref={inputFile}
         onChange={handleUpload}
         />
-        <Tooltip title="The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY" placement="right">
+
             <MuiThemeProvider theme={theme}>
             <Fab color="primary" component="span" aria-label="add">
                 <AddIcon/>
             </Fab>
             </MuiThemeProvider>
-        </Tooltip>
+
     </label>
+    </Tooltip>
   );
 }
 

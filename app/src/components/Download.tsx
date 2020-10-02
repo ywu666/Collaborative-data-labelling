@@ -48,7 +48,7 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
   <IonFab>
     <form className="downloadFile">
         <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
-        <Tooltip title="The downloaded file will be a CSV file. There will be three 'columns' in the following order: ID, BODY, and LABEL" placement="right">
+        <Tooltip title={<h5>The downloaded file will be a CSV file. There will be three 'columns' in the following order: ID, BODY, and LABEL</h5>} placement="right">
         <IonFabButton onClick={() => downloadCSV(name)}>
             <IonIcon icon={arrowDownOutline} />
         </IonFabButton>
