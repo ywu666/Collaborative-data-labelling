@@ -122,7 +122,7 @@ import { valid } from 'glamor';
    setErrorMessage(reason)
         })
 
-        setProjectNames(projectData => [...projectData, projectName]);
+        setProjectNames(projectNames=> [...projectNames, projectName]);
       } catch (err) {
        setError(true);
        setErrorMessage(err.message);
