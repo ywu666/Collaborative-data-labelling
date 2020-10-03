@@ -86,6 +86,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         id="upload-button"
         name="upload-button"
         type="file"
+        accept=".csv"
         ref={inputFile}
         onChange={e => setUpload(true)}
         />
