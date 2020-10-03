@@ -53,8 +53,15 @@ def upload_file():
 
     file = request.files['inputFile']
 
+    # Check file name
     if file.filename == '':
         response = {'message': 'No file selected'}
+        response = make_response(response)
+        return response, 400
+
+    # Check file type
+    if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
+        response = {'message': 'Can only import CSV files'}
         response = make_response(response)
         return response, 400
 
@@ -68,7 +75,9 @@ def upload_file():
         response = {'message': 'Documents imported successfully'}
 
         with open(filelocation) as csv_file:
+
             csv_reader = csv.reader(csv_file, delimiter=",")
+
             is_first_line = True
 
             # Default is that user provides their own IDs
