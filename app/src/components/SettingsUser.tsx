@@ -61,13 +61,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
         type: 'checkbox',
         label: 'Contributor',
         value: 'Contributor',
-        checked: refContributor.current
+        checked: localIsContributor
       },
       {
         type: 'checkbox',
         label: 'Admin',
         value: 'Admin',
-        checked: refAdmin.current
+        checked: localIsAdmin
       }
     ]}
     buttons={[
