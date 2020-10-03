@@ -62,7 +62,7 @@ def upload_file():
 
     # Check file type
     if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
-        response = {'message': 'Can only import CSV files'}
+        response = {'message': 'Incorrect filetype/format'}
         response = make_response(response)
         return response, 400
 
@@ -102,7 +102,7 @@ def upload_file():
                         doc_value_index = 0
                         # Check for proper formatting
                         if row[doc_value_index] != "DOCUMENT":
-                            response = {'message': 'File formatted incorrectly: first field should be DOCUMENT'}
+                            response = {'message': 'Incorrect filetype/format'}
                             break
 
                         generate_display_ids = True
@@ -112,11 +112,11 @@ def upload_file():
 
                         # Check for proper formatting
                         if "ID" not in row[id_value_index]:
-                            response = {'message': 'File formatted incorrectly: first field should be ID'}
+                            response = {'message': 'Incorrect filetype/format'}
                             break
 
                         if row[doc_value_index] != "DOCUMENT":
-                            response = {'message': 'File formatted incorrectly: second field should be DOCUMENT'}
+                            response = {'message': 'Incorrect filetype/format'}
                             break
                 else:
                     doc_value = row[doc_value_index].strip()
@@ -130,7 +130,7 @@ def upload_file():
                                 ids_incorrectly_formatted.append(row[id_value_index])
                                 continue
                             else:
-                                response = {'message': 'File formatted incorrectly: ID needs to be int'}
+                                response = {'message': 'Incorrect filetype/format'}
                                 break
 
                         # ID Uniqueness check
