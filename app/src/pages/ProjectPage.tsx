@@ -98,7 +98,8 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
         </div>
         <div className="fab">
             <div className="fableft">
-                <Upload name={name} firebase={firebase} isUploading={isUploading}/>
+                {currentUser.isAdmin ? <Upload name={name} firebase={firebase} isUploading={isUploading} enable={true}/> : <Upload name={name} firebase={firebase} isUploading={isUploading} enable={false}/>}
+
             </div>
             <div className="fabright">
                 <Download name={name}/>
