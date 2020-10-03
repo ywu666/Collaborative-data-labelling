@@ -7,6 +7,7 @@ function onLogout() {
         );
         localStorage.removeItem('user-token');
         localStorage.removeItem('email');
+        window.location.href = '/auth';
     })
     .catch(function (error) {
       // An error happened.
