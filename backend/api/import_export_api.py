@@ -2,7 +2,7 @@
 import csv
 import os
 
-from api.methods import JSONEncoder
+from api.methods import JSONEncoder, check_all_labels_for_document_match, get_label_name_by_label_id
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response, Response, send_file
@@ -33,7 +33,6 @@ def upload_file():
         response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
-
 
     if request.method == 'POST':
 
@@ -114,37 +113,64 @@ def export_documents(project_name):
         response = make_response(response)
         return response, 403
 
-    # get all documents
+    # get all documents and labels
+    label_col = get_db_collection(project_name, 'labels')
     doc_col = get_db_collection(project_name, "documents")
     documents = doc_col.find(projection={'comments': 0})
+
+    # Get contributors of project?
+    user_col = get_db_collection(project_name, "users")
+    contributor_emails = user_col.find({'isContributor': True}, {'_id': 0, 'email': 1})
+    # print(len(list(contributor_emails)))
+    if len(list(contributor_emails)) == 2:
+        contributor_one_index = 0
+        contributor_two_index = 1
+    elif len(list(contributor_emails)) == 1:
+        contributor_one_index = 0
 
     docs_to_write = []
     # Generate data in correct format for export
     for d in documents:
-        id_as_string = str(d['_id'])
+        final_label_id = d['final_label']
+        doc_label_status = "INCOMPLETE"
 
-        # Find final label id
-        user_and_labels = d['user_and_labels']
-        
-        final_label_id = None
-        if len(user_and_labels) > 1:
-            final_label_id = user_and_labels[0]['label']
-            for item in user_and_labels:
-                # check that label is the same
-                if item['label'] != final_label_id:
-                    final_label_id = None
-                    break
+        num_contributors_labelled = len(d['user_and_labels'])
+        contributor_one_label = ""
+        contributor_two_label = ""
 
-        # Get label name
+        # Set return field values
         if final_label_id is not None:
-            label_col = get_db_collection(project_name, 'labels')
-            final_label = label_col.find_one({"_id": ObjectId(final_label_id)})
-            final_label = final_label['name']
+            final_label = get_label_name_by_label_id(label_col, final_label_id)
+            doc_label_status = "AGREED AND CONFIRMED"
+
+            contributor_one_label = get_label_name_by_label_id(label_col,
+                                                               d['user_and_labels'][contributor_one_index]['label'])
+            contributor_two_label = contributor_one_label
+        elif num_contributors_labelled == 2:
+            if d['user_and_labels'][contributor_one_index]['label_confirmed'] and \
+                    d['user_and_labels'][contributor_two_index]['label_confirmed']:
+                final_label = "DOCUMENT REDACTED"
+                doc_label_status = "NO AGREEMENT AND CONFIRMED"
+            else:
+                final_label = ""
+                doc_label_status = "LABELLED BUT UNCONFIRMED"
+
+            contributor_one_label = get_label_name_by_label_id(label_col,
+                                                               d['user_and_labels'][contributor_one_index]['label'])
+            contributor_two_label = get_label_name_by_label_id(label_col,
+                                                               d['user_and_labels'][contributor_two_index]['label'])
+
         else:
-            final_label = ''
+            final_label = ""
+            if num_contributors_labelled == 1:
+                # Handle ordering of contributors if there is only one contributor
+                contributor_one_label = get_label_name_by_label_id(label_col,
+                                                                   d['user_and_labels'][contributor_one_index]['label'])
 
         # make dictionary
-        docs_to_write.append({'ID': d['_id'], 'DOCUMENT': d['data'], 'LABEL': final_label})
+        docs_to_write.append({'ID': d['_id'], 'DOCUMENT': d['data'],
+                              'LABEL': final_label, 'LABEL STATUS': doc_label_status,
+                              'CONTRIBUTOR 1 LABEL': contributor_one_label,
+                              'CONTRIBUTOR 2 LABEL': contributor_two_label})
     docs = JSONEncoder().encode(docs_to_write)
     return docs, 200
-
