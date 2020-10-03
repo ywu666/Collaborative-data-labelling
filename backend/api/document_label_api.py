@@ -60,24 +60,27 @@ def set_label_for_user(project_name, document_id):
         return response, 400
 
     # Check if other contributor has labelled document
-    two_contributors_have_labelled = len(document['user_and_labels']) == 2
+    contributors_labelled = len(document['user_and_labels'])
     labels_are_match = False
-    if two_contributors_have_labelled:
+    current_user_label = col.find_one(
+        {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
+
+    if contributors_labelled == 2 or (contributors_labelled == 1 and not current_user_label):
         for item in document['user_and_labels']:
             # If label assignments match, set confirmed
             if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
                 labels_are_match = True
+
                 # Update other contributor
                 update_user_document_label(col, item['email'], document_id, label_id, labels_are_match)
+                break
 
-    current_user_label = col.find_one(
-        {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
     # if the label already exists for the user
     if current_user_label is not None:
         update_user_document_label(col, requestor_email, document_id, label_id, labels_are_match)
     else:
         # if the label assignment does not exist for the user
-        create_user_document_label(col, requestor_email, document_id, label_id)
+        create_user_document_label(col, requestor_email, document_id, label_id, labels_are_match)
 
     return '', 204
 
