@@ -54,3 +54,74 @@ ion-modal.auto-height ion-button {
   margin-left: 42%;
   margin-top: 20px;
 }
+
+.pageTitle{
+  font-size: 1.6em;
+  padding-bottom: 0.4em;
+}
+
+.documentContent {
+  border-radius: 0.5rem;
+  border-style: solid;
+  border-width: thin;
+  border-color:	#D3D3D3;
+  font-size: 1.3em;
+  padding: 2em;
+  padding-left: 5%;
+  padding-right: 5%;
+  margin: 1em;
+  padding-bottom: 2em;
+  background-color: #F5F5F5;
+  text-align: left;
+}
+
+.title{
+  font-weight: bold;
+  font-size: 1.2em;
+  text-align: left;
+}
+
+.item-complex .item-content, .item{
+  background-color: #F5F5F5;
+}
+
+.list-md {
+  BOX-SHADOW: 0 0 black;
+  margin: 0;
+  padding: 0;
+  margin: 40px;
+}
+
+.sc-ion-label-md-s h2 {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  font-size: 1.5em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.sc-ion-label-md-s h3{
+  text-align: center;
+  font-size: 1.4em;
+}
+
+.item-complex .item-content, .item {
+  background-color: #F5F5F5;
+}
+
+.labelContainer{
+  text-align: center;
+  margin: 50px;
+}
+
+.commentsTitle{
+  text-align: left;
+  margin: 1em;
+}
+
+.promptMessage{
+  opacity: 0.8;
+  color: crimson;
+}
