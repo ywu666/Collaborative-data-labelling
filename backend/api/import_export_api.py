@@ -40,7 +40,8 @@ def upload_file():
         return response, 400
 
     users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    requestor = users_col.find_one({'email': requestor_email},
+                                   {'$or': [{'isContributor': True}, {'isAdmin': True}]})
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
         response = make_response(response)
