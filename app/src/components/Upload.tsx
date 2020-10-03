@@ -46,6 +46,7 @@ interface UploadProps {
     name: string;
     firebase: any;
     isUploading(val:boolean): any;
+    enable: boolean;
 }
 
 const Upload: React.FC<UploadProps> = (props:UploadProps) => {
@@ -53,6 +54,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         name,
         firebase,
         isUploading,
+        enable,
     } = props;
     const inputFile = useRef(null);
     const [data, setData] = useState("");
@@ -84,14 +86,15 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         id="upload-button"
         name="upload-button"
         type="file"
+        accept=".csv"
         ref={inputFile}
         onChange={e => setUpload(true)}
         />
 
             <MuiThemeProvider theme={theme}>
-            <Fab color="primary" component="span" aria-label="add">
-                <AddIcon/>
-            </Fab>
+                {enable ?
+                <Fab color="primary" component="span" aria-label="add"> <AddIcon/> </Fab>
+                : <Fab color="primary" disabled component="span" aria-label="add"> <AddIcon/> </Fab>}
             </MuiThemeProvider>
 
     </label>
