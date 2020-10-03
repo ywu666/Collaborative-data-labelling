@@ -54,11 +54,19 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
 
   function addUser(user: string) {
     try {
-      projectServices.setProjectUsers(project, user, firebase);
-      setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
-      setNewUser("")
-    } catch (e) {
+      // check if user exists
+      userService.getUser(user)
+      .then(() => {
+        projectServices.setProjectUsers(project, user, firebase);
+        setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
+        setNewUser("")
+      })
+      .catch(e => {
+        setErrorMessage(e);
+        setShowAlert(true);
+      })
 
+    } catch (e) {
     }
   }
 
@@ -81,9 +89,6 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
                 if (typeof newUser !== 'undefined' && newUser) {
                   if (users.some(check => check.email === newUser)) {
                     setErrorMessage('User has already been added');
-                    setShowAlert(true);
-                  } else if (!allUsers.some(check => check.email === newUser)) {
-                    setErrorMessage('User does not exist');
                     setShowAlert(true);
                   } else {
                     addUser(newUser)

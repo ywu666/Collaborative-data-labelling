@@ -10,7 +10,8 @@ import { StringDecoder } from "string_decoder";
      getAllUsersInDatabase,
      signup,
      getCurrentProjectUser,
-     getCurrentUser
+     getCurrentUser,
+     getUser
  }
 
  function logout() {
@@ -111,6 +112,25 @@ function getAllUsers(page_num: any, page_size: any) {
         .then(handleResponse)
         .then(data => {
             return data.users
+        })
+ }
+
+ function getUser(email: any) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json',
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+ },
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/users'
+        + '?id_token=' + localStorage.getItem('user-token')
+        + '&email=' + email, requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.user
         })
  }
 
