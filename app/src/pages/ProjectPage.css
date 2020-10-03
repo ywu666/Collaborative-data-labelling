@@ -69,11 +69,18 @@ ion-modal.auto-height ion-button {
      margin-left: 1em;
 }
 
-.fab{
+.fabHolder{
     margin: auto;
-    width: 10%;
+    height: 90px;
+    bottom: 0;
+    padding: 20px;
+    position: fixed;
+    left: 0;
+    right:0;
+    width: 180px;
 
 }
+
 
 .fableft{
   float:left;
