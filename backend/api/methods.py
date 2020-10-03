@@ -55,17 +55,26 @@ def update_user_document_label(col, email, document_id, label_id, labels_are_mat
                        })
 
 
-def create_user_document_label(col, email, document_id, label_id):
-    col.update_one({'_id': ObjectId(document_id)},
-                   {'$push': {
-                       "user_and_labels": {
-                           "email": email,
-                           "label": ObjectId(label_id),
-                           "label_confirmed": False}
-                   },
-                       '$set': {"final_label": None}}
-                   )
-
+def create_user_document_label(col, email, document_id, label_id, labels_are_match):
+    if labels_are_match:
+        col.update_one({'_id': ObjectId(document_id)},
+                       {'$push': {
+                           "user_and_labels": {
+                               "email": email,
+                               "label": ObjectId(label_id),
+                               "label_confirmed": labels_are_match}
+                       },
+                           '$set': {"final_label": ObjectId(label_id)}}
+                       )
+    else:
+        col.update_one({'_id': ObjectId(document_id)},
+                       {'$push': {
+                           "user_and_labels": {
+                               "email": email,
+                               "label": ObjectId(label_id),
+                               "label_confirmed": labels_are_match}
+                       }
+                       })
 
 def check_all_labels_for_document_match(document):
     user_and_labels = document['user_and_labels']

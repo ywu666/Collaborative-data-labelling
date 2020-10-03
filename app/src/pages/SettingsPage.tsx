@@ -1,22 +1,18 @@
 import {
     IonContent,
     IonPage,
-    IonHeader,
-    IonTitle,
-    IonToolbar,
     IonGrid,
     IonRow,
     IonCol,
-    IonButton,
-    IonIcon,
+    IonCard,
+    IonCardContent,
+    IonCardHeader,
+    IonCardTitle
   } from '@ionic/react';
-  import { arrowBack } from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
   import { useParams } from 'react-router';
   import SettingsTags from '../components/SettingsTags';
-  import onLogout from '../helpers/logout'
   import SettingsUsers from '../components/SettingsUsers';
-  import { projectServices } from '../services/ProjectServices'
   import Header from '../components/Header';
   import { userService } from "../services/UserServices";
   import './SettingsPage.css';
@@ -30,7 +26,6 @@ import {
       firebase
     } = props;
     const [currentDisplayName,setCurrentDisplayName] = useState("");
-    const [tags, setTags] = useState([""]);
 
     useEffect(() => {
       try{
@@ -45,25 +40,20 @@ import {
   
     return (
       <IonPage>
-        <Header routerLink={"/project/" + project} name={currentDisplayName}/>
+        <Header routerLink={"/project/" + project} name={currentDisplayName} />
 
-        <IonContent>
+        <IonContent className="settings-page">
 
-          <IonGrid>
+          <IonGrid className="settings-grid">
             <IonRow class="ion-justify-content-center">
-              <h1>Settings</h1>
+              <h1>{project} Settings</h1>
             </IonRow>
             <IonRow class="ion-justify-content-center">
-              <h1>{project}</h1>
-            </IonRow>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="6">
-                <SettingsUsers project={project} firebase={firebase} />
-              </IonCol>
-            </IonRow>
-            <IonRow class="ion-justify-content-center">
-              <IonCol size="6">
+              <IonCol size="12" size-md="10" size-lg="4" size-xl="4" class="settings-left">
                 <SettingsTags project={project} firebase={firebase} />
+              </IonCol>
+              <IonCol size="12" size-md="10" size-lg="7" size-xl="7" class="settings-right">
+                <SettingsUsers project={project} firebase={firebase} />
               </IonCol>
             </IonRow>
           </IonGrid>
