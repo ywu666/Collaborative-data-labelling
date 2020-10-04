@@ -1,6 +1,6 @@
 from api import methods
 from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
-    check_all_labels_for_document_match
+    check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -144,52 +144,28 @@ def set_user_final_label(project_name, document_id):
         return response, 400
 
     # Confirm user's label
-    update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
+    labels_are_match = False
+    for item in doc['user_and_labels']:
+        # If label assignments match, set confirmed
+        if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
+            labels_are_match = True
+
+            # Update other contributor
+            update_user_document_label(doc_col, item['email'], document_id, label_id, labels_are_match)
+            break
+
+    if labels_are_match:
+        update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
+    else:
+        doc_col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
+                       {'$set': {
+                           "user_and_labels.$.label": ObjectId(label_id),
+                           "user_and_labels.$.label_confirmed": True}
+                       })
 
     doc = doc_col.find_one({'_id': ObjectId(document_id)})
 
-    if check_all_labels_for_document_match(doc):
-        response = \
-            {
-                'document': document_id,
-                'finalLabelConfirmed': True,
-                'documentLabelConflicting': False
-            }
-    elif len(doc['user_and_labels']) == 2:
-        if doc['user_and_labels'][0]['label_confirmed'] and doc['user_and_labels'][1]['label_confirmed']:
-            if check_all_labels_for_document_match(doc):
-                response = \
-                    {
-                        'document': document_id,
-                        'finalLabelConfirmed': True,
-                        'documentLabelConflicting': False
-                    }
-            else:
-                response = \
-                    {
-                        'document': document_id,
-                        'finalLabelConfirmed': True,
-                        'documentLabelConflicting': True
-                    }
-        else:
-            if check_all_labels_for_document_match(doc):
-                response = \
-                    {
-                        'document': document_id,
-                        'finalLabelConfirmed': False,
-                        'documentLabelConflicting': False
-                    }
-            else:
-                response = \
-                    {
-                        'document': document_id,
-                        'finalLabelConfirmed': False,
-                        'documentLabelConflicting': True
-                    }
-    else:
-        response = {'message': "Not labelled by both contributors"}
-        make_response(response)
-        return response, 400
+    response = generate_response_for_getting_document_final_label_and_conflict_status(doc, document_id)
 
     return response, 200
 
