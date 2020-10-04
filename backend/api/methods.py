@@ -85,3 +85,9 @@ def check_all_labels_for_document_match(document):
             return True
 
     return False
+
+
+def get_label_name_by_label_id(label_col, label_id):
+    label = label_col.find_one({"_id": ObjectId(label_id)})
+    label = label['name']
+    return label
