@@ -139,14 +139,59 @@ def set_user_final_label(project_name, document_id):
 
     # check for document final label not confirmed
     if check_all_labels_for_document_match(doc):
-        response = {'message': "Label already confirmed!"}
+        response = {'message': "Final Label already confirmed!"}
         response = make_response(response)
         return response, 400
 
     # Confirm user's label
     update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
 
-    return '', 200
+    doc = doc_col.find_one({'_id': ObjectId(document_id)})
+
+    if check_all_labels_for_document_match(doc):
+        response = \
+            {
+                'document': document_id,
+                'finalLabelConfirmed': True,
+                'documentLabelConflicting': False
+            }
+    elif len(doc['user_and_labels']) == 2:
+        if doc['user_and_labels'][0]['label_confirmed'] and doc['user_and_labels'][1]['label_confirmed']:
+            if check_all_labels_for_document_match(doc):
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': True,
+                        'documentLabelConflicting': False
+                    }
+            else:
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': True,
+                        'documentLabelConflicting': True
+                    }
+        else:
+            if check_all_labels_for_document_match(doc):
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': False,
+                        'documentLabelConflicting': False
+                    }
+            else:
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': False,
+                        'documentLabelConflicting': True
+                    }
+    else:
+        response = {'message': "Not labelled by both contributors"}
+        make_response(response)
+        return response, 400
+
+    return response, 200
 
 
 @document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
