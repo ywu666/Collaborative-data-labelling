@@ -76,6 +76,7 @@ def create_user_document_label(col, email, document_id, label_id, labels_are_mat
                        }
                        })
 
+
 def check_all_labels_for_document_match(document):
     user_and_labels = document['user_and_labels']
     if len(user_and_labels) == 2:
