@@ -34,7 +34,7 @@ import {
     const {
       firebase
     } = props;
-
+    const [text, setText] = useState<string>();
     useEffect(() => {
       try {
         projectServices.getProjectNames(firebase)
@@ -155,7 +155,17 @@ import {
 
       {/**will add an onclick function which will parse the new project name information to the system
          */}
-          <form className="createProject" onSubmit={(e: React.FormEvent) => {
+         
+            
+
+      <IonContent>
+        <div className="container">
+          <Masonry 
+            options={{columnWidth:".projectCard", percentPosition: true}}
+          >
+            <IonCard>
+<IonCardContent>
+<form onSubmit={(e: React.FormEvent) => {
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
             createProject(formData.get("projectName"));
@@ -163,19 +173,15 @@ import {
           }}>
             <IonItem>
               <IonLabel position="floating">New Project</IonLabel>
-              <IonInput name="projectName" id="projectName" type="text"/>	            
+              <IonInput placeholder="Enter Project Name" value={text} name="projectName" id="projectName" onIonChange={e => setText(e.detail.value!)} type="text"/>	            
             </IonItem>
-            <IonButton fill="outline" className="ion-margin-top" type="submit" expand="block">	
+            <IonButton disabled={text == null || text.length<1} fill="outline" className="ion-margin-top" type="submit" expand="block">	
             <IonIcon icon={add} />            
                 create            
             </IonButton>	            
-            </form>	 	     
-
-      <IonContent>
-        <div className="container">
-          <Masonry 
-            options={{columnWidth:".projectCard", percentPosition: true}}
-          >
+            </form>	 	  
+</IonCardContent>
+         </IonCard>
             {projectData.map((data, index) => {
               return (
                   <IonCard key={index} className="projectCard" routerLink={"/project/" + data.name}>
