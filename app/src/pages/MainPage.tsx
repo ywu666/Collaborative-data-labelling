@@ -21,6 +21,7 @@ import {
   import Header from '../components/Header'
   import { isNullOrUndefined } from 'util';
   import { userService } from '../services/UserServices';
+import { valid } from 'glamor';
   
   interface MainPageProps {
     firebase: any
@@ -31,10 +32,12 @@ import {
     const [projectData, setProjectData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [currentDisplayName,setCurrentDisplayName] = useState("");
+    const [error, setError] =useState(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
     const {
       firebase
     } = props;
-    const [text, setText] = useState<string>();
+    const [text, setText] = useState<any>();
     useEffect(() => {
       try {
         projectServices.getProjectNames(firebase)
@@ -114,11 +117,15 @@ import {
     
     function createProject(projectName: any){
       try {
-        projectServices.createProject(projectName, firebase)
+        projectServices.createProject(projectName, firebase).catch(reason => {
+          setError(true);
+   setErrorMessage(reason)
+        })
 
         setProjectNames(projectData => [...projectData, projectName]);
-      } catch (e) {
-        console.log(e)
+      } catch (err) {
+       setError(true);
+       setErrorMessage(err.message);
       }    
     }
 
@@ -138,6 +145,11 @@ import {
       }
     }
 
+    function handleEnterProjectName(_value: any) {
+     setText(_value);
+     setError(false);
+     setErrorMessage("");
+    }
     useEffect(() => {
       try{
         userService.getCurrentUser(localStorage.getItem("email"), firebase)
@@ -156,8 +168,6 @@ import {
       {/**will add an onclick function which will parse the new project name information to the system
          */}
          
-            
-
       <IonContent>
         <div className="container">
           <Masonry 
@@ -166,6 +176,7 @@ import {
             <IonCard>
 <IonCardContent>
 <form onSubmit={(e: React.FormEvent) => {
+            setLoading(true)
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
             createProject(formData.get("projectName"));
@@ -173,12 +184,13 @@ import {
           }}>
             <IonItem>
               <IonLabel position="floating">New Project</IonLabel>
-              <IonInput placeholder="Enter Project Name" value={text} name="projectName" id="projectName" onIonChange={e => setText(e.detail.value!)} type="text"/>	            
+              <IonInput placeholder="Enter Project Name" value={text} name="projectName" id="projectName" onIonChange={e=>handleEnterProjectName(e.detail.value)} type="text"/>	            
             </IonItem>
             <IonButton disabled={text == null || text.length<1} fill="outline" className="ion-margin-top" type="submit" expand="block">	
             <IonIcon icon={add} />            
                 create            
-            </IonButton>	            
+            </IonButton>
+            {error && <p>{errorMessage}</p>}	            
             </form>	 	  
 </IonCardContent>
          </IonCard>
