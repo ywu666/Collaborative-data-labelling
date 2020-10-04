@@ -253,9 +253,9 @@ def get_conflicting_labels_document_ids(project_name):
     return docs, 200
 
 
-# This end point returns the IDs of documents for which the final label is not confirmed
+# This end point returns the IDs of documents for which the final label is not confirmed for the user calling the method
 @document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
-def get_documents_with_unconfirmed_labels(project_name):
+def get_documents_with_unconfirmed_labels_for_user(project_name):
     id_token = request.args.get('id_token')
 
     try:
@@ -278,20 +278,16 @@ def get_documents_with_unconfirmed_labels(project_name):
         return response, 400
 
     users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email})
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
         response = {'message': "You are not authorised to perform this action"}
         response = make_response(response)
         return response, 403
 
     doc_col = get_db_collection(project_name, "documents")
-    unconfirmed_doc_ids = []
-    # get documents that are not confirmed (i.e not labelled by both contributors OR the labels are conflicting)
-    for doc in doc_col.find({}):
-        if not check_all_labels_for_document_match(doc):
-            unconfirmed_doc_ids.append(ObjectId(doc['_id']))
-
-    docs = doc_col.find({'_id': {'$in': unconfirmed_doc_ids}}, {'_id': 1}).skip(page * page_size).limit(page_size)
+    docs = doc_col.find({'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
+                                  {'user_and_labels.label': {'$ne': None}}]},
+                        {'_id': 1}).skip(page * page_size).limit(page_size)
 
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
