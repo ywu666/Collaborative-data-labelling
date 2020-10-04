@@ -13,7 +13,8 @@ import {
   IonButtons,
   IonFab,
   IonFabButton,
-  IonSpinner
+  IonSpinner,
+  IonLoading
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
 import React, {useEffect, useRef, useState, useCallback} from 'react';
