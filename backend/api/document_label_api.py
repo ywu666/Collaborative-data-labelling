@@ -316,7 +316,7 @@ def get_documents_with_unconfirmed_labels_for_user(project_name):
     return docs, 200
 
 
-@document_label_api.route('/projects/<project_name>/documents/<document_id>/is-unconfirmed', methods=['Get'])
+@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])
 def get_if_document_label_confirmed_for_user(project_name, document_id):
     id_token = request.args.get('id_token')
 
