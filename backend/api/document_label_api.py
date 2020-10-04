@@ -1,6 +1,5 @@
-from api import methods
 from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
-    check_all_labels_for_document_match
+    check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -139,14 +138,36 @@ def set_user_final_label(project_name, document_id):
 
     # check for document final label not confirmed
     if check_all_labels_for_document_match(doc):
-        response = {'message': "Label already confirmed!"}
+        response = {'message': "Final Label already confirmed!"}
         response = make_response(response)
         return response, 400
 
     # Confirm user's label
-    update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
+    labels_are_match = False
+    for item in doc['user_and_labels']:
+        # If label assignments match, set confirmed
+        if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
+            labels_are_match = True
 
-    return '', 200
+            # Update other contributor
+            update_user_document_label(doc_col, item['email'], document_id, label_id, labels_are_match)
+            break
+
+    if labels_are_match:
+        update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
+    else:
+        doc_col.update_one({'_id': ObjectId(document_id),
+                            "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
+                           {'$set': {
+                               "user_and_labels.$.label": ObjectId(label_id),
+                               "user_and_labels.$.label_confirmed": True}
+                           })
+
+    doc = doc_col.find_one({'_id': ObjectId(document_id)})
+
+    response = generate_response_for_getting_document_final_label_and_conflict_status(doc, document_id)
+
+    return response, 200
 
 
 @document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
@@ -285,10 +306,66 @@ def get_documents_with_unconfirmed_labels_for_user(project_name):
         return response, 403
 
     doc_col = get_db_collection(project_name, "documents")
-    docs = doc_col.find({'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
-                                  {'user_and_labels.label': {'$ne': None}}]},
-                        {'_id': 1}).skip(page * page_size).limit(page_size)
+    docs = doc_col.find(
+        {'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
+                  {'user_and_labels.label': {'$ne': None}}]},
+        {'_id': 1}).skip(page * page_size).limit(page_size)
 
     docs_dict = {'docs': list(docs)}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
+
+
+@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])
+def get_if_document_label_confirmed_for_user(project_name, document_id):
+    id_token = request.args.get('id_token')
+
+    if id_token is None or id_token == "":
+        response = {'message': "ID Token is not included with the request uri in args"}
+        response = make_response(response)
+        return response, 400
+
+    requestor_email = get_email(id_token)
+    if requestor_email is None:
+        response = {'message': "ID Token has expired or is invalid"}
+        response = make_response(response)
+        return response, 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        response = {'message': "You are not authorised to perform this action"}
+        response = make_response(response)
+        return response, 403
+
+    doc_col = get_db_collection(project_name, "documents")
+
+    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
+                                     {'user_and_labels.email': requestor_email}]})
+
+    if doc is None:
+        response = {'message': "User has not labelled this document"}
+        response = make_response(response)
+        return response, 400
+
+    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
+                                     {'user_and_labels': {'$elemMatch': {'email': requestor_email,
+                                                                         'label_confirmed': True}}}]})
+    if doc:
+        response = \
+            {
+                'email': requestor_email,
+                'document': document_id,
+                'labelIsConfirmed': True
+            }
+    else:
+
+        response = \
+            {
+                'email': requestor_email,
+                'document': document_id,
+                'labelIsConfirmed': False
+            }
+
+    make_response(response)
+    return response, 200
