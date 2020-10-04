@@ -88,7 +88,7 @@ def check_all_labels_for_document_match(document):
 
     return False
 
-
+  
 def generate_response_for_getting_document_final_label_and_conflict_status(doc, document_id):
     if check_all_labels_for_document_match(doc):
         response = \
@@ -134,3 +134,8 @@ def generate_response_for_getting_document_final_label_and_conflict_status(doc, 
         return response, 400
 
     return response
+
+def get_label_name_by_label_id(label_col, label_id):
+    label = label_col.find_one({"_id": ObjectId(label_id)})
+    label = label['name']
+    return label
