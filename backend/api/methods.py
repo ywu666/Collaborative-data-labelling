@@ -1,5 +1,6 @@
 import json
 from bson import ObjectId
+from flask import make_response
 
 from mongoDBInterface import get_col
 
@@ -86,3 +87,50 @@ def check_all_labels_for_document_match(document):
             return True
 
     return False
+
+
+def generate_response_for_getting_document_final_label_and_conflict_status(doc, document_id):
+    if check_all_labels_for_document_match(doc):
+        response = \
+            {
+                'document': document_id,
+                'finalLabelConfirmed': True,
+                'documentLabelConflicting': False
+            }
+    elif len(doc['user_and_labels']) == 2:
+        if doc['user_and_labels'][0]['label_confirmed'] and doc['user_and_labels'][1]['label_confirmed']:
+            if check_all_labels_for_document_match(doc):
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': True,
+                        'documentLabelConflicting': False
+                    }
+            else:
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': True,
+                        'documentLabelConflicting': True
+                    }
+        else:
+            if check_all_labels_for_document_match(doc):
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': False,
+                        'documentLabelConflicting': False
+                    }
+            else:
+                response = \
+                    {
+                        'document': document_id,
+                        'finalLabelConfirmed': False,
+                        'documentLabelConflicting': True
+                    }
+    else:
+        response = {'message': "Not labelled by both contributors"}
+        make_response(response)
+        return response, 400
+
+    return response
