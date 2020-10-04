@@ -36,11 +36,11 @@ import { StringDecoder } from "string_decoder";
         });
 }
 
-function signup(email: string  ,token: string){
+function signup(username: string, email: string , token: string){
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({email})
+        body: JSON.stringify({username, email})
     };
 
     return fetch(process.env.REACT_APP_API_URL + `/users/create` + '?id_token=' + token
