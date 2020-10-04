@@ -1,4 +1,3 @@
-from api import methods
 from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
     check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
 from bson import ObjectId
@@ -157,11 +156,12 @@ def set_user_final_label(project_name, document_id):
     if labels_are_match:
         update_user_document_label(doc_col, requestor_email, document_id, label_id, True)
     else:
-        doc_col.update_one({'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
-                       {'$set': {
-                           "user_and_labels.$.label": ObjectId(label_id),
-                           "user_and_labels.$.label_confirmed": True}
-                       })
+        doc_col.update_one({'_id': ObjectId(document_id),
+                            "user_and_labels": {'$elemMatch': {"email": requestor_email}}},
+                           {'$set': {
+                               "user_and_labels.$.label": ObjectId(label_id),
+                               "user_and_labels.$.label_confirmed": True}
+                           })
 
     doc = doc_col.find_one({'_id': ObjectId(document_id)})
 
@@ -369,53 +369,3 @@ def get_if_document_label_confirmed_for_user(project_name, document_id):
 
     make_response(response)
     return response, 200
-
-
-@document_label_api.route('/projects/<project_name>/documents/<document_id>/all-user-labels-confirmed')
-def get_if_all_users_confirmed_label_for_document(project_name, document_id):
-    id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
-    if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
-
-    doc_col = get_db_collection(project_name, "documents")
-
-    doc = doc_col.find_one({'_id': ObjectId(document_id)})
-
-    if doc['final_label'] is not None or \
-            (len(doc['user_and_labels']) == 2 and
-             (doc['user_and_labels'][0]['label_confirmed'] and doc['user_and_labels'][1]['label_confirmed'])):
-        response = \
-            {
-                'document': document_id,
-                'finalLabelConfirmed': True
-            }
-    elif len(doc['user_and_labels']) == 2:
-        response = \
-            {
-                'document': document_id,
-                'finalLabelConfirmed': False
-            }
-    else:
-        response = {'message': "Not labelled by both contributors"}
-        make_response(response)
-        return response, 400
-
-    make_response(response)
-    return response, 200
-
