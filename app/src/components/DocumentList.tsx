@@ -237,7 +237,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
 				</IonCol>
 				<IonCol>
-					<IonInput debounce={100} max={(Math.trunc(count/page_size)+1).toString()} min={"1"} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
+					<IonInput debounce={800} max={(Math.trunc(count/page_size)+1).toString()} min={"1"} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
 				</IonCol>
 				<IonCol>
 					<div className="text-align-bottom">
