@@ -66,7 +66,9 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
 
         <MuiThemeProvider theme={theme}>
         <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
-            <Tooltip title={<h5>The downloaded file will be a CSV file. There will be three 'columns' in the following order: ID, BODY, and LABEL</h5>} placement="top">
+            <Tooltip title={<h5>The downloaded file will be a CSV file. There will be six 'columns' in the following
+              order: ID, DOCUMENT, LABEL, LABEL STATUS, CONTRIBUTOR 1 LABEL, and CONTRIBUTOR 2 LABEL</h5>}
+                     placement="top">
                 <Fab color="primary" component="span" onClick={() => downloadCSV(name)}>
                     <ArrowDownwardIcon/>
                 </Fab>

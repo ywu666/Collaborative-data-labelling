@@ -10,11 +10,13 @@ def get_db_collection(proj, col):
 
 class Document:
 
-    def __init__(self, data, comments, user_and_labels):
+    def __init__(self, display_id, data, comments, user_and_labels):
         self.data = data
         self.comments = comments
         self.user_and_labels = user_and_labels
+        self.display_id = display_id
         self.final_label = None
+
 
     def upload(self, project_name):
         col = get_db_collection(project_name, "documents")
