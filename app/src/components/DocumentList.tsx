@@ -76,7 +76,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}, [])
 
 	useEffect(() => {
-		documentServices.getNumberOfUnlabelledDocs(name)
+		documentServices.getNumberOfUnlabelledDocs(name, firebase)
 		.then(data => {
 		  setContributor(data)
 		})

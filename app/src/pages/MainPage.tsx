@@ -57,7 +57,7 @@ import { valid } from 'glamor';
 
     useEffect(() => {
       projectNames.forEach(e => {
-        documentServices.getNumberOfUnlabelledDocs(e)
+        documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
           return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
         })

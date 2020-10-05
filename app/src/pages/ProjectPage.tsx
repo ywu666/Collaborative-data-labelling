@@ -83,7 +83,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
         <div className="container">
             <h1>{name}</h1>
           {currentUser.isAdmin ? <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton> : <div/>}
-
         </div>
         <div>
             {uploading ?
@@ -94,7 +93,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
                 <br/>
                 <IonSpinner class="spinner" name="crescent" color="primary"/></div>
             : <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>}
-
         </div>
         <div className="fab">
             <div className="fableft">
