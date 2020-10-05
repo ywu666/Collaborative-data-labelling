@@ -127,11 +127,11 @@ import {
       if (data.total_number === 0) {
         return "No documents in the project"
       } else if (isNullOrUndefined(data.unlabelled) && data.analysed_number === 0) { //You are not contributor when unlabelled is undefined
-        return "Labelling is incomplete by contributor(s)"
+        return "Labeling is incomplete by contributor(s)"
       } else if (!isNullOrUndefined(data.unlabelled) && data.unlabelled !== 0) {  //contributor but still has labelling to do
-        return "Labelling not finished"
+        return "Labeling not finished"
       } else if (data.analysed_number === 0) { // You are contributor but documents not analysed
-        return "Labelling is incomplete by other contributor"
+        return "Labeling is incomplete by other contributor"
       } else if (agreed_number < 1) {
         return "Agreement score: ~0%"
       } else if (agreed_number > 99) {
