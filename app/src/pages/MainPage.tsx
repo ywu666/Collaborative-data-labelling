@@ -63,7 +63,7 @@ import {
             projectServices.getProjectAgreementScore(e, firebase)
             .then(_data => {
               _data.name = e
-              _data.unlabelled = 0
+              _data.unlabelled = data
               if (projectData.some(e_p => e_p.name === _data.name)) {
                 let temp = [...projectData]
                 temp.forEach(e_t => {
@@ -124,10 +124,13 @@ import {
 
     const progressProject = (data: any) => {
       let agreed_number = data.agreed_number / data.analysed_number * 100
-
       if (data.total_number === 0) {
-        return "No document in the project"
-      } else if (data.analysed_number === 0) {
+        return "No documents in the project"
+      } else if (isNullOrUndefined(data.unlabelled) && data.analysed_number === 0) { //You are not contributor when unlabelled is undefined
+        return "Labelling is incomplete by the contributors"
+      } else if (!isNullOrUndefined(data.unlabelled) && data.unlabelled !== 0) {  //contributor but still has labelling to do
+        return "Labelling not finished"
+      } else if (data.analysed_number === 0) { // You are contributor but documents not analysed
         return "Labelling is incomplete by other contributor"
       } else if (agreed_number < 1) {
         return "Agreement score: ~0%"
@@ -188,9 +191,7 @@ import {
                     </IonCardContent>
                     */}
                     <IonCardContent>
-                      {data.unlabelled !== 0
-                      ? <p>Labelling not finished</p>
-                      : <p>{progressProject(data)}</p>}
+                      <p>{progressProject(data)}</p>
                     </IonCardContent>
                   </IonCard>
               )
