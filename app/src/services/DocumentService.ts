@@ -10,7 +10,8 @@ export const documentServices = {
     getLabels,
     getUnlabelledDocuments,
     postNewComment,
-    getNumberOfUnlabelledDocs
+    getNumberOfUnlabelledDocs,
+    getUnconfirmedDocuments,
 }
 
 async function getDocument(project:any, document_id:any, firebase: any) {
@@ -89,6 +90,24 @@ function getUnlabelledDocuments(project:any, page:number, page_size:number) {
         })
 }
 
+function getUnconfirmedDocuments(project: any, page: any, page_size: any) {
+    const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json', 
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+    
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unconfirmed/documents'
+        + '?page=' + page
+        + '&page_size=' + page_size
+        + '&id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data;
+        })
+}
 
 async function postDocumentLabel(project: any, document_id: any, email:any, label_id: any, firebase:any) {
     const requestOptions = {

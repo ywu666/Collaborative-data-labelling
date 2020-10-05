@@ -46,12 +46,21 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [docError, setDocError] = useState<any[]>([]);
 	const [contributor, setContributor] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [filter, setFilter] = useState(false)
+	const [filter, setFilter] = useState("all")
 
 	useEffect(() => {
-		if (filter) {
+		if (filter === "unlabelled") {
 			documentServices.getUnlabelledDocuments(name, page, page_size)
 			.then(data => {
+				setDocuments(data.docs)
+				setCount(data.count)
+				setLoading(false)
+			})
+		}
+		else if (filter === "unconfirmed") {
+			documentServices.getUnconfirmedDocuments(name, page, page_size)
+			.then(data => {
+				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -175,24 +184,26 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		setPage(v - 1)
 	}
 
-	const filterOnChange = (value: string | undefined) => {
-		console.log(value)
-		if (!(value === "all" && !filter)) {
+	const filterOnChange = (value: string) => {
+		if (value !== filter) {
 			setLoading(true)
 			setDocuments([])
+			setFilter(value)
 		}
-		setFilter(value === "unlabelled")
 	}
 
 	return (
 		<div>
 			<div>
-				<IonSegment onIonChange={e => filterOnChange(e.detail.value)}>
+				<IonSegment onIonChange={e => filterOnChange(e.detail.value ?? "")}>
 					<IonSegmentButton value="all">
 						<IonLabel>All</IonLabel>
 					</IonSegmentButton>
 					<IonSegmentButton value="unlabelled">
 						<IonLabel>Unlabelled</IonLabel>
+					</IonSegmentButton>
+					<IonSegmentButton value="unconfirmed">
+						<IonLabel>Unconfirmed</IonLabel>
 					</IonSegmentButton>
 				</IonSegment>
 			</div>
@@ -222,7 +233,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
 				</IonCol>
 				<IonCol>
-					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
+					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="text" value={page + 1}/>
 				</IonCol>
 				<IonCol>
 					<div className="text-align-bottom">
