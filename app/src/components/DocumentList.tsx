@@ -12,7 +12,8 @@ import {
 	IonCol,
 	IonRow,
 	IonSegment,
-	IonSegmentButton
+	IonSegmentButton,
+	IonAlert
 } from '@ionic/react';
 import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
@@ -47,6 +48,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [contributor, setContributor] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("all")
+	const [showDocAlert, setShowDocAlert] = useState(false)
 
 	useEffect(() => {
 		if (filter === "unlabelled") {
@@ -144,7 +146,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				<IonLabel>
 					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || (!currentUser.isContributor && !currentUser.isAdmin)
 					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
-					: <p>{doc.data}</p>}
+					: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
 				</IonLabel>
 				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				{isNullOrUndefined(email)
@@ -253,7 +255,19 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					<IonButton disabled={page >= Math.trunc(count/page_size)} size="small" fill="clear" onClick={()=>nextPage()}><IonIcon icon={chevronForwardOutline}/></IonButton>
 				</IonCol>
 			</IonRow>
-			
+
+			<IonAlert
+				isOpen={showDocAlert}
+				onDidDismiss={() => setShowDocAlert(false)}
+				message={'All contributors must finish labelling all documents first.'}
+				buttons={[
+					{
+						text: 'OK',
+						role: 'cancel'
+					}
+				]}
+			/>
+
 		</div>
 	)
 }
