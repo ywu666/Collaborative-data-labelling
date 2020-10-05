@@ -84,6 +84,15 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             <h1>{name}</h1>
           {currentUser.isAdmin ? <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton> : <div/>}
         </div>
+        <div className="fabHolder">
+            <div className="fableft">
+                <Upload name={name} firebase={firebase} isUploading={isUploading} enable={(currentUser.isAdmin || currentUser.isContributor) && !uploading}/>
+
+            </div>
+            <div className="fabright">
+                <Download name={name} enable={!uploading}/>
+            </div>
+        </div>
         <div>
             {uploading ?
                 <div className="container">
@@ -94,15 +103,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
                 <IonSpinner class="spinner" name="crescent" color="primary"/></div>
             : <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>}
         </div>
-        <div className="fab">
-            <div className="fableft">
-                <Upload name={name} firebase={firebase} isUploading={isUploading} enable={currentUser.isAdmin || currentUser.isContributor}/>
 
-            </div>
-            <div className="fabright">
-                <Download name={name}/>
-            </div>
-        </div>
 
 
       </IonContent>
