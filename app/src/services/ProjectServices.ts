@@ -109,8 +109,7 @@ function exportCsv(projectName: string) {
         "Access-Control-Allow-Methods": "GET",
         "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
-    const exportFields = ['ID', 'DOCUMENT', 'LABEL'];
-    //const exportFields = ['id'];
+    const exportFields = ['ID', 'DOCUMENT', 'LABEL', 'LABEL STATUS', 'CONTRIBUTOR 1 LABEL', 'CONTRIBUTOR 2 LABEL'];
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
     //return fetch('https://picsum.photos/list', requestOptions)
@@ -248,8 +247,10 @@ async function getProjectUsers(project: string, firebase: any) {
          localStorage.getItem('user-token'), requestOptions)
          .then(handleResponse)
          .then(data => {
-             //return data.inputFile
+             return data.message
          })
+
+
 
  }
 
@@ -276,4 +277,5 @@ export async function handleAuthorization(firebaseAuth: any) {
     }else{
      window.location.href = '/auth';
     }
+
 }

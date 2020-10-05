@@ -59,6 +59,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [list, setList] = useState<Users_and_Labels[]>([]);
   const [currentDisplayName,setCurrentDisplayName] = useState("");
   const [commentData, setCommentData] = useState<Comments[]>([]);
+  const [isNotLabeled, setIsNotLabeled] = useState(true);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
 
   const [error, setError] = useState("")
@@ -108,7 +109,11 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           }
         }
       });
-    });
+    }
+    );
+    if (labelData.length > 0){
+      setIsNotLabeled(false);
+    }  
   }, [labelData, labelList])
 
 
@@ -136,6 +141,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
       console.error(e);
     }
   }
+
 
   return (
     <IonPage>
@@ -174,25 +180,51 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </div>
         ) : (
           <div className="container">
-            <IonHeader className="pageTitle">Document</IonHeader>
-            <div className="container">
-              <IonCardTitle>{document_id}</IonCardTitle>
-              <strong>{documentData}</strong>
-            </div>
+            <div className="pageTitle">Document ID: {document_id}></div>
+              <div className="documentContent">
+                {documentData}
+              </div>
 
-            <div className="container">
+
+            <div className="labelContainer">
               <IonList>
+                <div className="componentHeader">
+                <IonItem>
+                  <IonLabel><h2 >Label</h2></IonLabel>
+                  <IonLabel><h2 >Assignee</h2></IonLabel>
+                </IonItem>
+                </div>
+                 
+                {
+                }
+
+
                 {list.map((data, i) => (
+                  
                   <IonItem key={i}>
-                    <IonLabel>{data.email}</IonLabel>
-                    <IonLabel>{data.label}</IonLabel>
+                    <IonLabel><h3>{data.label}</h3></IonLabel>
+                    <IonLabel><h3>{data.email}</h3></IonLabel>
                   </IonItem>
-                ))}
+                ))
+                }
+                  {isNotLabeled &&
+                  <h5 className ="promptMessage">No labels have yet been set for this document</h5>
+                  }
+
               </IonList>
             </div>
-            <IonList>
+
+
+            <IonCard color="light">
+            <h2 className="commentsTitle">Comments ({commentData.length})</h2>
+            <NewCommentInput
+              inputRef={newCommentElement}
+              onSubmit={onSubmitComment}
+              disabled={false}
+            ></NewCommentInput>
+            <IonList color="light">
               {commentData.map((data, i) => (
-                <IonItem key={i}>
+                <IonItem key={i} color="light">
                   <Comment
                     onReply={handleReply}
                     email={data.email}
@@ -203,11 +235,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 </IonItem>
               ))}
             </IonList>
-            <NewCommentInput
-              inputRef={newCommentElement}
-              onSubmit={onSubmitComment}
-              disabled={false}
-            ></NewCommentInput>
+            </IonCard>
           </div>
         )}
       </IonContent>

@@ -4,13 +4,24 @@ import {
   IonButton,
   IonItem,
   IonIcon,
-  IonToast
+  IonToast,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonFab,
+  IonFabButton,
+  IonSpinner
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState, useCallback} from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import DocumentList from '../components/DocumentList'
+import Download from '../components/Download'
+import Upload from '../components/Upload'
 import Header from '../components/Header'
 import { projectServices } from "../services/ProjectServices";
 import { userService } from "../services/UserServices";
@@ -20,23 +31,25 @@ import {Tooltip} from '@material-ui/core';
 interface ProjectPageProps {
   firebase: any
 }
+
+
+
 const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
   const page_size = 10;
-  const inputFile = useRef(null);
   const [downloadError, setDownloadError] = useState<string>();
   const [currentUser, setCurrentUser] = useState<any>({});
   const [currentDisplayName,setCurrentDisplayName] = useState("");
+  const [uploading, setUploading] = useState(false)
   const {
     firebase
   } = props;
-  const downloadCSV = (projectName: string) => {
-    try {
-      projectServices.exportCsv(projectName)
-    } catch(e) {
-      setDownloadError(e)
-    }
-  }
+
+
+   const isUploading = useCallback(val => {
+    setUploading(val);
+    console.log("uploading "+ uploading)
+  }, [setUploading]);
 
   useEffect(() => {
     userService.getCurrentProjectUser(name)
@@ -56,17 +69,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     }
   }, [])
 
-  function handleUpload() {
-    console.log("upload")
-    try {
-    // @ts-ignore
-    projectServices.uploadDocuments(name, inputFile.current.files[0], firebase)
-  } catch (e) {
-    console.log(e)
-  }    
-  }
-  
-
   // @ts-ignore
     // @ts-ignore
     // @ts-ignore
@@ -78,36 +80,33 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     <IonPage>
       <Header routerLink={"/"} name={currentDisplayName}/>
       <IonContent>
-        <div className="container">        
-          <h1>{name}</h1>
-          {currentUser.isAdmin
-          ? <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton>
-          : <div/>}
-          <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>
+        <div className="container">
+            <h1>{name}</h1>
+          {currentUser.isAdmin ? <IonButton fill="outline" slot="end" routerLink={"/project/" + name + "/settings"}>Settings</IonButton> : <div/>}
+
         </div>
         <div>
-        <form className="uploadFile">
-            <IonItem>
-            <input ref={inputFile} type="file" />
-            </IonItem>
-              <Tooltip title="The uploaded file should be CSV formatted. There should be two 'columns' in the following order: ID and BODY" placement="right">
-                <IonButton  style={{ maxWidth: '400px', minWidth: '270px' }} fill="outline" className="ion-margin-top" onClick={handleUpload} expand="block"><IonIcon icon={arrowUpOutline}/>
-                upload
-                </IonButton>
-              </Tooltip>
-        </form>
+            {uploading ?
+                <div className="container">
+                <IonToolbar>
+                <IonTitle>Uploading...</IonTitle>
+                </IonToolbar>
+                <br/>
+                <IonSpinner class="spinner" name="crescent" color="primary"/></div>
+            : <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>}
+
+        </div>
+        <div className="fab">
+            <div className="fableft">
+                <Upload name={name} firebase={firebase} isUploading={isUploading} enable={currentUser.isAdmin || currentUser.isContributor}/>
+
+            </div>
+            <div className="fabright">
+                <Download name={name}/>
+            </div>
         </div>
 
-        <div>
-        <form className="downloadFile">
-          <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
-            <Tooltip title="The downloaded file will be a CSV file. There will be three 'columns' in the following order: ID, BODY, and LABEL" placement="right">
-            <IonButton  style={{ maxWidth: '400px', minWidth: '270px' }} fill="outline" className="ion-margin-top" type="button" expand="block" onClick={() => downloadCSV(name)}><IonIcon icon={arrowDownOutline}/>
-                download
-            </IonButton>
-            </Tooltip>
-        </form>
-        </div>
+
       </IonContent>
 
     </IonPage>

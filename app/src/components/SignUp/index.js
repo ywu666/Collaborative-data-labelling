@@ -57,7 +57,7 @@ class SignUpFormBase extends Component {
             }).then(() => {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
                     localStorage.setItem("user-token", idToken);
-                    userService.signup(email, idToken);
+                    userService.signup(username, email, idToken);
                 })
                 this.setState({ loading: false});
             })
