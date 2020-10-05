@@ -68,6 +68,8 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState('');
   const [currentLabel, setCurrentLabel] = useState<number>(0);
+  const [currentUser, setCurrentUser] = useState<any>({});
+  const [isContributor, setIsContributor] = useState<boolean>(false);
   var label_id: number;
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
@@ -149,6 +151,13 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     }
   }, []);
 
+  useEffect(() => {
+    userService.getCurrentProjectUser(project)
+    .then(data => {
+      setCurrentUser(data)
+    })
+  }, [])
+
   const onSubmitComment = (content: any) => {
     try {
       return documentServices
@@ -222,9 +231,9 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           <div className="container">
             <div className="pageTitle">Document ID: {document_id}</div>
             <div className="documentContent">{documentData}</div>
-            <div>
+  
            
-                <div className="componentHeader">
+                {currentUser.isContributor  && (<div className="componentHeader">
                  
                     <IonCheckbox
                       color="danger"
@@ -240,9 +249,9 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                       <h5>{error}</h5>
                     </IonLabel>
                   )}
-                </div>
+                </div> )}
               
-            </div>
+            
             <div className="labelContainer">
               <IonList>
                 <div className="componentHeader">
