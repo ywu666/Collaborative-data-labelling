@@ -104,7 +104,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}
 
 	const changeTag = (documentIndex:any, label:any) => {
-		let doc = documents.find(e => e._id == documentIndex)
+		let doc = documents.find(e => e._id === documentIndex)
 		let email = localStorage.getItem("email")
 
 		if (doc.user_and_labels.some((e: { email: string | null; }) => e.email === email))
@@ -142,7 +142,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		return (
 			<IonItem key = {index} >
 				<IonLabel>
-					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
+					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || (!currentUser.isContributor && !currentUser.isAdmin)
 					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 					: <p>{doc.data}</p>}
 				</IonLabel>
@@ -179,9 +179,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			v = 1
 		}
 
-		setLoading(true)
-		setDocuments([])
-		setPage(v - 1)
+		if (!isNaN(v)) {
+			if ((v - 1) !== page) {
+				setLoading(true)
+				setDocuments([])
+			}
+			setPage(v - 1)
+		}
 	}
 
 	const filterOnChange = (value: string) => {
@@ -233,7 +237,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
 				</IonCol>
 				<IonCol>
-					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="text" value={page + 1}/>
+					<IonInput debounce={100} max={(Math.trunc(count/page_size)+1).toString()} min={"1"} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
 				</IonCol>
 				<IonCol>
 					<div className="text-align-bottom">
