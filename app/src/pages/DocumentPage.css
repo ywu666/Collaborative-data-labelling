@@ -125,3 +125,7 @@ ion-modal.auto-height ion-button {
   opacity: 0.8;
   color: crimson;
 }
+
+.labelConfirm {
+  text-align: left;
+}
