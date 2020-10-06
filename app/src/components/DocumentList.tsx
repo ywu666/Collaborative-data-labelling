@@ -201,7 +201,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	return (
 		<div>
 			<div>
-				<IonSegment onIonChange={e => filterOnChange(e.detail.value ?? "")}>
+				{currentUser.isContributor
+				?<IonSegment onIonChange={e => filterOnChange(e.detail.value ?? "")}>
 					<IonSegmentButton value="all">
 						<IonLabel>All</IonLabel>
 					</IonSegmentButton>
@@ -212,6 +213,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 						<IonLabel>Unconfirmed</IonLabel>
 					</IonSegmentButton>
 				</IonSegment>
+				:<></>}
+				
 			</div>
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
