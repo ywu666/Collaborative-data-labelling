@@ -5,7 +5,8 @@
 export const labelServices = {
     getLabels,
     setLabels,
-    updateLabel
+    updateLabel,
+    updateConfirmedLabel
 }
 
 async function getLabels(project_name: any, firebase:any) {
@@ -84,6 +85,33 @@ function updateLabel(project: string, label_id: number, label_name: string, fire
         .then(handleResponse)
         .then(data => {
             return data.users
+        })
+}
+
+
+function updateConfirmedLabel(project: string, document_id: string, label_id: number,  firebase: any){
+    const requestOptions = {
+        method: 'PUT',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ label_id })
+     };
+
+     const token = localStorage.getItem('user-token');
+     if (firebase.auth.currentUser != null) {
+         firebase.auth.currentUser.getIdToken().then((idToken: string) => {
+             if (token !== idToken) {
+                 localStorage.setItem('user-token', idToken)
+             }
+         })
+     } else {
+         window.location.href = '/auth';
+     }
+
+    return fetch(process.env.REACT_APP_API_URL +
+        '/projects/' + project + '/documents/' + document_id + '/label-confirmation' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data
         })
 }
 

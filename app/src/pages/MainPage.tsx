@@ -57,7 +57,7 @@ import { valid } from 'glamor';
 
     useEffect(() => {
       projectNames.forEach(e => {
-        documentServices.getNumberOfUnlabelledDocs(e)
+        documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
           return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
         })
@@ -66,7 +66,7 @@ import { valid } from 'glamor';
             projectServices.getProjectAgreementScore(e, firebase)
             .then(_data => {
               _data.name = e
-              _data.unlabelled = 0
+              _data.unlabelled = data
               if (projectData.some(e_p => e_p.name === _data.name)) {
                 let temp = [...projectData]
                 temp.forEach(e_t => {
@@ -131,11 +131,14 @@ import { valid } from 'glamor';
 
     const progressProject = (data: any) => {
       let agreed_number = data.agreed_number / data.analysed_number * 100
-
       if (data.total_number === 0) {
-        return "No document in the project"
-      } else if (data.analysed_number === 0) {
-        return "Labelling is incomplete by other contributor"
+        return "No documents in the project"
+      } else if (isNullOrUndefined(data.unlabelled) && data.analysed_number === 0) { //You are not contributor when unlabelled is undefined
+        return "Labeling is incomplete by contributor(s)"
+      } else if (!isNullOrUndefined(data.unlabelled) && data.unlabelled !== 0) {  //contributor but still has labelling to do
+        return "Labeling not finished"
+      } else if (data.analysed_number === 0) { // You are contributor but documents not analysed
+        return "Labeling is incomplete by other contributor"
       } else if (agreed_number < 1) {
         return "Agreement score: ~0%"
       } else if (agreed_number > 99) {
@@ -206,9 +209,7 @@ import { valid } from 'glamor';
                     </IonCardContent>
                     */}
                     <IonCardContent>
-                      {data.unlabelled !== 0
-                      ? <p>Labelling not finished</p>
-                      : <p>{progressProject(data)}</p>}
+                      <p>{progressProject(data)}</p>
                     </IonCardContent>
                   </IonCard>
               )
