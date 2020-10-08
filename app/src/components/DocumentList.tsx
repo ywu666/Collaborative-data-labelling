@@ -139,7 +139,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const documentItem = (doc: any, index: any) => {
 		let email = localStorage.getItem("email")
 		let error = docError.find(e => e.doc_id === doc._id)
-		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
+		let user_label = labels.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
 
 		return (
 			<IonItem key = {index} >
@@ -251,7 +251,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</IonCol>
 				<IonCol>
 					<div className="text-align-bottom">
-						{Math.trunc(count/page_size)+1}
+						{() => {
+							let currentCount = Math.trunc(count/page_size)+1
+							if (isNaN(currentCount)) {
+								currentCount = 0
+							}
+							return currentCount
+						}}
 					</div>
 				</IonCol>
 				<IonCol>
