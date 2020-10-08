@@ -7,24 +7,21 @@ import {
 	IonIcon,
 	IonSkeletonText,
 	IonRouterLink,
-	IonText,
-	IonInput,
-	IonCol,
-	IonRow,
 	IonSegment,
 	IonSegmentButton,
 	IonAlert
 } from '@ionic/react';
-import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
+import { add } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
+import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+
 import './DocumentList.css'
 
 interface DocumentListProps {
   name: string,
-  page_size: number,
   currentUser: any,
   firebase: any
 }
@@ -32,12 +29,12 @@ interface DocumentListProps {
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const {
 		name,
-		page_size,
 		currentUser,
 		firebase,
 	} = props;
 	
-  const [page, setPage] = useState(0);
+	const [page, setPage] = useState(0);
+	const [page_size, setPageSize] = useState(10);
 	const [documents, setDocuments] = useState<any[]>([]);
 	const [count, setCount] = useState(0);
 	const [labels, setLabels] = useState<any[]>([]);
@@ -54,6 +51,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		if (filter) {
 			documentServices.getUnlabelledDocuments(name, page, page_size)
 			.then(data => {
+				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -66,7 +64,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				setLoading(false)
 			})
 		}
-	}, [page, filter])
+	}, [page, page_size, filter])
 	
 	useEffect(() => {
 		labelServices.getLabels(name,firebase)
@@ -133,55 +131,52 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let user_label = labels.find(e => e._id === doc.user_and_labels.find((e: { email: any | null; }) => e.email === email)?.label)
 
 		return (
-			<IonItem key = {index} >
-				<IonLabel>
-					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
-					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
-					: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
-				</IonLabel>
-				{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
-				{isNullOrUndefined(email)
-					? <div/>
-					: currentUser.isContributor
-						? isNullOrUndefined(user_label)
-							? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
-							: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
-						: <div/>	
-				}
-			</IonItem>
+			<TableRow key = {index} >
+				<TableCell colSpan={1}>
+					<IonLabel>
+						{doc.display_id ?? doc._id}
+					</IonLabel>
+				</TableCell>
+				<TableCell colSpan={5}>
+					<IonLabel>
+						{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
+						? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
+						: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
+					</IonLabel>
+					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
+				</TableCell>
+				<TableCell colSpan={2}>
+					{isNullOrUndefined(email)
+						? <div/>
+						: currentUser.isContributor
+							? isNullOrUndefined(user_label)
+								? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+								: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
+							: <div/>	
+					}
+				</TableCell>
+			</TableRow>
 		)
 	}
 
-	const beforePage = () => {
+	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
 		setLoading(true)
 		setDocuments([])
-		setPage(page - 1)
-	}
+		setPage(newPage);
+	};
 
-	const nextPage = () => {
+	const handleChangePageSize = (event: any) => {
 		setLoading(true)
 		setDocuments([])
-		setPage(page + 1)
-	}
-
-	const onPageNumberChange = (e: any) => {
-		let v = parseInt(e.detail.value)
-		if (v > Math.trunc(count/page_size)+1) {
-			v = Math.trunc(count/page_size)+1
-		} else if (v <= 0) {
-			v = 1
-		}
-
-		setLoading(true)
-		setDocuments([])
-		setPage(v - 1)
-	}
+		setPage(0);
+		setPageSize(parseInt(event?.target.value, 10));
+	};
 
 	const filterOnChange = (value: string | undefined) => {
-		console.log(value)
 		if (!(value === "all" && !filter)) {
 			setLoading(true)
 			setDocuments([])
+			setPage(0)
 		}
 		setFilter(value === "unlabelled")
 	}
@@ -205,41 +200,51 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					)}
 				</div>
 			</IonModal>
-			<IonList>
-				{loading
-				? <IonItem>
-					<IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
-				</IonItem>
-				:documents?.map((doc, index) =>
-					documentItem(doc, index)
-				)}
-			</IonList>
-			<IonItem lines="none">
-				<IonText slot="start" color="medium">
-					Number of Documents: {count}
-				</IonText>
-			</IonItem>
-			<IonRow>
-				<IonCol>
-					<IonButton disabled={page <= 0} size="small" fill="clear" onClick={()=>beforePage()}><IonIcon icon={chevronBackOutline}/></IonButton>
-				</IonCol>
-				<IonCol>
-					<IonInput debounce={100} onIonChange={e => onPageNumberChange(e)} type="number" value={page + 1}/>
-				</IonCol>
-				<IonCol>
-					<div className="text-align-bottom">
-						/
-					</div>
-				</IonCol>
-				<IonCol>
-					<div className="text-align-bottom">
-						{Math.trunc(count/page_size)+1}
-					</div>
-				</IonCol>
-				<IonCol>
-					<IonButton disabled={page >= Math.trunc(count/page_size)} size="small" fill="clear" onClick={()=>nextPage()}><IonIcon icon={chevronForwardOutline}/></IonButton>
-				</IonCol>
-			</IonRow>
+			<TableContainer component={Paper}>
+				<Table size="small">
+        			<TableHead className="user-table-head">
+        				<TableRow className="add-user">
+        				    <TableCell colSpan={1}>
+								Id
+        				    </TableCell>
+        				    <TableCell colSpan={5}>
+								Document
+        				    </TableCell>
+							{currentUser.isContributor
+							? <TableCell colSpan={2}>
+								Labels
+							</TableCell>
+							: <div/>	
+							}
+          				</TableRow>
+					</TableHead>
+					<TableBody>
+						{loading
+						? <TableRow>
+							<IonSkeletonText animated style={{ width: '100%' }}></IonSkeletonText>
+						</TableRow>
+						:documents?.map((doc, index) =>
+							documentItem(doc, index)
+						)}
+					</TableBody>
+			
+					<TableFooter>
+          				<TableRow>
+							<TableCell>
+								Number of Documents: {count}
+							</TableCell>
+          					<TablePagination
+          						count={count}
+          						rowsPerPage={page_size}
+          						rowsPerPageOptions={[10,20,50,100]}
+          						page={page}
+								onChangePage={handleChangePage}
+								onChangeRowsPerPage={handleChangePageSize}
+          					/>
+          				</TableRow>
+        			</TableFooter>
+				</Table>
+			</TableContainer>
 
 			<IonAlert
 				isOpen={showDocAlert}
