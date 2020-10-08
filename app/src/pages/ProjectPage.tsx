@@ -69,13 +69,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     }
   }, [])
 
-  // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
-    // @ts-ignore
     return (
     <IonPage>
       <Header routerLink={"/"} name={currentDisplayName}/>
@@ -104,10 +97,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             : <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>}
         </div>
 
-
-
       </IonContent>
-
     </IonPage>
   );
 };
