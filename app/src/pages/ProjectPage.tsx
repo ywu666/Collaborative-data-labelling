@@ -41,6 +41,8 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const [currentUser, setCurrentUser] = useState<any>({});
   const [currentDisplayName,setCurrentDisplayName] = useState("");
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState(false);
+
   const {
     firebase
   } = props;
@@ -50,6 +52,11 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     setUploading(val);
     console.log("uploading "+ uploading)
   }, [setUploading]);
+
+  const isUploadError = useCallback(val => {
+    setUploadError(val)
+    console.log("error "+ uploadError)
+  }, [setUploadError]);
 
   useEffect(() => {
     userService.getCurrentProjectUser(name)
@@ -86,7 +93,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
         </div>
         <div className="fabHolder">
             <div className="fableft">
-                <Upload name={name} firebase={firebase} isUploading={isUploading} enable={(currentUser.isAdmin || currentUser.isContributor) && !uploading}/>
+                <Upload name={name} firebase={firebase} isUploading={isUploading} uploadError={isUploadError} enable={(currentUser.isAdmin || currentUser.isContributor) && !uploading}/>
 
             </div>
             <div className="fabright">
@@ -94,7 +101,15 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
             </div>
         </div>
         <div>
-            {uploading ?
+            {uploadError ?
+                <div className="container">
+                <IonToolbar>
+                <IonTitle color="danger">Error: uploaded file is invalid.</IonTitle>
+                </IonToolbar></div>
+            : <div></div> }
+        </div>
+        <div>
+            {uploading && !uploadError ?
                 <div className="container">
                 <IonToolbar>
                 <IonTitle>Uploading...</IonTitle>
