@@ -1,7 +1,9 @@
-FROM python:3.8-alpine
+FROM node:10-alpine
 WORKDIR /app
-COPY . /app/.
-RUN apk add npm
-RUN npm install
+
+COPY ./package.json ./
+RUN yarn
+
+COPY . ./
 EXPOSE 3000
-CMD ["npm", "run", "start"]
+CMD ["yarn", "start"]
