@@ -138,8 +138,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 	const documentItem = (doc: any, index: any) => {
 		let email = localStorage.getItem("email")
-		let error = docError.find(e => e.doc_id === doc._id)
-		let user_label = labels.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
+		let error = docError?.find(e => e.doc_id === doc._id)
+		let user_label = labels?.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
 
 		return (
 			<IonItem key = {index} >
