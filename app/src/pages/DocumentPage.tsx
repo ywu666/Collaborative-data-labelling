@@ -9,7 +9,9 @@ import {
   IonCardTitle,
   IonSkeletonText,
   IonCheckbox,
-  IonCardContent, IonAlert
+  IonCardContent,
+  IonAlert,
+  IonSpinner,
 } from '@ionic/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
@@ -66,6 +68,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [currentDisplayName, setCurrentDisplayName] = useState('');
   const [commentData, setCommentData] = useState<Comments[]>([]);
   const [isNotLabeled, setIsNotLabeled] = useState(true);
+  const [labelLoading, setLabelLoading] = useState(true);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState('');
@@ -81,22 +84,25 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   };
 
   useEffect(() => {
-    setIsLoading(true)
+    setLabelLoading(true);
     documentServices
       .getIfCurrentUserConfirmedLabel(project, document_id, firebase)
       .then((data) => {
+        if(data){
+          setDisabled(data)
+        }
         setChecked(data);
+        setLabelLoading(false);
       })
       .catch((error) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
       });
-     
   }, []);
 
-  useEffect(() => { 
-    setIsLoading(true)
+  useEffect(() => {
+    setIsLoading(true);
     documentServices
       .getLabels(project, firebase)
       .then((data) => {
@@ -106,7 +112,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         let err = 'Error fetching labels';
         setError(err);
       });
-    setIsLoading(false)
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -160,11 +166,10 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
-    userService.getCurrentProjectUser(project)
-    .then(data => {
-      setCurrentUser(data)
-    })
-  }, [])
+    userService.getCurrentProjectUser(project).then((data) => {
+      setCurrentUser(data);
+    });
+  }, []);
 
   const onSubmitComment = (content: any) => {
     try {
@@ -193,8 +198,10 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     try {
       labelServices
         .updateConfirmedLabel(project, document_id, currentLabel, firebase)
-        .then((data) => {setDisabled(true);
-        setChecked(true)})
+        .then((data) => {
+          setDisabled(true);
+          setChecked(true);
+        })
         .catch((err) => {
           setError(stringify(err));
         });
@@ -242,49 +249,57 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </div>
         ) : (
           <div className="container">
-          { !isLoading && <IonAlert
-          isOpen={popup}
-          onDidDismiss={() => setPopup(false)}
-          header={'Confirm your final label'}
-          message={'You can not change the label once you confirm'}
-          buttons={[
-            {
-              text: 'Cancel',
-              role: 'cancel',
-              cssClass: 'secondary',
-              handler: () => {
-              }
-            },
-            {
-              text: 'Okay',
-              handler: () => {
-                handleCheckedUpdate()
-              }
-            }
-          ]}
-        />}
-            <div className="pageTitle">Document ID: {displayId? displayId : document_id}</div>
+            {!isLoading && (
+              <IonAlert
+                isOpen={popup}
+                onDidDismiss={() => setPopup(false)}
+                header={'Confirm your final label'}
+                message={'You can not change the label once you confirm'}
+                buttons={[
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    cssClass: 'secondary',
+                    handler: () => {},
+                  },
+                  {
+                    text: 'Okay',
+                    handler: () => {
+                      handleCheckedUpdate();
+                    },
+                  },
+                ]}
+              />
+            )}
+            <div className="pageTitle">
+              Document ID: {displayId ? displayId : document_id}
+            </div>
             <div className="documentContent">{documentData}</div>
 
-                {currentUser.isContributor  && !isLoading && (<div className="componentHeader">
-                 
-                    <IonCheckbox
-                      disabled={disabled}
-                      color="danger"
-                      onClick={handlePopuo}
-                      checked={checked}
-                      slot="start"
-                    ></IonCheckbox>
-                    <IonLabel>
-                      <h3>Confirm Your Label</h3>
-                    </IonLabel>
-                  {error && (
-                    <IonLabel>
-                      <h5>{error}</h5>
-                    </IonLabel>
-                  )}
-                </div> )}
-              
+            {currentUser.isContributor && !isLoading && (
+              <div className="componentHeader">
+                {labelLoading ? (
+                  <IonSpinner name="crescent" />
+                ) : (
+                  <IonCheckbox
+                    disabled={disabled}
+                    color="danger"
+                    onClick={handlePopuo}
+                    checked={checked}
+                    slot="start"
+                  ></IonCheckbox>
+                )}
+                <IonLabel>
+                  <h3>Confirm Your Label</h3>
+                </IonLabel>
+                {error && (
+                  <IonLabel>
+                    <h5>{error}</h5>
+                  </IonLabel>
+                )}
+              </div>
+            )}
+
             <div className="labelContainer">
               <IonList>
                 <div className="componentHeader">
