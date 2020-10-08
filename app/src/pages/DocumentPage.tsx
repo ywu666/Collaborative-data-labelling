@@ -9,7 +9,7 @@ import {
   IonCardTitle,
   IonSkeletonText,
   IonCheckbox,
-  IonCardContent,
+  IonCardContent, IonAlert
 } from '@ionic/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
@@ -24,6 +24,7 @@ import Header from '../components/Header';
 import NewCommentInput from '../components/NewCommentInput';
 import Comment from '../components/Comment';
 import { labelServices } from '../services/LabelServices';
+import { stringify } from 'querystring';
 
 interface Document {
   title: string;
@@ -56,6 +57,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const { document_id } = useParams<{ document_id: string }>();
   const { project } = useParams<{ project: string }>();
   const [isLoading, setIsLoading] = useState(true);
+  const [popup, setPopup] = useState(false);
   const { firebase } = props;
   const [documentData, setDocumentData] = useState([['']]);
   const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
@@ -71,6 +73,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [currentUser, setCurrentUser] = useState<any>({});
   const [isContributor, setIsContributor] = useState<boolean>(false);
   const [displayId, setDisplayId] = useState<any>();
+  const [disabled, setDisabled] = useState<boolean>();
   var label_id: number;
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
@@ -78,20 +81,22 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   };
 
   useEffect(() => {
+    setIsLoading(true)
     documentServices
       .getIfCurrentUserConfirmedLabel(project, document_id, firebase)
       .then((data) => {
         setChecked(data);
-        console.log('test is ' + checked);
       })
       .catch((error) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
       });
+     
   }, []);
 
-  useEffect(() => {
+  useEffect(() => { 
+    setIsLoading(true)
     documentServices
       .getLabels(project, firebase)
       .then((data) => {
@@ -101,6 +106,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         let err = 'Error fetching labels';
         setError(err);
       });
+    setIsLoading(false)
   }, []);
 
   useEffect(() => {
@@ -183,15 +189,20 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     }
   };
 
-  function handleCheckedUpdate() {
+  async function handleCheckedUpdate() {
     try {
       labelServices
         .updateConfirmedLabel(project, document_id, currentLabel, firebase)
-        .then((data) => {})
+        .then((data) => {setDisabled(true);
+        setChecked(true)})
         .catch((err) => {
-          setError(err);
+          setError(stringify(err));
         });
     } catch (e) {}
+  }
+
+  async function handlePopuo() {
+    setPopup(true);
   }
 
   return (
@@ -231,15 +242,36 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </div>
         ) : (
           <div className="container">
+          { !isLoading && <IonAlert
+          isOpen={popup}
+          onDidDismiss={() => setPopup(false)}
+          header={'Confirm your final label'}
+          message={'You can not change the label once you confirm'}
+          buttons={[
+            {
+              text: 'Cancel',
+              role: 'cancel',
+              cssClass: 'secondary',
+              handler: () => {
+              }
+            },
+            {
+              text: 'Okay',
+              handler: () => {
+                handleCheckedUpdate()
+              }
+            }
+          ]}
+        />}
             <div className="pageTitle">Document ID: {displayId? displayId : document_id}</div>
             <div className="documentContent">{documentData}</div>
-  
-           
-                {currentUser.isContributor  && (<div className="componentHeader">
+
+                {currentUser.isContributor  && !isLoading && (<div className="componentHeader">
                  
                     <IonCheckbox
+                      disabled={disabled}
                       color="danger"
-                      onIonChange={handleCheckedUpdate}
+                      onClick={handlePopuo}
                       checked={checked}
                       slot="start"
                     ></IonCheckbox>
@@ -253,7 +285,6 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                   )}
                 </div> )}
               
-            
             <div className="labelContainer">
               <IonList>
                 <div className="componentHeader">
