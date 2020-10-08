@@ -52,9 +52,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState(false);
 	const [showDocAlert, setShowDocAlert] = useState(false)
-    var test = false;
+
 	useIonViewWillEnter(() => {
-        console.log('ionViewWillEnter event fired');
         setLabels(emptyLabels)
     });
 
