@@ -13,7 +13,8 @@ import {
 	IonRow,
 	IonSegment,
 	IonSegmentButton,
-	IonAlert
+	IonAlert,
+	IonNote
 } from '@ionic/react';
 import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
@@ -134,6 +135,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 		return (
 			<IonItem key = {index} >
+			    {isNullOrUndefined(doc.display_id) ? <div/> : <IonNote slot="start">{doc.display_id}</IonNote>}
+
 				<IonLabel>
 					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
 					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
