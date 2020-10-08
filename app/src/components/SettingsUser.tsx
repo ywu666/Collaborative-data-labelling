@@ -136,8 +136,8 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
           </Tooltip>
       </TableCell>
       <TableCell align="center" style={ {width: '16px'} }>
-          <Tooltip title="User has observer permissions">
-            <IonIcon icon={eyeOutline}></IonIcon>
+          <Tooltip title="User only has observer permissions">
+            <IonIcon icon={eyeOutline} hidden={localIsAdmin || localIsContributor}></IonIcon>
           </Tooltip>
       </TableCell>
       <TableCell align="right" style={ {width: '60px'} }>
