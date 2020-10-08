@@ -46,6 +46,7 @@ interface UploadProps {
     name: string;
     firebase: any;
     isUploading(val:boolean): any;
+    uploadError(val:boolean): any;
     enable: boolean;
 }
 
@@ -54,6 +55,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         name,
         firebase,
         isUploading,
+        uploadError,
         enable,
     } = props;
     const inputFile = useRef(null);
@@ -65,14 +67,17 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
         if(upload === true){
             try {
                 isUploading(true);
+                uploadError(false)
 
                 // @ts-ignore
                 projectServices.uploadDocuments(name, inputFile.current.files[0], firebase).then(data => {
                 console.log(data);
                 isUploading(false);})
+                .catch(e => {
+                  uploadError(true)
+                  isUploading(false)})
             } catch (e) {
-                console.log(e)
-
+                
             }
             setUpload(false)
         }
