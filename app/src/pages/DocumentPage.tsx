@@ -74,10 +74,9 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [error, setError] = useState('');
   const [currentLabel, setCurrentLabel] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<any>({});
-  const [isContributor, setIsContributor] = useState<boolean>(false);
   const [displayId, setDisplayId] = useState<any>();
+  const [hideConfirm, setHideConfirm] = useState(false);
   const [disabled, setDisabled] = useState<boolean>();
-  var label_id: number;
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
     newCommentElement.current!.value = `@${author} `;
@@ -98,6 +97,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
+        setDisabled(true);
       });
   }, []);
 
@@ -150,6 +150,10 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     });
     if (labelData.length > 0) {
       setIsNotLabeled(false);
+      console.log(labelData.length)
+      if(labelData.length <2){
+        setHideConfirm(true);
+      }
     }
   }, [labelData, labelList]);
 
@@ -276,12 +280,12 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
             </div>
             <div className="documentContent">{documentData}</div>
 
-            {currentUser.isContributor && !isLoading && (
+            {currentUser.isContributor && !isLoading && !hideConfirm && (
               <div className="componentHeader">
                 {labelLoading ? (
                   <IonSpinner name="crescent" />
                 ) : (
-                  <IonCheckbox
+                 <IonCheckbox
                     disabled={disabled}
                     color="danger"
                     onClick={handlePopuo}
