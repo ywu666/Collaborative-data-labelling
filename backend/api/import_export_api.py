@@ -103,7 +103,7 @@ def upload_file():
                         # Check for proper formatting
                         if row[doc_value_index] != "DOCUMENT":
                             response = {'message': 'Incorrect filetype/format'}
-                            break
+                            return make_response(response), 400
 
                         generate_display_ids = True
                     else:
@@ -113,11 +113,11 @@ def upload_file():
                         # Check for proper formatting
                         if "ID" not in row[id_value_index]:
                             response = {'message': 'Incorrect filetype/format'}
-                            break
+                            return make_response(response), 400
 
                         if row[doc_value_index] != "DOCUMENT":
                             response = {'message': 'Incorrect filetype/format'}
-                            break
+                            return make_response(response), 400
                 else:
                     doc_value = row[doc_value_index].strip()
 
@@ -131,7 +131,7 @@ def upload_file():
                                 continue
                             else:
                                 response = {'message': 'Incorrect filetype/format'}
-                                break
+                                return make_response(response), 400
 
                         # ID Uniqueness check
                         if row[id_value_index] in ids_in_db:
@@ -171,7 +171,6 @@ def upload_file():
 
         response = make_response(response)
         return response, 200
-
 
 
 # Endpoint for exporting documents with labels for project
