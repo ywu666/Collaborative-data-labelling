@@ -70,6 +70,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [currentLabel, setCurrentLabel] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<any>({});
   const [isContributor, setIsContributor] = useState<boolean>(false);
+  const [displayId, setDisplayId] = useState<any>();
   var label_id: number;
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
@@ -107,6 +108,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
       .getDocument(project, document_id, firebase)
       .then((data) => {
         setDocumentData(data.data);
+        setDisplayId(data.display_id);
         setLabelData(data.user_and_labels);
         setCommentData(data.comments);
         setIsLoading(false);
@@ -229,7 +231,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </div>
         ) : (
           <div className="container">
-            <div className="pageTitle">Document ID: {document_id}</div>
+            <div className="pageTitle">Document ID: {displayId? displayId : document_id}</div>
             <div className="documentContent">{documentData}</div>
   
            
