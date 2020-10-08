@@ -56,6 +56,9 @@ import { valid } from 'glamor';
     }, [])
 
     useEffect(() => {
+
+      console.log("projectNames updated")
+      console.log(projectNames);
       projectNames.forEach(e => {
         documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
@@ -78,6 +81,7 @@ import { valid } from 'glamor';
               }
               else {
                 setProjectData(e_p => [...e_p, _data])
+
               }
             })
           } else {
@@ -90,16 +94,23 @@ import { valid } from 'glamor';
                 }
               })
               setProjectData(temp_data)
+
             }
             else {
               setProjectData(e_p => [...e_p, temp])
+
             }
           }
         })
       })
+      console.log("projectdata updated");
+      console.log(projectData);
+
     }, [projectNames])
 
     useEffect(() => {
+      console.log("projectData detected update");
+      console.log(projectData);
       let temp = [...projectLoading]
       projectData.forEach(e => {
         temp.forEach(e_p => {
@@ -109,20 +120,30 @@ import { valid } from 'glamor';
         })
       })
       setProjectLoading(temp)
+      
     }, [projectData])
 
     useEffect(() => {
       setLoading(projectLoading.some(e => e.loading === true))
     }, [projectLoading])
-    
-    function createProject(projectName: any){
-      try {
-        projectServices.createProject(projectName, firebase).catch(reason => {
-          setError(true);
-   setErrorMessage(reason)
-        })
 
-        setProjectNames(projectNames=> [...projectNames, projectName]);
+    function createProject(projectName: any){
+      console.log("createProject function called with name ");
+      console.log(projectName);
+
+      try {
+        projectServices.createProject(projectName, firebase).then(data =>{
+          console.log("AAAA setProjectNames used")
+          setProjectNames(projectNames=> [...projectNames, projectName]);
+          console.log("BBBB setProjectData used")
+          setProjectData(projectData=> [...projectData, projectName]);
+          console.log(projectNames)
+        }
+        ).catch(reason => {
+          setError(true);
+          setErrorMessage(reason);
+          
+        })       
       } catch (err) {
        setError(true);
        setErrorMessage(err.message);
