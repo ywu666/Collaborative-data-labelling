@@ -14,6 +14,7 @@ import {
 	IonSegment,
 	IonSegmentButton,
 	IonAlert,
+  useIonViewWillEnter,
 	IonNote
 } from '@ionic/react';
 import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
@@ -37,6 +38,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		currentUser,
 		firebase,
 	} = props;
+
+	const emptyLabels = useState<any[]>([]);
 	
   const [page, setPage] = useState(0);
 	const [documents, setDocuments] = useState<any[]>([]);
@@ -50,6 +53,10 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState(false);
 	const [showDocAlert, setShowDocAlert] = useState(false)
+
+	useIonViewWillEnter(() => {
+        setLabels(emptyLabels)
+    });
 
 	useEffect(() => {
 		if (filter) {
@@ -68,13 +75,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			})
 		}
 	}, [page, filter])
-	
+
 	useEffect(() => {
 		labelServices.getLabels(name,firebase)
 		.then(data => {
 			setLabels(data)
 		})
-	}, [])
+	}, [labels])
 
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(name, firebase)
