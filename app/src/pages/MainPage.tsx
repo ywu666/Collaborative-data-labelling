@@ -9,6 +9,7 @@ import {
     IonCardContent,
     IonCardTitle,
     IonInput,
+    IonToast,
   } from '@ionic/react';
   import { add } from 'ionicons/icons';
   import React, { useState, useEffect } from 'react';
@@ -34,6 +35,7 @@ import { valid } from 'glamor';
     const [currentDisplayName,setCurrentDisplayName] = useState("");
     const [error, setError] =useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [showToast, setShowToast] = useState(false);
     const {
       firebase
     } = props;
@@ -121,8 +123,8 @@ import { valid } from 'glamor';
           setError(true);
    setErrorMessage(reason)
         })
-
         setProjectNames(projectData => [...projectData, projectName]);
+        setShowToast(true);
       } catch (err) {
        setError(true);
        setErrorMessage(err.message);
@@ -193,6 +195,12 @@ import { valid } from 'glamor';
             <IonIcon icon={add} />            
                 create            
             </IonButton>
+            <IonToast
+              isOpen={showToast}
+              onDidDismiss={() => setShowToast(false)}
+              message="Project created successfully."
+              duration={1000}
+            />
             {error && <p>{errorMessage}</p>}	            
             </form>	 	  
 </IonCardContent>
