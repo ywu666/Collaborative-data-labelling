@@ -202,7 +202,7 @@ def get_unlabelled_document_ids(project_name):
         return response, 403
 
     col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}}, {'_id': 0})
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
     docs_in_page = docs.skip(page * page_size).limit(page_size)
 
     count = docs.count()
@@ -308,10 +308,12 @@ def get_documents_with_unconfirmed_labels_for_user(project_name):
     doc_col = get_db_collection(project_name, "documents")
     docs = doc_col.find(
         {'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
-                  {'user_and_labels.label': {'$ne': None}}]},
-        {'_id': 1}).skip(page * page_size).limit(page_size)
+                  {'user_and_labels.label': {'$ne': None}}]}).skip(page * page_size).limit(page_size)
 
-    docs_dict = {'docs': list(docs)}
+    count = docs.count()
+
+    docs_dict = {'docs': list(docs),
+                 'count': count}
     docs = JSONEncoder().encode(docs_dict)
     return docs, 200
 

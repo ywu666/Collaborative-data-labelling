@@ -37,7 +37,6 @@ interface ProjectPageProps {
 
 const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
-  const page_size = 10;
   const [downloadError, setDownloadError] = useState<string>();
   const [currentUser, setCurrentUser] = useState<any>({});
   const [currentDisplayName,setCurrentDisplayName] = useState("");
@@ -102,7 +101,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
                 </IonToolbar></div>
             : <div></div> }
         </div>
-        <div>
+        <div className="document-list">
             {uploading && !uploadError ?
                 <div className="container">
                 <IonToolbar>
@@ -110,7 +109,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
                 </IonToolbar>
                 <br/>
                 <IonSpinner class="spinner" name="crescent" color="primary"/></div>
-            : <DocumentList name={name} page_size={page_size} firebase= {firebase} currentUser={currentUser}/>}
+            : <DocumentList name={name} firebase= {firebase} currentUser={currentUser}/>}
         </div>
 
       </IonContent>
