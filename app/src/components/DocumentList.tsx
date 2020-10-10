@@ -50,10 +50,14 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("all")
 	const [showDocAlert, setShowDocAlert] = useState(false)
+    const [time, setTime] = useState(Date.now());
 
 	useIonViewWillEnter(() => {
-        setLabels(emptyLabels)
-    });
+        labelServices.getLabels(name,firebase)
+		.then(data => {
+			setLabels(data)
+		})
+    },[]);
 
 	useEffect(() => {
 		if (filter === "unlabelled") {
@@ -82,13 +86,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			})
 		}
 	}, [page, page_size, filter])
-	
-	useEffect(() => {
-		labelServices.getLabels(name,firebase)
-		.then(data => {
-			setLabels(data)
-		})
-	}, [labels])
+
 
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(name, firebase)
