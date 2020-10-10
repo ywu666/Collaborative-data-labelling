@@ -157,21 +157,24 @@ def upload_file():
         # Delete file when done
         os.remove(filelocation)
 
-        # Insert docs
-        if len(documents_to_import) > 0:
-            doc_col.insert_many(documents_to_import)
+        if response == {'message': 'Incorrect filetype/format'}:
+            print("true")
+            return make_response(response), 400
+        else:
+            # Insert docs
+            if len(documents_to_import) > 0:
+                doc_col.insert_many(documents_to_import)
 
-        if len(conflicting_display_id_docs) > 0 and len(ids_incorrectly_formatted) > 0:
-            response = {'Documents with IDs already in system': list(conflicting_display_id_docs),
-                        'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
-        elif len(conflicting_display_id_docs) > 0:
-            response = {'Documents with IDs already in system': list(conflicting_display_id_docs)}
-        elif len(ids_incorrectly_formatted) > 0:
-            response = {'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
+            if len(conflicting_display_id_docs) > 0 and len(ids_incorrectly_formatted) > 0:
+                response = {'Documents with IDs already in system': list(conflicting_display_id_docs),
+                            'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
+            elif len(conflicting_display_id_docs) > 0:
+                response = {'Documents with IDs already in system': list(conflicting_display_id_docs)}
+            elif len(ids_incorrectly_formatted) > 0:
+                response = {'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
 
-        response = make_response(response)
-        return response, 200
-
+            response = make_response(response)
+            return response, 200
 
 
 # Endpoint for exporting documents with labels for project

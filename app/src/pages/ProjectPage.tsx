@@ -100,7 +100,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
                 </IonToolbar></div>
             : <div></div> }
         </div>
-        <div>
+        <div className="document-list">
             {uploading && !uploadError ?
                 <div className="container">
                 <IonToolbar>

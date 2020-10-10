@@ -9,7 +9,9 @@ import {
 	IonRouterLink,
 	IonSegment,
 	IonSegmentButton,
-	IonAlert
+	IonAlert,
+  useIonViewWillEnter,
+	IonNote
 } from '@ionic/react';
 import { add } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
@@ -32,6 +34,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		currentUser,
 		firebase,
 	} = props;
+
+	const emptyLabels = useState<any[]>([]);
 	
 	const [page, setPage] = useState(0);
 	const [page_size, setPageSize] = useState(10);
@@ -46,6 +50,10 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("all")
 	const [showDocAlert, setShowDocAlert] = useState(false)
+
+	useIonViewWillEnter(() => {
+        setLabels(emptyLabels)
+    });
 
 	useEffect(() => {
 		if (filter === "unlabelled") {
@@ -80,7 +88,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		.then(data => {
 			setLabels(data)
 		})
-	}, [])
+	}, [labels])
 
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(name, firebase)
@@ -191,7 +199,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}
 
 	return (
-		<div>
+		<div className="table">
 			<div>
 				<IonSegment disabled={!currentUser.isContributor} onIonChange={e => filterOnChange(e.detail.value ?? "")} value={filter}>
 					<IonSegmentButton value="all">
