@@ -10,6 +10,8 @@ import {
   IonSkeletonText,
   IonCheckbox,
   IonCardContent,
+  IonAlert,
+  IonSpinner,
 } from '@ionic/react';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router';
@@ -24,6 +26,7 @@ import Header from '../components/Header';
 import NewCommentInput from '../components/NewCommentInput';
 import Comment from '../components/Comment';
 import { labelServices } from '../services/LabelServices';
+import { stringify } from 'querystring';
 
 interface Document {
   title: string;
@@ -56,6 +59,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const { document_id } = useParams<{ document_id: string }>();
   const { project } = useParams<{ project: string }>();
   const [isLoading, setIsLoading] = useState(true);
+  const [popup, setPopup] = useState(false);
   const { firebase } = props;
   const [documentData, setDocumentData] = useState([['']]);
   const [labelData, setLabelData] = useState<Users_and_Labels[]>([]);
@@ -64,34 +68,41 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   const [currentDisplayName, setCurrentDisplayName] = useState('');
   const [commentData, setCommentData] = useState<Comments[]>([]);
   const [isNotLabeled, setIsNotLabeled] = useState(true);
+  const [labelLoading, setLabelLoading] = useState(true);
   const newCommentElement = useRef<HTMLIonTextareaElement>(null);
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState('');
   const [currentLabel, setCurrentLabel] = useState<number>(0);
   const [currentUser, setCurrentUser] = useState<any>({});
-  const [isContributor, setIsContributor] = useState<boolean>(false);
   const [displayId, setDisplayId] = useState<any>();
-  var label_id: number;
+  const [hideConfirm, setHideConfirm] = useState(false);
+  const [disabled, setDisabled] = useState<boolean>();
   const handleReply = (author: string) => {
     newCommentElement.current!.setFocus();
     newCommentElement.current!.value = `@${author} `;
   };
 
   useEffect(() => {
+    setLabelLoading(true);
     documentServices
       .getIfCurrentUserConfirmedLabel(project, document_id, firebase)
       .then((data) => {
+        if(data){
+          setDisabled(data)
+        }
         setChecked(data);
-        console.log('test is ' + checked);
+        setLabelLoading(false);
       })
       .catch((error) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
+        setDisabled(true);
       });
   }, []);
 
   useEffect(() => {
+    setIsLoading(true);
     documentServices
       .getLabels(project, firebase)
       .then((data) => {
@@ -101,6 +112,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         let err = 'Error fetching labels';
         setError(err);
       });
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -138,6 +150,10 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     });
     if (labelData.length > 0) {
       setIsNotLabeled(false);
+      console.log(labelData.length)
+      if(labelData.length <2){
+        setHideConfirm(true);
+      }
     }
   }, [labelData, labelList]);
 
@@ -154,11 +170,10 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
-    userService.getCurrentProjectUser(project)
-    .then(data => {
-      setCurrentUser(data)
-    })
-  }, [])
+    userService.getCurrentProjectUser(project).then((data) => {
+      setCurrentUser(data);
+    });
+  }, []);
 
   const onSubmitComment = (content: any) => {
     try {
@@ -183,15 +198,22 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
     }
   };
 
-  function handleCheckedUpdate() {
+  async function handleCheckedUpdate() {
     try {
       labelServices
         .updateConfirmedLabel(project, document_id, currentLabel, firebase)
-        .then((data) => {})
+        .then((data) => {
+          setDisabled(true);
+          setChecked(true);
+        })
         .catch((err) => {
-          setError(err);
+          setError(stringify(err));
         });
     } catch (e) {}
+  }
+
+  async function handlePopuo() {
+    setPopup(true);
   }
 
   return (
@@ -231,29 +253,57 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
           </div>
         ) : (
           <div className="container">
-            <div className="pageTitle">Document ID: {displayId? displayId : document_id}</div>
+            {!isLoading && (
+              <IonAlert
+                isOpen={popup}
+                onDidDismiss={() => setPopup(false)}
+                header={'Confirm your final label'}
+                message={'You can not change the label once you confirm'}
+                buttons={[
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    cssClass: 'secondary',
+                    handler: () => {},
+                  },
+                  {
+                    text: 'Okay',
+                    handler: () => {
+                      handleCheckedUpdate();
+                    },
+                  },
+                ]}
+              />
+            )}
+            <div className="pageTitle">
+              Document ID: {displayId ? displayId : document_id}
+            </div>
             <div className="documentContent">{documentData}</div>
-  
-           
-                {currentUser.isContributor  && (<div className="componentHeader">
-                 
-                    <IonCheckbox
-                      color="danger"
-                      onIonChange={handleCheckedUpdate}
-                      checked={checked}
-                      slot="start"
-                    ></IonCheckbox>
-                    <IonLabel>
-                      <h3>Confirm Your Label</h3>
-                    </IonLabel>
-                  {error && (
-                    <IonLabel>
-                      <h5>{error}</h5>
-                    </IonLabel>
-                  )}
-                </div> )}
-              
-            
+
+            {currentUser.isContributor && !isLoading && !hideConfirm && (
+              <div className="componentHeader">
+                {labelLoading ? (
+                  <IonSpinner name="crescent" />
+                ) : (
+                 <IonCheckbox
+                    disabled={disabled}
+                    color="danger"
+                    onClick={handlePopuo}
+                    checked={checked}
+                    slot="start"
+                  ></IonCheckbox>
+                )}
+                <IonLabel>
+                  <h3>Confirm Your Label</h3>
+                </IonLabel>
+                {error && (
+                  <IonLabel>
+                    <h5>{error}</h5>
+                  </IonLabel>
+                )}
+              </div>
+            )}
+
             <div className="labelContainer">
               <IonList>
                 <div className="componentHeader">
