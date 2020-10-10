@@ -10,7 +10,8 @@ import {
   IonPage,
   IonItem,
   IonFab,
-  IonFabButton
+  IonFabButton,
+  IonLoading
 } from '@ionic/react';
 import { arrowBack } from 'ionicons/icons';
 import onLogout from '../helpers/logout'
@@ -53,20 +54,41 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
     enable,
   } = props;
   const [downloadError, setDownloadError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
 
 
 
   const downloadCSV = (projectName: string) => {
+
+    console.log("entering CSV")
+    setIsLoading(true)
+    console.log(isLoading)
     try {
       projectServices.exportCsv(projectName)
     } catch(e) {
-      setDownloadError(e)
     }
+    console.log("finished function csv download")
+    console.log(isLoading)
+    
   }
+
+
+  useEffect(() => {
+    console.log(isLoading)
+    console.log("loading changed")
+    
+  }, [isLoading])
+  
 
   return (
 
         <MuiThemeProvider theme={theme}>
+          <IonLoading
+                isOpen={isLoading}
+                message={'Please wait while your download starts...'}
+                onDidDismiss={() => setIsLoading(false)}
+                duration = {3000}
+                />
         <IonToast isOpen={!!downloadError} message={downloadError} duration={2000} />
             <Tooltip title={<h5>The downloaded file will be a CSV file. There will be six 'columns' in the following
               order: ID, DOCUMENT, LABEL, LABEL STATUS, CONTRIBUTOR 1 LABEL, and CONTRIBUTOR 2 LABEL</h5>} placement="top">
@@ -75,6 +97,7 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
                 }
             </Tooltip>
         </MuiThemeProvider>
+        
 
 
 
