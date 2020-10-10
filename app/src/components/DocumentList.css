@@ -5,6 +5,15 @@
     left: 50%;
     transform: translate(-50%, -50%);
 }
+.center-align {
+    align-items: center;
+}
+
+.table {
+    max-width: 90em;
+    margin: auto;
+}
+
 .document-text {
     cursor: pointer;
 }
