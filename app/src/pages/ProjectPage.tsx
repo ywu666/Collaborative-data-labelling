@@ -5,8 +5,11 @@ import {
   IonToolbar,
   IonTitle,
   IonSpinner,
+  IonLoading,
+  useIonViewWillEnter
 } from '@ionic/react';
-import React, {useEffect, useState, useCallback} from 'react';
+import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
+import React, {useEffect, useRef, useState, useCallback, } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import DocumentList from '../components/DocumentList'
@@ -39,12 +42,12 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     setUploadError(val)
   }, [setUploadError]);
 
-  useEffect(() => {
-    userService.getCurrentProjectUser(name)
-    .then(data => {
-      setCurrentUser(data)
-    })
-  }, [])
+    useIonViewWillEnter(() => {
+        userService.getCurrentProjectUser(name)
+        .then(data => {
+            setCurrentUser(data)
+        })
+    },[]);
 
   useEffect(() => {
     try{
