@@ -59,11 +59,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     console.log("error "+ uploadError)
   }, [setUploadError]);
 
-  /*useEffect(() => {
-
-
-  }, [])*/
-
     useIonViewWillEnter(() => {
         userService.getCurrentProjectUser(name)
         .then(data => {
