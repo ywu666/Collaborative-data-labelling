@@ -156,7 +156,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</TableCell>
 				<TableCell colSpan={5}>
 					<IonLabel>
-						{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || (!currentUser.isContributor && !currentUser.isAdmin)
+						{ (contributor.find(e => e.email === email)?.number_unlabelled === 0)
 						? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 						: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
 					</IonLabel>
