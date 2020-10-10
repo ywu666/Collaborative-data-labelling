@@ -34,8 +34,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		currentUser,
 		firebase,
 	} = props;
-
-	const emptyLabels = useState<any[]>([]);
 	
 	const [page, setPage] = useState(0);
 	const [page_size, setPageSize] = useState(10);
@@ -50,7 +48,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState("all")
 	const [showDocAlert, setShowDocAlert] = useState(false)
-    const [time, setTime] = useState(Date.now());
 
 	useIonViewWillEnter(() => {
         labelServices.getLabels(name,firebase)
