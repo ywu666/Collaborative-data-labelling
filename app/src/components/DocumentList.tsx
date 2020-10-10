@@ -13,7 +13,9 @@ import {
 	IonRow,
 	IonSegment,
 	IonSegmentButton,
-	IonAlert
+	IonAlert,
+  useIonViewWillEnter,
+	IonNote
 } from '@ionic/react';
 import { add, chevronBackOutline, chevronForwardOutline } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
@@ -36,6 +38,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		currentUser,
 		firebase,
 	} = props;
+
+	const emptyLabels = useState<any[]>([]);
 	
   const [page, setPage] = useState(0);
 	const [documents, setDocuments] = useState<any[]>([]);
@@ -49,6 +53,10 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [loading, setLoading] = useState(true);
 	const [filter, setFilter] = useState(false);
 	const [showDocAlert, setShowDocAlert] = useState(false)
+
+	useIonViewWillEnter(() => {
+        setLabels(emptyLabels)
+    });
 
 	useEffect(() => {
 		if (filter) {
@@ -67,13 +75,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			})
 		}
 	}, [page, filter])
-	
+
 	useEffect(() => {
 		labelServices.getLabels(name,firebase)
 		.then(data => {
 			setLabels(data)
 		})
-	}, [])
+	}, [labels])
 
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(name, firebase)
@@ -134,6 +142,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 		return (
 			<IonItem key = {index} >
+			    {isNullOrUndefined(doc.display_id) ? <div/> : <IonNote slot="start">{doc.display_id}</IonNote>}
+
 				<IonLabel>
 					{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || !currentUser.isContributor && !currentUser.isAdmin
 					? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
