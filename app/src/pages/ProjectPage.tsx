@@ -14,10 +14,11 @@ import {
   IonFab,
   IonFabButton,
   IonSpinner,
-  IonLoading
+  IonLoading,
+  useIonViewWillEnter
 } from '@ionic/react';
 import { arrowUpOutline, arrowDownOutline } from 'ionicons/icons';
-import React, {useEffect, useRef, useState, useCallback} from 'react';
+import React, {useEffect, useRef, useState, useCallback, } from 'react';
 import { useParams } from 'react-router';
 import './ProjectPage.css';
 import DocumentList from '../components/DocumentList'
@@ -58,12 +59,17 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     console.log("error "+ uploadError)
   }, [setUploadError]);
 
-  useEffect(() => {
-    userService.getCurrentProjectUser(name)
-    .then(data => {
-      setCurrentUser(data)
-    })
-  }, [])
+  /*useEffect(() => {
+
+
+  }, [])*/
+
+    useIonViewWillEnter(() => {
+        userService.getCurrentProjectUser(name)
+        .then(data => {
+            setCurrentUser(data)
+        })
+    },[]);
 
   useEffect(() => {
     try{
