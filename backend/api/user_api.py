@@ -7,6 +7,129 @@ from mongoDBInterface import get_col
 user_api = Blueprint('user_api', __name__)
 
 
+@user_api.route("/users", methods=["GET"])
+def get_user_info_from_email():
+    # inputs: id_token of requestor, project name, email of user to be added to project
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    email = request.args.get('email')
+    if email is None or email == "":
+        response = {'message': "Email is not included with the request uri in args"}
+        return make_response(response), 400
+
+    user_to_add = get_col("users", "users").find_one({'email': email})
+    if user_to_add is None:
+        response = {'message': "User does not exist/does not have an account"}
+        return make_response(response), 400
+
+    user_to_add = JSONEncoder().encode(user_to_add)
+    return user_to_add, 200
+
+
+@user_api.route("/user/all", methods=['Get'])
+def get_all_users_emails():
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    users_col = get_col("users", "users")
+    all_users = users_col.find({}, {'email': 1})
+    all_users_dict = {"users": list(all_users)}
+    all_users_json = JSONEncoder().encode(all_users_dict)
+    return all_users_json, 200
+
+
+@user_api.route("/projects/<project_name>/user", methods=["Get"])
+def get_current_user_for_proj(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    project_user_col = get_col(project_name, "users")
+    requestor = project_user_col.find_one({'email': requestor_email})
+    user_json = JSONEncoder().encode(requestor)
+    return user_json, 200
+
+
+@user_api.route("/users/all", methods=["Get"])
+# Gets all user emails within any database
+def get_user_emails():
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+
+    users_col = get_col("users", "users")
+    all_users = users_col.find({}, {'email': 1}).skip(page * page_size).limit(page_size)
+    all_users_dict = {"users": list(all_users)}
+    all_users_json = JSONEncoder().encode(all_users_dict)
+    return all_users_json, 200
+
+
+@user_api.route("/projects/<project_name>/users", methods=["Get"])
+def get_user_infos_for_project(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+
+    users_col = get_col(project_name, "users")
+
+    if users_col.find_one({'email': requestor_email}) is None:
+        response = {'message': "Not allowed to perform this action unless you are part of the project"}
+        response = make_response(response)
+        return response, 403
+
+    all_users = users_col.find({}).skip(page * page_size).limit(page_size)
+    all_users_dict = {"users": list(all_users)}
+    all_users_json = JSONEncoder().encode(all_users_dict)
+    return all_users_json, 200
+
+
+@user_api.route("/user", methods=["Get"])
+def get_user_info():
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    users_col = get_col("users", "users")
+    user_dict = users_col.find_one({"email": requestor_email})
+    user_json = JSONEncoder().encode(user_dict)
+    return user_json, 200
+
+
 @user_api.route("/users/create", methods=["Post"])
 def create_user():
     # creates a new user based ogn the ID token that gets sent over
@@ -38,30 +161,6 @@ def create_user():
     # is part of! When a new user is created it should be empty
 
     return "", 204
-
-
-@user_api.route("/users", methods=["GET"])
-def get_user_info_from_email():
-    # inputs: id_token of requestor, project name, email of user to be added to project
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    email = request.args.get('email')
-    if email is None or email == "":
-        response = {'message': "Email is not included with the request uri in args"}
-        return make_response(response), 400
-
-    user_to_add = get_col("users", "users").find_one({'email': email})
-    if user_to_add is None:
-        response = {'message': "User does not exist/does not have an account"}
-        return make_response(response), 400
-
-    user_to_add = JSONEncoder().encode(user_to_add)
-    return user_to_add, 200
 
 
 @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
@@ -158,88 +257,6 @@ def update_user(project_name):
     return "", 204
 
 
-@user_api.route("/users/all", methods=["Get"])
-# Gets all user emails within any database
-def get_user_emails():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        return make_response(response), 400
-
-    users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1}).skip(page * page_size).limit(page_size)
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
-
-
-@user_api.route("/projects/<project_name>/users", methods=["Get"])
-def get_user_infos_for_project(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        return make_response(response), 400
-
-    users_col = get_col(project_name, "users")
-
-    if users_col.find_one({'email': requestor_email}) is None:
-        response = {'message': "Not allowed to perform this action unless you are part of the project"}
-        response = make_response(response)
-        return response, 403
-
-    all_users = users_col.find({}).skip(page * page_size).limit(page_size)
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
-
-
-@user_api.route("/user", methods=["Get"])
-def get_user_info():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    users_col = get_col("users", "users")
-    user_dict = users_col.find_one({"email": requestor_email})
-    user_json = JSONEncoder().encode(user_dict)
-    return user_json, 200
-
-
-@user_api.route("/user/delete", methods=["Delete"])
-# requestor can remove themself
-def remove_user():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    get_col("users", "users").delete_one({"email": requestor_email})
-    return "", 204
-
-
 @user_api.route("/projects/<project_name>/users/delete", methods=["Put"])
 # admin or requestor can remove
 def remove_user_from_project(project_name):
@@ -267,8 +284,9 @@ def remove_user_from_project(project_name):
     return "", 204
 
 
-@user_api.route("/user/all", methods=['Get'])
-def get_all_users_emails():
+@user_api.route("/user/delete", methods=["Delete"])
+# requestor can remove themself
+def remove_user():
     id_token = request.args.get('id_token')
     requestor_email = get_email(id_token)
 
@@ -276,23 +294,5 @@ def get_all_users_emails():
     if invalid_token is not None:
         return make_response(invalid_token), 400
 
-    users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1})
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
-
-
-@user_api.route("/projects/<project_name>/user", methods=["Get"])
-def get_current_user_for_proj(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    project_user_col = get_col(project_name, "users")
-    requestor = project_user_col.find_one({'email': requestor_email})
-    user_json = JSONEncoder().encode(requestor)
-    return user_json, 200
+    get_col("users", "users").delete_one({"email": requestor_email})
+    return "", 204

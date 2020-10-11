@@ -10,6 +10,168 @@ from mongoDBInterface import get_col
 document_label_api = Blueprint('document_label_api', __name__)
 
 
+@document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
+def get_unlabelled_document_ids(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    col = get_db_collection(project_name, "documents")
+    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
+    docs_in_page = docs.skip(page * page_size).limit(page_size)
+
+    count = docs.count()
+
+    docs_dict = {'docs': list(docs_in_page),
+                 'count': count}
+    docs_json = JSONEncoder().encode(docs_dict)
+    return docs_json, 200
+
+
+# Returns the ids of documents that have conflicting labels
+@document_label_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
+def get_conflicting_labels_document_ids(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    conflicting_doc_ids = []
+
+    # get all documents
+    doc_col = get_db_collection(project_name, "documents")
+    documents = doc_col.find(projection={'comments': 0})
+
+    # Check if labels match
+    for d in documents:
+        # Find final label id
+        user_and_labels = d['user_and_labels']
+
+        if len(user_and_labels) > 1:
+            final_label_id = user_and_labels[0]['label']
+            for item in user_and_labels:
+                # check that label is the same
+                if item['label'] != final_label_id:
+                    conflicting_doc_ids.append(ObjectId(d['_id']))
+                    break
+
+    # get documents that conflict
+    query = {'_id': {'$in': conflicting_doc_ids}}
+    projection = {'_id': 1}
+    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
+
+    docs_dict = {'docs': list(docs)}
+    docs = JSONEncoder().encode(docs_dict)
+    return docs, 200
+
+
+# This end point returns the IDs of documents for which the final label is not confirmed for the user calling the method
+@document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
+def get_documents_with_unconfirmed_labels_for_user(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    doc_col = get_db_collection(project_name, "documents")
+    docs = doc_col.find(
+        {'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
+                  {'user_and_labels.label': {'$ne': None}}]}).skip(page * page_size).limit(page_size)
+
+    count = docs.count()
+
+    docs_dict = {'docs': list(docs),
+                 'count': count}
+    docs = JSONEncoder().encode(docs_dict)
+    return docs, 200
+
+
+@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])
+def get_if_document_label_confirmed_for_user(project_name, document_id):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    users_col = get_col(project_name, "users")
+    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    doc_col = get_db_collection(project_name, "documents")
+    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
+                                     {'user_and_labels.email': requestor_email}]})
+
+    if doc is None:
+        response = {'message': "User has not labelled this document"}
+        return make_response(response), 400
+
+    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
+                                     {'user_and_labels': {'$elemMatch': {'email': requestor_email,
+                                                                         'label_confirmed': True}}}]})
+    if doc:
+        response = \
+            {
+                'email': requestor_email,
+                'document': document_id,
+                'labelIsConfirmed': True
+            }
+    else:
+        response = \
+            {
+                'email': requestor_email,
+                'document': document_id,
+                'labelIsConfirmed': False
+            }
+
+    return make_response(response), 200
+
+
 # Endpoint to allow adding of labels to a document
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label', methods=['Post'])
 def set_label_for_user(project_name, document_id):
@@ -100,20 +262,17 @@ def set_user_final_label(project_name, document_id):
     # check for doc existing
     if doc is None:
         response = {'message': "Invalid Document"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # check that doc is fully labelled
     if len(doc['user_and_labels']) < 2:
         response = {'message': "Not all contributors have finished labelling documents!"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # check for document final label not confirmed
     if check_all_labels_for_document_match(doc):
         response = {'message': "Final Label already confirmed!"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # Confirm user's label
     labels_are_match = False
@@ -140,173 +299,4 @@ def set_user_final_label(project_name, document_id):
 
     response = generate_response_for_getting_document_final_label_and_conflict_status(doc, document_id)
 
-    return response, 200
-
-
-@document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
-def get_unlabelled_document_ids(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    col = get_db_collection(project_name, "documents")
-    docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
-    docs_in_page = docs.skip(page * page_size).limit(page_size)
-
-    count = docs.count()
-
-    docs_dict = {'docs': list(docs_in_page),
-                 'count': count}
-    docs_json = JSONEncoder().encode(docs_dict)
-    return docs_json, 200
-
-
-# Returns the ids of documents that have conflicting labels
-@document_label_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
-def get_conflicting_labels_document_ids(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    conflicting_doc_ids = []
-
-    # get all documents
-    doc_col = get_db_collection(project_name, "documents")
-    documents = doc_col.find(projection={'comments': 0})
-
-    # Check if labels match
-    for d in documents:
-        # Find final label id
-        user_and_labels = d['user_and_labels']
-
-        if len(user_and_labels) > 1:
-            final_label_id = user_and_labels[0]['label']
-            for item in user_and_labels:
-                # check that label is the same
-                if item['label'] != final_label_id:
-                    conflicting_doc_ids.append(ObjectId(d['_id']))
-                    break
-
-    # get documents that conflict
-    query = {'_id': {'$in': conflicting_doc_ids}}
-    projection = {'_id': 1}
-    docs = doc_col.find(query, projection).skip(page * page_size).limit(page_size)
-
-    docs_dict = {'docs': list(docs)}
-    docs = JSONEncoder().encode(docs_dict)
-    return docs, 200
-
-
-# This end point returns the IDs of documents for which the final label is not confirmed for the user calling the method
-@document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
-def get_documents_with_unconfirmed_labels_for_user(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    doc_col = get_db_collection(project_name, "documents")
-    docs = doc_col.find(
-        {'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
-                  {'user_and_labels.label': {'$ne': None}}]}).skip(page * page_size).limit(page_size)
-
-    count = docs.count()
-
-    docs_dict = {'docs': list(docs),
-                 'count': count}
-    docs = JSONEncoder().encode(docs_dict)
-    return docs, 200
-
-
-@document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])
-def get_if_document_label_confirmed_for_user(project_name, document_id):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    doc_col = get_db_collection(project_name, "documents")
-
-    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
-                                     {'user_and_labels.email': requestor_email}]})
-
-    if doc is None:
-        response = {'message': "User has not labelled this document"}
-        response = make_response(response)
-        return response, 400
-
-    doc = doc_col.find_one({'$and': [{'_id': ObjectId(document_id)},
-                                     {'user_and_labels': {'$elemMatch': {'email': requestor_email,
-                                                                         'label_confirmed': True}}}]})
-    if doc:
-        response = \
-            {
-                'email': requestor_email,
-                'document': document_id,
-                'labelIsConfirmed': True
-            }
-    else:
-
-        response = \
-            {
-                'email': requestor_email,
-                'document': document_id,
-                'labelIsConfirmed': False
-            }
-
-    make_response(response)
     return response, 200

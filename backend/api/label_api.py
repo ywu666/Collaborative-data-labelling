@@ -9,6 +9,30 @@ from mongoDBInterface import get_col
 label_api = Blueprint('label_api', __name__)
 
 
+@label_api.route('/projects/<project_name>/labels/all', methods=['Get'])
+def get_preset_labels(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    user_col = get_db_collection(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    labels_col = get_col(project_name, "labels")
+    labels = labels_col.find({})
+    labels_list = list(labels)
+    labels_dict = {
+        'labels': labels_list
+    }
+    labels_out = JSONEncoder().encode(labels_dict)
+    return labels_out, 200
+
+
 @label_api.route('/projects/<project_name>/labels/add', methods=['Post'])
 def add_preset_labels(project_name):
     id_token = request.args.get('id_token')
@@ -40,8 +64,8 @@ def add_preset_labels(project_name):
     return "", 204
 
 
-@label_api.route('/projects/<project_name>/labels/all', methods=['Get'])
-def get_preset_labels(project_name):
+@label_api.route('/projects/<project_name>/labels/<label_id>/update', methods=['Put'])
+def update_preset_labels(project_name, label_id):
     id_token = request.args.get('id_token')
     requestor_email = get_email(id_token)
 
@@ -50,18 +74,19 @@ def get_preset_labels(project_name):
         return make_response(invalid_token), 400
 
     user_col = get_db_collection(project_name, "users")
-    requestor = user_col.find_one({'email': requestor_email})
+    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
         return user_unauthorised_response()
 
+    if 'label_name' in request.json:
+        label_name = request.json['label_name']
+    else:
+        response = {'message': "Missing label to add"}
+        return make_response(response), 400
+
     labels_col = get_col(project_name, "labels")
-    labels = labels_col.find({})
-    labels_list = list(labels)
-    labels_dict = {
-        'labels': labels_list
-    }
-    labels_out = JSONEncoder().encode(labels_dict)
-    return labels_out, 200
+    labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})
+    return "", 204
 
 
 @label_api.route('/projects/<project_name>/labels/<label_id>/delete', methods=['Delete'])
@@ -97,29 +122,4 @@ def delete_preset_labels(project_name, label_id):
             }
         })
 
-    return "", 204
-
-
-@label_api.route('/projects/<project_name>/labels/<label_id>/update', methods=['Put'])
-def update_preset_labels(project_name, label_id):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    user_col = get_db_collection(project_name, "users")
-    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    if 'label_name' in request.json:
-        label_name = request.json['label_name']
-    else:
-        response = {'message': "Missing label to add"}
-        return make_response(response), 400
-
-    labels_col = get_col(project_name, "labels")
-    labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})
     return "", 204

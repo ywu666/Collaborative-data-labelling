@@ -8,38 +8,6 @@ from firebase_auth import get_email
 project_api = Blueprint('project_api', __name__)
 
 
-@project_api.route("/projects/create", methods=['POST'])
-def create_project():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    if 'project_name' in request.json:
-        project = request.json['project_name']
-    else:
-        response = {'message': "Missing project name"}
-        return make_response(response), 400
-
-    my_client = get_db_client()
-    if not re.match(r'^\w+$', project):
-        response = {'message': "Project name can only be Alphanumerics and underscores"}
-        return make_response(response), 400
-
-    if project not in my_client.list_database_names():
-        create_db_for_proj(project)
-        project_user_col = get_col(project, "users")
-        project_user_col.insert_one({'email': requestor_email, 'isAdmin': True, 'isContributor': True})
-        add_project_to_user(requestor_email, project)
-    else:
-        response = {'message': "Project already exists"}
-        return make_response(response), 400
-
-    return "", 204
-
-
 @project_api.route("/projects/all", methods=['GET'])
 def get_projects():
     id_token = request.args.get('id_token')
@@ -60,39 +28,6 @@ def get_projects():
     names = requestor['projects']
     response = {'projects': names}
     return make_response(response), 200
-
-
-@project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
-def delete_project(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    if project_name == "local" or project_name == "users" or project_name == "admin":
-        response = {'message': "Cannot delete that project because it is not a user created project"}
-        return make_response(response), 400
-
-    user_col = get_col(project_name, "users")
-    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
-    if requestor is None:
-        return user_unauthorised_response()
-
-    my_client = get_db_client()
-    names = my_client.list_database_names()
-    if project_name in names:
-        all_users = user_col.find({})
-        for user in all_users:
-            user_email = user['email']
-            remove_project_from_user(user_email, project_name)
-        my_client.drop_database(project_name)
-    else:
-        response = {'message': "Project does not exist"}
-        return make_response(response), 400
-
-    return "", 204
 
 
 @project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])
@@ -133,3 +68,68 @@ def get_agreement_score(project_name):
     }
 
     return return_dict, 200
+
+
+@project_api.route("/projects/create", methods=['POST'])
+def create_project():
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    if 'project_name' in request.json:
+        project = request.json['project_name']
+    else:
+        response = {'message': "Missing project name"}
+        return make_response(response), 400
+
+    my_client = get_db_client()
+    if not re.match(r'^\w+$', project):
+        response = {'message': "Project name can only be Alphanumerics and underscores"}
+        return make_response(response), 400
+
+    if project not in my_client.list_database_names():
+        create_db_for_proj(project)
+        project_user_col = get_col(project, "users")
+        project_user_col.insert_one({'email': requestor_email, 'isAdmin': True, 'isContributor': True})
+        add_project_to_user(requestor_email, project)
+    else:
+        response = {'message': "Project already exists"}
+        return make_response(response), 400
+
+    return "", 204
+
+
+@project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
+def delete_project(project_name):
+    id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
+    if project_name == "local" or project_name == "users" or project_name == "admin":
+        response = {'message': "Cannot delete that project because it is not a user created project"}
+        return make_response(response), 400
+
+    user_col = get_col(project_name, "users")
+    requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
+    if requestor is None:
+        return user_unauthorised_response()
+
+    my_client = get_db_client()
+    names = my_client.list_database_names()
+    if project_name in names:
+        all_users = user_col.find({})
+        for user in all_users:
+            user_email = user['email']
+            remove_project_from_user(user_email, project_name)
+        my_client.drop_database(project_name)
+    else:
+        response = {'message': "Project does not exist"}
+        return make_response(response), 400
+
+    return "", 204
