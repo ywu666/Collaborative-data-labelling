@@ -1,5 +1,6 @@
 from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
     check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
+from api.validation_methods import check_id_token
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -13,18 +14,11 @@ document_label_api = Blueprint('document_label_api', __name__)
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label', methods=['Post'])
 def set_label_for_user(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'label_id' in request.json:
         label_id = request.json['label_id']
@@ -87,18 +81,11 @@ def set_label_for_user(project_name, document_id):
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-confirmation', methods=['PUT'])
 def set_user_final_label(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     # get user obj
     user_col = get_db_collection(project_name, "users")
@@ -173,24 +160,17 @@ def set_user_final_label(project_name, document_id):
 @document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
 def get_unlabelled_document_ids(project_name):
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -217,24 +197,17 @@ def get_unlabelled_document_ids(project_name):
 @document_label_api.route('/projects/<project_name>/conflicting/documents', methods=['Get'])
 def get_conflicting_labels_document_ids(project_name):
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -278,23 +251,17 @@ def get_conflicting_labels_document_ids(project_name):
 @document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
 def get_documents_with_unconfirmed_labels_for_user(project_name):
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -321,17 +288,11 @@ def get_documents_with_unconfirmed_labels_for_user(project_name):
 @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])
 def get_if_document_label_confirmed_for_user(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})

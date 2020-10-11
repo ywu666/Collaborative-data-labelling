@@ -1,3 +1,4 @@
+from api.validation_methods import check_id_token
 from flask import Blueprint, request, make_response
 import re
 from api.methods import add_project_to_user, remove_project_from_user
@@ -10,18 +11,11 @@ project_api = Blueprint('project_api', __name__)
 @project_api.route("/projects/create", methods=['POST'])
 def create_project():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'project_name' in request.json:
         project = request.json['project_name']
@@ -52,18 +46,11 @@ def create_project():
 @project_api.route("/projects/all", methods=['GET'])
 def get_projects():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     all_users_col = get_col("users", "users")
     requestor = all_users_col.find_one({"email": requestor_email})
@@ -84,18 +71,11 @@ def get_projects():
 @project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
 def delete_project(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if project_name == "local" or project_name == "users" or project_name == "admin":
         response = {'message': "Cannot delete that project because it is not a user created project"}
@@ -128,18 +108,11 @@ def delete_project(project_name):
 @project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])
 def get_agreement_score(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email})

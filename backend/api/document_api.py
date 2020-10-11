@@ -1,5 +1,6 @@
 import datetime
 from api.methods import JSONEncoder
+from api.validation_methods import check_id_token
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -13,18 +14,11 @@ document_api = Blueprint('document_api', __name__)
 # Creating a new document!
 def create_document(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
@@ -49,6 +43,11 @@ def create_document(project_name):
 @document_api.route('/projects/<project_name>/documents', methods=['Get'])
 def get_document_ids(project_name):
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
@@ -58,17 +57,7 @@ def get_document_ids(project_name):
         response = make_response(response)
         return response, 400
 
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
 
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
@@ -90,18 +79,11 @@ def get_document_ids(project_name):
 # Getting a document!
 def get_document(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
@@ -122,18 +104,11 @@ def get_document(project_name, document_id):
 # Getting a document!
 def delete_document(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isAdmin': True})
@@ -146,22 +121,16 @@ def delete_document(project_name, document_id):
     col.delete_one({'_id': ObjectId(document_id)})
     return "", 204
 
-  
+
 @document_api.route('/projects/<project_name>/documents/<document_id>/comments/post', methods=['Post'])
 def post_comment_on_document(project_name, document_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
     if 'comment' in request.json:
         comment = request.json['comment']
     else:
@@ -194,17 +163,11 @@ def post_comment_on_document(project_name, document_id):
 @document_api.route('/projects/<project_name>/unlabelled/contributors', methods=['Get'])
 def get_number_of_unlabelled_docs_for_contributors(project_name):
     id_token = request.args.get('id_token')
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
@@ -230,6 +193,7 @@ def get_number_of_unlabelled_docs_for_contributors(project_name):
 
     output_dict = {'contributors': output}
     return output_dict, 200
+
 
 if __name__ == '__main__':
     col = get_col("New_Project", "documents")

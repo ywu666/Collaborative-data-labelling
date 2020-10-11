@@ -1,10 +1,9 @@
-from bson import ObjectId
-from flask import Blueprint, request, make_response
-
 from api.methods import JSONEncoder
+from api.validation_methods import check_id_token
+from bson import ObjectId
 from firebase_auth import get_email
+from flask import Blueprint, request, make_response
 from model.document import get_db_collection
-from model.project import Project
 from mongoDBInterface import get_col
 
 label_api = Blueprint('label_api', __name__)
@@ -13,18 +12,11 @@ label_api = Blueprint('label_api', __name__)
 @label_api.route('/projects/<project_name>/labels/add', methods=['Post'])
 def add_preset_labels(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
@@ -55,18 +47,11 @@ def add_preset_labels(project_name):
 @label_api.route('/projects/<project_name>/labels/all', methods=['Get'])
 def get_preset_labels(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email})
@@ -88,18 +73,11 @@ def get_preset_labels(project_name):
 @label_api.route('/projects/<project_name>/labels/<label_id>/delete', methods=['Delete'])
 def delete_preset_labels(project_name, label_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
@@ -133,18 +111,11 @@ def delete_preset_labels(project_name, label_id):
 @label_api.route('/projects/<project_name>/labels/<label_id>/update', methods=['Put'])
 def update_preset_labels(project_name, label_id):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})

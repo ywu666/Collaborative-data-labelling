@@ -2,6 +2,7 @@ import csv
 import os
 
 from api.methods import JSONEncoder, check_all_labels_for_document_match, get_label_name_by_label_id
+from api.validation_methods import check_id_token
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -20,17 +21,11 @@ import_export_api = Blueprint('import_export_api', __name__)
 @import_export_api.route('/projects/upload', methods=['POST'])
 def upload_file():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'projectName' in request.form:
         project_name = str(request.form['projectName'])
@@ -181,18 +176,11 @@ def upload_file():
 @import_export_api.route('/projects/<project_name>/export', methods=['GET'])
 def export_documents(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})

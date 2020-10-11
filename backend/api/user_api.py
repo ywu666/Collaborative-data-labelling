@@ -1,8 +1,7 @@
-import firebase_admin
-from flask import Blueprint, request, make_response
-import pymongo
 from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
+from api.validation_methods import check_id_token
 from firebase_auth import get_email
+from flask import Blueprint, request, make_response
 from mongoDBInterface import get_col
 
 user_api = Blueprint('user_api', __name__)
@@ -12,18 +11,11 @@ user_api = Blueprint('user_api', __name__)
 def create_user():
     # creates a new user based ogn the ID token that gets sent over
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     all_users = get_col("users", "users")
 
@@ -55,21 +47,15 @@ def create_user():
 def get_user_info_from_email():
     # inputs: id_token of requestor, project name, email of user to be added to project
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
+
     email = request.args.get('email')
     if email is None or email == "":
         response = {'message': "Email is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -89,18 +75,11 @@ def get_user_info_from_email():
 def add_user_to_project(project_name):
     # inputs: id_token of requestor, project name, email of user to be added to project
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'user' in request.json:
         email = request.json['user']
@@ -145,18 +124,11 @@ def add_user_to_project(project_name):
 def update_user(project_name):
     # inputs: id_token of requestor, project name, email of user to be changed, and changes to be applied
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'user' in request.json:
         email = request.json['user']
@@ -207,24 +179,17 @@ def update_user(project_name):
 # Gets all user emails within any database
 def get_user_emails():
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -238,24 +203,17 @@ def get_user_emails():
 @user_api.route("/projects/<project_name>/users", methods=["Get"])
 def get_user_infos_for_project(project_name):
     id_token = request.args.get('id_token')
+    requestor_email = get_email(id_token)
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
-    requestor_email = get_email(id_token)
-
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
         response = make_response(response)
         return response, 400
 
@@ -275,17 +233,11 @@ def get_user_infos_for_project(project_name):
 @user_api.route("/user", methods=["Get"])
 def get_user_info():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col("users", "users")
     user_dict = users_col.find_one({"email": requestor_email})
@@ -297,18 +249,11 @@ def get_user_info():
 # requestor can remove themself
 def remove_user():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     get_col("users", "users").delete_one({"email": requestor_email})
     return "", 204
@@ -318,18 +263,11 @@ def remove_user():
 # admin or requestor can remove
 def remove_user_from_project(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'user' in request.json:
         email = request.json['user']
@@ -351,18 +289,11 @@ def remove_user_from_project(project_name):
 @user_api.route("/user/all", methods=['Get'])
 def get_all_users_emails():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     users_col = get_col("users", "users")
     all_users = users_col.find({}, {'email': 1})
@@ -374,21 +305,13 @@ def get_all_users_emails():
 @user_api.route("/projects/<project_name>/user", methods=["Get"])
 def get_current_user_for_proj(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     project_user_col = get_col(project_name, "users")
     requestor = project_user_col.find_one({'email': requestor_email})
     user_json = JSONEncoder().encode(requestor)
     return user_json, 200
-
