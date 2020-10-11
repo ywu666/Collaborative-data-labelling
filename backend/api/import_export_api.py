@@ -144,7 +144,6 @@ def upload_file():
         os.remove(filelocation)
 
         if response == {'message': 'Incorrect filetype/format'}:
-            print("true")
             return make_response(response), 400
         else:
             # Insert docs
@@ -186,7 +185,6 @@ def export_documents(project_name):
     # Get contributors of project?
     user_col = get_db_collection(project_name, "users")
     contributor_emails = user_col.find({'isContributor': True}, {'_id': 0, 'email': 1})
-    # print(len(list(contributor_emails)))
     if len(list(contributor_emails)) == 2:
         contributor_one_index = 0
         contributor_two_index = 1
