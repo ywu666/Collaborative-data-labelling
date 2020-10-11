@@ -1,6 +1,6 @@
 from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
     check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
-from api.validation_methods import check_id_token
+from api.validation_methods import check_id_token, user_unauthorised_response, invalid_label_response
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -24,24 +24,17 @@ def set_label_for_user(project_name, document_id):
         label_id = request.json['label_id']
     else:
         response = {'message': "Missing label"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # get user obj
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
-    # get label obj
-    label_col = get_db_collection(project_name, "labels")
-    label = label_col.find_one({'_id': ObjectId(label_id)})
-    if label is None:
-        response = {'message': "Invalid Label"}
-        response = make_response(response)
-        return response, 400
+    invalid_label = invalid_label_response(project_name, label_id)
+    if invalid_label is not None:
+        return invalid_label
 
     col = get_db_collection(project_name, "documents")
     document = col.find_one({'_id': ObjectId(document_id)})
@@ -49,8 +42,7 @@ def set_label_for_user(project_name, document_id):
     # If labels are already the same, prevent any further changes
     if check_all_labels_for_document_match(document):
         response = {'message': "Label already confirmed"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # Check if other contributor has labelled document
     contributors_labelled = len(document['user_and_labels'])
@@ -91,23 +83,17 @@ def set_user_final_label(project_name, document_id):
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'label_id' in request.json:
         label_id = request.json['label_id']
     else:
         response = {'message': "Missing label"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
-    label_col = get_db_collection(project_name, "labels")
-    label = label_col.find_one({'_id': ObjectId(label_id)})
-    if label is None:
-        response = {'message': "Invalid Label"}
-        response = make_response(response)
-        return response, 400
+    invalid_label = invalid_label_response(project_name, label_id)
+    if invalid_label is not None:
+        return invalid_label
 
     doc_col = get_db_collection(project_name, "documents")
     doc = doc_col.find_one({'_id': ObjectId(document_id)})
@@ -177,9 +163,7 @@ def get_unlabelled_document_ids(project_name):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     col = get_db_collection(project_name, "documents")
     docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
@@ -214,9 +198,7 @@ def get_conflicting_labels_document_ids(project_name):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     conflicting_doc_ids = []
 
@@ -268,9 +250,7 @@ def get_documents_with_unconfirmed_labels_for_user(project_name):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     doc_col = get_db_collection(project_name, "documents")
     docs = doc_col.find(
@@ -297,9 +277,7 @@ def get_if_document_label_confirmed_for_user(project_name, document_id):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     doc_col = get_db_collection(project_name, "documents")
 

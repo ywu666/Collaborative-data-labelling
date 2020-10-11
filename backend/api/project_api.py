@@ -1,4 +1,4 @@
-from api.validation_methods import check_id_token
+from api.validation_methods import check_id_token, user_unauthorised_response
 from flask import Blueprint, request, make_response
 import re
 from api.methods import add_project_to_user, remove_project_from_user
@@ -21,14 +21,12 @@ def create_project():
         project = request.json['project_name']
     else:
         response = {'message': "Missing project name"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     my_client = get_db_client()
     if not re.match(r'^\w+$', project):
         response = {'message': "Project name can only be Alphanumerics and underscores"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     if project not in my_client.list_database_names():
         create_db_for_proj(project)
@@ -37,8 +35,7 @@ def create_project():
         add_project_to_user(requestor_email, project)
     else:
         response = {'message': "Project already exists"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     return "", 204
 
@@ -56,16 +53,13 @@ def get_projects():
     requestor = all_users_col.find_one({"email": requestor_email})
 
     if requestor is None:
-        response = {'message': "Not authorised to perform this action"}
-        response = make_response(response)
-        return response, 401
+        return user_unauthorised_response()
 
     users_col = get_col("users", "users")
     requestor = users_col.find_one({'email': requestor_email})
     names = requestor['projects']
     response = {'projects': names}
-    response = make_response(response)
-    return response, 200
+    return make_response(response), 200
 
 
 @project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
@@ -79,15 +73,12 @@ def delete_project(project_name):
 
     if project_name == "local" or project_name == "users" or project_name == "admin":
         response = {'message': "Cannot delete that project because it is not a user created project"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
-        response = {'message': "Not authorised for that operation"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     my_client = get_db_client()
     names = my_client.list_database_names()
@@ -99,8 +90,7 @@ def delete_project(project_name):
         my_client.drop_database(project_name)
     else:
         response = {'message': "Project does not exist"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     return "", 204
 
@@ -117,9 +107,7 @@ def get_agreement_score(project_name):
     user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     doc_col = get_col(project_name, "documents")
 

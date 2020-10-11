@@ -1,9 +1,8 @@
 import csv
 import os
 
-from api.methods import JSONEncoder, check_all_labels_for_document_match, get_label_name_by_label_id
-from api.validation_methods import check_id_token
-from bson import ObjectId
+from api.methods import JSONEncoder, get_label_name_by_label_id
+from api.validation_methods import check_id_token, user_unauthorised_response
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
 from model.document import Document, get_db_collection
@@ -38,28 +37,22 @@ def upload_file():
     requestor = users_col.find_one({'email': requestor_email},
                                    {'$or': [{'isContributor': True}, {'isAdmin': True}]})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'inputFile' not in request.files:
         response = {'message': 'No file selected'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     file = request.files['inputFile']
-
     # Check file name
     if file.filename == '':
         response = {'message': 'No file selected'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # Check file type
     if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
         response = {'message': 'Incorrect filetype/format'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     if file:
         filename = secure_filename(file.filename)
@@ -71,9 +64,7 @@ def upload_file():
         response = {'message': 'Documents imported successfully'}
 
         with open(filelocation) as csv_file:
-
             csv_reader = csv.reader(csv_file, delimiter=",")
-
             is_first_line = True
 
             # Default is that user provides their own IDs
@@ -168,8 +159,7 @@ def upload_file():
             elif len(ids_incorrectly_formatted) > 0:
                 response = {'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
 
-            response = make_response(response)
-            return response, 200
+            return make_response(response), 200
 
 
 # Endpoint for exporting documents with labels for project
@@ -186,9 +176,7 @@ def export_documents(project_name):
     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
 
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     # get all documents and labels
     label_col = get_db_collection(project_name, 'labels')

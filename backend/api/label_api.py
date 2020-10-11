@@ -1,5 +1,5 @@
 from api.methods import JSONEncoder
-from api.validation_methods import check_id_token
+from api.validation_methods import check_id_token, user_unauthorised_response
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -21,24 +21,20 @@ def add_preset_labels(project_name):
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'label_name' in request.json:
         label_name = request.json['label_name']
     else:
         response = {'message': "Missing label to add"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     labels_col = get_col(project_name, "labels")
     label_in_database = labels_col.find_one({"name": label_name})
 
     if label_in_database is not None:
         response = {'message': "That label already exists"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     labels_col.insert_one({"name": label_name})
     return "", 204
@@ -56,9 +52,7 @@ def get_preset_labels(project_name):
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     labels_col = get_col(project_name, "labels")
     labels = labels_col.find({})
@@ -82,9 +76,7 @@ def delete_preset_labels(project_name, label_id):
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     labels_col = get_col(project_name, "labels")
     labels_col.delete_one({"_id": ObjectId(label_id)})
@@ -120,16 +112,13 @@ def update_preset_labels(project_name, label_id):
     user_col = get_db_collection(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'label_name' in request.json:
         label_name = request.json['label_name']
     else:
         response = {'message': "Missing label to add"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     labels_col = get_col(project_name, "labels")
     labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})

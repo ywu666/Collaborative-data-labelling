@@ -1,6 +1,6 @@
 import datetime
 from api.methods import JSONEncoder
-from api.validation_methods import check_id_token
+from api.validation_methods import check_id_token, user_unauthorised_response
 from bson import ObjectId
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
@@ -23,16 +23,13 @@ def create_document(project_name):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'content' in request.json:
         content = request.json['content']
     else:
         response = {'message': "Missing content"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     doc = Document(content, [], [])
     doc.data = content
@@ -54,17 +51,12 @@ def get_document_ids(project_name):
         page_size = int(request.args.get('page_size'))
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
-        response = make_response(response)
-        return response, 400
-
-
+        return make_response(response), 400
 
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     col = get_db_collection(project_name, "documents")
     count = col.count_documents({})
@@ -88,9 +80,7 @@ def get_document(project_name, document_id):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     col = get_db_collection(project_name, "documents")
     doc = col.find_one({'_id': ObjectId(document_id)}, {'_id': 0})
@@ -113,9 +103,7 @@ def delete_document(project_name, document_id):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isAdmin': True})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     col = get_db_collection(project_name, "documents")
     col.delete_one({'_id': ObjectId(document_id)})
@@ -135,16 +123,13 @@ def post_comment_on_document(project_name, document_id):
         comment = request.json['comment']
     else:
         response = {'message': "Missing comment"}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # have to be contributor, should include email, time and content of comment for every comment
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
     if requestor is None:
-        response = {'message': "You are not authorised to do this"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     documents_col = get_col(project_name, "documents")
     current_time = datetime.datetime.now()
@@ -172,9 +157,7 @@ def get_number_of_unlabelled_docs_for_contributors(project_name):
     users_col = get_col(project_name, "users")
     requestor = users_col.find_one({'email': requestor_email})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     user_col = get_col(project_name, "users")
     contributors = user_col.find({"isContributor": True})
