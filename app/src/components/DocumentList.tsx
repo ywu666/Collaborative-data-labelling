@@ -126,6 +126,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				'doc_id':documentIndex,
 				'error':'There was an error updating label'
 			}
+			if (e === "Label already confirmed") {
+				error.error = e
+			}
 			setDocError(err => [...err, error])
 		})
 		setShowModal(false)
@@ -135,7 +138,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let email = localStorage.getItem("email")
 		let error = docError?.find(e => e.doc_id === doc._id)
 		let user_label = labels?.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
-
+		let user_label_confirmed = doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label_confirmed
+		console.log(doc ,user_label_confirmed)
 		return (
 			<TableRow key = {index} >
 				<TableCell colSpan={1}>
@@ -157,7 +161,9 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 						: currentUser.isContributor
 							? isNullOrUndefined(user_label)
 								? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
-								: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
+								: user_label_confirmed
+									? <IonButton disabled={true} color="success" fill="outline" slot="end">{user_label.name} </IonButton>
+									: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
 							: <div/>	
 					}
 				</TableCell>
