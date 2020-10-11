@@ -34,6 +34,9 @@ import { valid } from 'glamor';
     const [currentDisplayName,setCurrentDisplayName] = useState("");
     const [error, setError] =useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [progressMessage, setProgressMessage] = useState<string>("");
+
+
     const {
       firebase
     } = props;
@@ -232,7 +235,8 @@ import { valid } from 'glamor';
                     </IonCardContent>
                     */}
                     <IonCardContent>
-                      <p>{progressProject(data)}</p>
+                      {progressProject(data)}
+                      <p>{progressMessage}</p>
                     </IonCardContent>
                   </IonCard>
               )
