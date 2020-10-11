@@ -2,17 +2,8 @@ import {
   IonContent,
   IonPage,
   IonButton,
-  IonItem,
-  IonIcon,
-  IonToast,
-  IonGrid,
-  IonRow,
-  IonCol,
   IonToolbar,
   IonTitle,
-  IonButtons,
-  IonFab,
-  IonFabButton,
   IonSpinner,
   IonLoading,
   useIonViewWillEnter
@@ -25,20 +16,14 @@ import DocumentList from '../components/DocumentList'
 import Download from '../components/Download'
 import Upload from '../components/Upload'
 import Header from '../components/Header'
-import { projectServices } from "../services/ProjectServices";
 import { userService } from "../services/UserServices";
-import { documentServices } from "../services/DocumentService"
-import {Tooltip} from '@material-ui/core';
 
 interface ProjectPageProps {
   firebase: any
 }
 
-
-
 const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
   const { name } = useParams<{ name: string }>();
-  const [downloadError, setDownloadError] = useState<string>();
   const [currentUser, setCurrentUser] = useState<any>({});
   const [currentDisplayName,setCurrentDisplayName] = useState("");
   const [uploading, setUploading] = useState(false)
@@ -51,12 +36,10 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
 
    const isUploading = useCallback(val => {
     setUploading(val);
-    console.log("uploading "+ uploading)
   }, [setUploading]);
 
   const isUploadError = useCallback(val => {
     setUploadError(val)
-    console.log("error "+ uploadError)
   }, [setUploadError]);
 
     useIonViewWillEnter(() => {
@@ -73,7 +56,6 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
         setCurrentDisplayName(data.username)
       })
     } catch (e) {
-      console.log(e)
     }
   }, [])
 

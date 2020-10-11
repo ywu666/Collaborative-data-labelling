@@ -1,6 +1,5 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
   IonList,
   IonItem,
@@ -9,7 +8,6 @@ import {
   IonCardTitle,
   IonSkeletonText,
   IonCheckbox,
-  IonCardContent,
   IonAlert,
   IonSpinner,
 } from '@ionic/react';
@@ -19,8 +17,6 @@ import Moment from 'moment';
 import './DocumentPage.css';
 import { documentServices } from '../services/DocumentService';
 import { userService } from '../services/UserServices';
-import firebase from 'firebase';
-import app from 'firebase/app';
 import 'firebase/auth';
 import Header from '../components/Header';
 import NewCommentInput from '../components/NewCommentInput';
@@ -142,15 +138,12 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               };
               setList((e) => [...e, pair]);
             });
-          } catch (e) {
-            console.log(e);
-          }
+          } catch (e) {}
         }
       });
     });
     if (labelData.length > 0) {
       setIsNotLabeled(false);
-      console.log(labelData.length)
       if(labelData.length <2){
         setHideConfirm(true);
       }
@@ -164,9 +157,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         .then((data) => {
           setCurrentDisplayName(data.username);
         });
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -193,16 +184,14 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               setCommentData(data.comments);
             });
         });
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   };
 
   async function handleCheckedUpdate() {
     try {
       labelServices
         .updateConfirmedLabel(project, document_id, currentLabel, firebase)
-        .then((data) => {
+        .then(() => {
           setDisabled(true);
           setChecked(true);
         })

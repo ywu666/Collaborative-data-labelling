@@ -1,8 +1,6 @@
 import {
 	IonModal,
 	IonButton,
-	IonList,
-	IonItem,
 	IonLabel,
 	IonIcon,
 	IonSkeletonText,
@@ -11,7 +9,6 @@ import {
 	IonSegmentButton,
 	IonAlert,
   useIonViewWillEnter,
-	IonNote
 } from '@ionic/react';
 import { add } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
@@ -60,7 +57,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		if (filter === "unlabelled") {
 			documentServices.getUnlabelledDocuments(name, page, page_size)
 			.then(data => {
-				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -69,7 +65,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		else if (filter === "unconfirmed") {
 			documentServices.getUnconfirmedDocuments(name, page, page_size)
 			.then(data => {
-				console.log(data)
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
@@ -122,7 +117,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			return documentServices.getDocument(name, documentIndex, firebase)
 		})
 		.then(data => {
-			console.log(data)
 			data.id = documentIndex
 			setNewDocument(data)
 			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
@@ -151,7 +145,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</TableCell>
 				<TableCell colSpan={5}>
 					<IonLabel>
-						{currentUser.isAdmin || (currentUser.isContributor && contributor.find(e => e.email === email)?.number_unlabelled === 0) || (!currentUser.isContributor && !currentUser.isAdmin)
+						{ (contributor.find(e => e.email === email)?.number_unlabelled === 0)
 						? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 						: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
 					</IonLabel>

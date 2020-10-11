@@ -1,11 +1,10 @@
 import {
-    IonButton,
-    IonAlert,
-    IonInput,
-  } from '@ionic/react';
-  import React, { useState, useEffect } from 'react';
-  import { labelServices } from '../services/LabelServices'
-  import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+  IonButton,
+  IonAlert
+} from '@ionic/react';
+import React, { useState, useEffect } from 'react';
+import { labelServices } from '../services/LabelServices';
+import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
 import './SettingsTags.css';
 
 interface ContainerProps {
@@ -14,18 +13,16 @@ interface ContainerProps {
 }
 
 const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
-    const [showError, setShowError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string>();
-    const [showNewTag, setShowNewTag] = useState(false);
-    const [showUpdateTag, setShowUpdateTag] = useState(false);
-    const [tagID, setTagID] = useState(0);
-    const [newTag, setNewTag] = useState<string>();
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string>();
+  const [showNewTag, setShowNewTag] = useState(false);
+  const [showUpdateTag, setShowUpdateTag] = useState(false);
+  const [tagID, setTagID] = useState(0);
 
-
-    const {
-      project,
-      firebase
-    } = props;
+  const {
+    project,
+    firebase
+  } = props;
 
   const initialTags = [
     { _id: 0, name: '' }
@@ -38,9 +35,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
       .then(data => {
         setTags(data)
       })
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   }, [])
 
   function addTag(tag: string) {
@@ -117,8 +112,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
         </TableFooter>
       </Table>
 
-
-        <IonAlert 
+      <IonAlert
         isOpen={showError}
         onDidDismiss={() => setShowError(false)}
         message={errorMessage}
@@ -128,7 +122,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
             role: 'cancel'
           }
         ]}
-        />
+      />
 
       <IonAlert
         isOpen={showNewTag}
@@ -200,7 +194,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
             }
           }
         ]}
-        />
+      />
 
     </TableContainer>
   );
