@@ -142,11 +142,13 @@ import { valid } from 'glamor';
         ).catch(reason => {
           setError(true);
           setErrorMessage(reason);
+          setLoading(false);
           
         })       
       } catch (err) {
        setError(true);
        setErrorMessage(err.message);
+       setLoading(false);
       }    
     }
 
