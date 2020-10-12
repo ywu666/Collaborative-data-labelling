@@ -61,10 +61,6 @@ import { EPERM } from 'constants';
     }, [])
 
     useEffect(() => {
-
-      console.log("useEffect [projectNames]")
-      console.log("projectNames updated")
-      console.log(projectNames);
       projectNames.forEach(e => {
         documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
@@ -82,9 +78,7 @@ import { EPERM } from 'constants';
               _data.unlabelled = data
               if (projectData.some(e_p => e_p.name === _data.name)) {
                 let temp = [...projectData]
-                console.log(...projectData)
                 console.log(projectData)
-                console.log(temp)
                 temp.forEach(e_t => {
                   if (e_t.name === _data.name) {
                     e_t = _data
@@ -146,16 +140,12 @@ import { EPERM } from 'constants';
     }, [projectLoading])
 
     useEffect(() => {
-      console.log("createProject function called with name ");
-      console.log(newProject);
 
       try {
         projectServices.createProject(newProject, firebase).then(data =>{
-          console.log("AAAA setProjectNames used")
           setProjectNames(projectNames=> [...projectNames, newProject]);
           console.log(projectNames)
           console.log(data)
-          console.log("project names set, createProject called")
         }
         ).catch(reason => {
           setError(true);
