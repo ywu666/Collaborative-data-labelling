@@ -315,7 +315,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                     </IonLabel>
                   </IonItem>
                 ))}
-                {isNotLabeled && (
+                {isNotLabeled && isLoading && (
                   <h5 className="promptMessage">
                     No labels have yet been set for this document
                   </h5>
