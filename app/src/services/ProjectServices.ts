@@ -35,10 +35,13 @@ async function createProject(project_name: any, firebase: any){
     window.location.href = '/auth';
    }
 
+   console.log("create project call reached projectService.ts")
+
     return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
     .then(handleResponse)
     .then(data => {
         console.log("call for creating project reached back end")
+        console.log(data)
         return data
     })
 }

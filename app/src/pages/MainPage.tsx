@@ -22,6 +22,7 @@ import {
   import { isNullOrUndefined } from 'util';
   import { userService } from '../services/UserServices';
 import { valid } from 'glamor';
+import { EPERM } from 'constants';
   
   interface MainPageProps {
     firebase: any
@@ -32,8 +33,12 @@ import { valid } from 'glamor';
     const [projectData, setProjectData] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [currentDisplayName,setCurrentDisplayName] = useState("");
-    const [error, setError] =useState(false);
+    const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [progressMessage, setProgressMessage] = useState<string>("");
+    const [newProject, setNewProject] = useState<any>("");
+
+
     const {
       firebase
     } = props;
@@ -59,25 +64,33 @@ import { valid } from 'glamor';
       projectNames.forEach(e => {
         documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
+          console.log(data)
           return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
+          
         })
         .then(data => {
+          console.log(e)
           if (isNullOrUndefined(data) || data === 0) {
             projectServices.getProjectAgreementScore(e, firebase)
             .then(_data => {
+              console.log(_data)
               _data.name = e
               _data.unlabelled = data
               if (projectData.some(e_p => e_p.name === _data.name)) {
                 let temp = [...projectData]
+                console.log(projectData)
                 temp.forEach(e_t => {
                   if (e_t.name === _data.name) {
                     e_t = _data
                   }
                 })
+                console.log(temp)
                 setProjectData(temp)
               }
               else {
                 setProjectData(e_p => [...e_p, _data])
+                console.log(_data)
+
               }
             })
           } else {
@@ -89,19 +102,29 @@ import { valid } from 'glamor';
                   e_t = temp
                 }
               })
+              console.log(temp_data)
               setProjectData(temp_data)
+
             }
             else {
+              console.log(temp)
               setProjectData(e_p => [...e_p, temp])
+
             }
           }
         })
       })
+      console.log("projectdata updated");
+      console.log(projectData);
+
     }, [projectNames])
 
     useEffect(() => {
+      console.log("projectData detected update");
+      console.log(projectData);
       let temp = [...projectLoading]
       projectData.forEach(e => {
+        console.log(e)
         temp.forEach(e_p => {
           if (e_p.name === e.name) {
             e_p.loading = false
@@ -109,25 +132,33 @@ import { valid } from 'glamor';
         })
       })
       setProjectLoading(temp)
+      
     }, [projectData])
 
     useEffect(() => {
       setLoading(projectLoading.some(e => e.loading === true))
     }, [projectLoading])
-    
-    function createProject(projectName: any){
-      try {
-        projectServices.createProject(projectName, firebase).catch(reason => {
-          setError(true);
-   setErrorMessage(reason)
-        })
 
-        setProjectNames(projectData => [...projectData, projectName]);
+    useEffect(() => {
+
+      try {
+        projectServices.createProject(newProject, firebase).then(data =>{
+          setProjectNames(projectNames=> [...projectNames, newProject]);
+          console.log(projectNames)
+          console.log(data)
+        }
+        ).catch(reason => {
+          setError(true);
+          setErrorMessage(reason);
+          setLoading(false);
+          
+        })       
       } catch (err) {
        setError(true);
        setErrorMessage(err.message);
+       setLoading(false);
       }    
-    }
+  }, [newProject])
 
     const progressProject = (data: any) => {
       let agreed_number = data.agreed_number / data.analysed_number * 100
@@ -182,7 +213,7 @@ import { valid } from 'glamor';
             setLoading(true)
             e.preventDefault();
             const formData = new FormData(e.target as HTMLFormElement);
-            createProject(formData.get("projectName"));
+            setNewProject(formData.get("projectName"));
             formData.delete("projectName");
           }}>
             <IonItem>
@@ -209,7 +240,8 @@ import { valid } from 'glamor';
                     </IonCardContent>
                     */}
                     <IonCardContent>
-                      <p>{progressProject(data)}</p>
+                      {progressProject(data)}
+                      <p>{progressMessage}</p>
                     </IonCardContent>
                   </IonCard>
               )
