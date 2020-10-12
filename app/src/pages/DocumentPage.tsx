@@ -88,12 +88,14 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         }
         setChecked(data);
         setLabelLoading(false);
+        setIsLoading(false);
       })
       .catch((error) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
         setDisabled(true);
+        setIsLoading(false);
       });
   }, []);
 
@@ -103,12 +105,13 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
       .getLabels(project, firebase)
       .then((data) => {
         setLabelList(data);
+        setIsLoading(false);
       })
       .catch((e) => {
         let err = 'Error fetching labels';
         setError(err);
+        setIsLoading(false);
       });
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -124,6 +127,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
+    setIsNotLabeled(true);
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
@@ -208,7 +212,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   return (
     <IonPage>
       <Header routerLink={'/project/' + project} name={currentDisplayName} />
-
+      
       <IonContent>
         {/**
          * skeleton is displayed if isLoading is true, otherwise projectData is displayed
@@ -315,7 +319,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                     </IonLabel>
                   </IonItem>
                 ))}
-                {isNotLabeled && (
+                {isNotLabeled &&  (
                   <h5 className="promptMessage">
                     No labels have yet been set for this document
                   </h5>
