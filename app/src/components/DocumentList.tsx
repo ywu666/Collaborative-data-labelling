@@ -14,6 +14,7 @@ import { add } from 'ionicons/icons'
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
+import { userService } from '../services/UserServices'
 import { isNullOrUndefined } from 'util';
 import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
 
@@ -53,7 +54,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			setLabels(data)
 		})
 		documentUpdate()
-    },[]);
+	},[]);
 
 	useEffect(() => {
 		documentUpdate()
@@ -117,14 +118,25 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		
 		setNewDocument(doc)
 
+		if (contributor.some(e => e.email === email)) {
+			let contributor_temp = contributor
+			contributor_temp.find(e => e.email === email).number_unlabelled = contributor_temp.find(e => e.email === email).number_unlabelled - 1
+			setContributor(contributor_temp)
+		}
+
 		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id, firebase)
 		.then(() => { 
+			documentServices.getNumberOfUnlabelledDocs(name, firebase)
+			.then(data => {
+			  setContributor(data)
+			})
 			return documentServices.getDocument(name, documentIndex, firebase)
 		})
 		.then(data => {
 			data.id = documentIndex
 			setNewDocument(data)
 			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
+
 		})
 		.catch(e => {
 			let error = {
@@ -144,7 +156,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let error = docError?.find(e => e.doc_id === doc._id)
 		let user_label = labels?.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
 		let user_label_confirmed = doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label_confirmed
-		console.log(doc ,user_label_confirmed)
+		
 		return (
 			<TableRow key = {index} >
 				<TableCell colSpan={1}>
