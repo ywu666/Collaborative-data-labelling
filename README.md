@@ -9,11 +9,10 @@ Then run:
 
 "docker-compose up"
 
-If you do not have docker, run each component individually (backend/main.py, and "npm run start" in app/)
+If you do not have docker, run each component individually (backend/main.py, and "npm run start" in app/):
 
-
-Otherwise, to run the frontend, run 'npm install' then 'npm start' within the 'app' directory: https://www.npmjs.com/
-To run the backend, run "pip install -r requirements.txt" then 'python main.py' within the 'backend' directory
+To run the frontend, run 'npm install' then 'npm start' within the 'app' directory: https://www.npmjs.com/   
+To run the backend, run "pip install -r requirements.txt" then 'python main.py' within the 'backend' directory   
 You must have the following installed:
 - Python 3
 - pip
