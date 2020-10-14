@@ -4,8 +4,8 @@ Backend Status: [![Build Status](https://travis-ci.com/saddboys/Collaborative_co
 
 ENVIRONMENT FILES:
 - Put the environment files (.env) within the /app and the /backend directories
-- App environment file should contain the following "REACT_APP_API_URL='<URL FOR BACKEND API>'"
-- Backend environment file should contain the following "ATLAS_URI='<URL FOR MONGODB ATLAS>'"
+- App environment file should contain the following "REACT_APP_API_URL='URL FOR BACKEND API'"
+- Backend environment file should contain the following "ATLAS_URI='URL FOR MONGODB DATABASE'"
 - Please contact cche381@aucklanduni.ac.nz for the environment files required to run the project if you are having trouble
 
 TO RUN (DOCKER):  
