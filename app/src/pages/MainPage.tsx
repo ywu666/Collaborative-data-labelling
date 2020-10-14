@@ -9,6 +9,7 @@ import {
   IonCardContent,
   IonCardTitle,
   IonInput,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -36,66 +37,61 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   const [progressMessage, setProgressMessage] = useState<string>('');
   const [newProject, setNewProject] = useState<any>('');
 
-  const { firebase } = props;
-  const [text, setText] = useState<any>();
-  useEffect(() => {
-    try {
-      projectServices.getProjectNames(firebase).then((data) => {
-        let loadings: any[] = [];
-        data.forEach((e: { name: string }) => {
-          let temp = { name: e, loading: true };
-          loadings.push(temp);
-        });
-        setProjectLoading(loadings);
-        setProjectNames(data);
-      });
-    } catch (e) {}
-  }, []);
+    const {
+      firebase
+    } = props;
+    const [text, setText] = useState<any>();
+
+    useIonViewWillEnter(() => {
+      setLoading(true)
+      setProjectData([])
+      try {
+        projectServices.getProjectNames(firebase)
+        .then(data => {
+          let loadings:any[] = []
+          data.forEach((e: { name: string; }) => {
+            let temp = {name:e, loading: true}
+            loadings.push(temp)
+          })
+          setProjectLoading(loadings)
+          setProjectNames(data)
+        })
+      } catch (e) {}
+    },[]);
+
+    useEffect(() => {
+      projectNames.forEach(e => {
+        if (!projectData.some(e_p => e_p.name === e)) {
+          documentServices.getNumberOfUnlabelledDocs(e, firebase)
+          .then(data => {
+            return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
+            
+          })
+          .then(data => {
+            if (isNullOrUndefined(data) || data === 0) {
+              projectServices.getProjectAgreementScore(e, firebase)
+              .then(_data => {
+                _data.name = e
+                _data.unlabelled = data
+                setProjectData(e_p => [...e_p, _data])
+              })
+            } else {
+              let temp = { name: e, unlabelled:data }
+              setProjectData(e_p => [...e_p, temp])
+            }
+          })
+        }
+      })
+    }, [projectNames])
 
   useEffect(() => {
-    projectNames.forEach((e) => {
-      documentServices
-        .getNumberOfUnlabelledDocs(e, firebase)
-        .then((data) => {
-          return data.find(
-            (_e: { email: string | null }) =>
-              _e.email === localStorage.getItem('email')
-          )?.number_unlabelled;
-        })
-        .then((data) => {
-          if (isNullOrUndefined(data) || data === 0) {
-            projectServices
-              .getProjectAgreementScore(e, firebase)
-              .then((_data) => {
-                _data.name = e;
-                _data.unlabelled = data;
-                if (projectData.some((e_p) => e_p.name === _data.name)) {
-                  let temp = [...projectData];
-                  temp.forEach((e_t) => {
-                    if (e_t.name === _data.name) {
-                      e_t = _data;
-                    }
-                  });
-                  setProjectData(temp);
-                } else {
-                  setProjectData((e_p) => [...e_p, _data]);
-                }
-              });
-          } else {
-            let temp = { name: e, unlabelled: data };
-            if (projectData.some((e_p) => e_p.name === e)) {
-              let temp_data = [...projectData];
-              temp_data.forEach((e_t) => {
-                if (e_t.name === e) {
-                  e_t = temp;
-                }
-              });
-              setProjectData(temp_data);
-            } else {
-              setProjectData((e_p) => [...e_p, temp]);
-            }
-          }
-        });
+    let temp = [...projectLoading]
+    projectData.forEach(e => {
+      temp.forEach(e_p => {
+        if (e_p.name === e.name) {
+          e_p.loading = false
+        }
+      });
     });
   }, [projectNames]);
 
@@ -116,21 +112,23 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   }, [projectLoading]);
 
   useEffect(() => {
-    try {
-      projectServices
-        .createProject(newProject, firebase)
-        .then((data) => {
-          setProjectNames((projectNames) => [...projectNames, newProject]);
-        })
-        .catch((reason) => {
-          setError(true);
-          setErrorMessage(reason);
-          setLoading(false);
-        });
-    } catch (err) {
-      setError(true);
-      setErrorMessage(err.message);
-      setLoading(false);
+    if (newProject !== "") {
+      try {
+        projectServices
+          .createProject(newProject, firebase)
+          .then((data) => {
+            setProjectNames((projectNames) => [...projectNames, newProject]);
+          })
+          .catch((reason) => {
+            setError(true);
+            setErrorMessage(reason);
+            setLoading(false);
+          });
+      } catch (err) {
+        setError(true);
+        setErrorMessage(err.message);
+        setLoading(false);
+      }
     }
   }, [newProject]);
 
@@ -157,25 +155,26 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     } else {
       return 'Agreement score: ' + Math.round(agreed_number).toString() + '%';
     }
-  };
+  }
 
   function handleEnterProjectName(_value: any) {
     setText(_value);
     setError(false);
     setErrorMessage('');
   }
+
   useEffect(() => {
     try {
-      userService
-        .getCurrentUser(localStorage.getItem('email'), firebase)
-        .then((data) => {
-          setCurrentDisplayName(data.username);
-        });
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
+      .then(data => {
+          setCurrentDisplayName(data.username)
+        })
     } catch (e) {}
-  }, []);
-  return (
+  }, [])
+
+  return ( 
     <IonPage>
-      <Header name={currentDisplayName} />
+      <Header name={currentDisplayName}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
        */}
@@ -194,6 +193,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
                     const formData = new FormData(e.target as HTMLFormElement);
                     setNewProject(formData.get('projectName'));
                     formData.delete('projectName');
+                    setText("")
                   }}
                 >
                   <IonItem>
