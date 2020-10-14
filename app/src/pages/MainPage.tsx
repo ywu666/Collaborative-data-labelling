@@ -1,45 +1,4 @@
 import {
-<<<<<<< HEAD
-    IonContent,
-    IonPage,
-    IonButton,
-    IonItem,
-    IonLabel,
-    IonIcon,
-    IonCard,
-    IonCardContent,
-    IonCardTitle,
-    IonInput,
-    useIonViewWillEnter,
-  } from '@ionic/react';
-  import { add } from 'ionicons/icons';
-  import React, { useState, useEffect } from 'react';
-  import Masonry from 'react-masonry-component'
-  import CircularProgress from '@material-ui/core/CircularProgress';
-  import './MainPage.css';
-  import 'firebase/auth';
-  import { projectServices } from '../services/ProjectServices'
-  import { documentServices } from '../services/DocumentService';
-  import Header from '../components/Header'
-  import { isNullOrUndefined } from 'util';
-  import { userService } from '../services/UserServices';
-import { valid } from 'glamor';
-import { EPERM } from 'constants';
-  
-  interface MainPageProps {
-    firebase: any
-  }
-  const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
-    const [projectNames, setProjectNames] = useState<any[]>([]);
-    const [projectLoading, setProjectLoading] = useState<any[]>([]);
-    const [projectData, setProjectData] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-    const [currentDisplayName,setCurrentDisplayName] = useState("");
-    const [error, setError] = useState(false);
-    const [errorMessage, setErrorMessage] = useState<string>("");
-    const [progressMessage, setProgressMessage] = useState<string>("");
-    const [newProject, setNewProject] = useState<any>("");
-=======
   IonContent,
   IonPage,
   IonButton,
@@ -50,6 +9,7 @@ import { EPERM } from 'constants';
   IonCardContent,
   IonCardTitle,
   IonInput,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import { add } from 'ionicons/icons';
 import React, { useState, useEffect } from 'react';
@@ -62,7 +22,6 @@ import { documentServices } from '../services/DocumentService';
 import Header from '../components/Header';
 import { isNullOrUndefined } from 'util';
 import { userService } from '../services/UserServices';
->>>>>>> d6170d0a5faa213bb2f4738ba7883a1e00741fc2
 
 interface MainPageProps {
   firebase: any;
@@ -194,41 +153,27 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     } else {
       return 'Agreement score: ' + Math.round(agreed_number).toString() + '%';
     }
-<<<<<<< HEAD
-    useEffect(() => {
-      try{
-        userService.getCurrentUser(localStorage.getItem("email"), firebase)
-        .then(data => {
-          setCurrentDisplayName(data.username)
-        })
-      } catch (e) {
-      }
-    }, [])
-    return (
-      
-      <IonPage>
-      <Header name={currentDisplayName}/>
-=======
-  };
+  }
 
   function handleEnterProjectName(_value: any) {
     setText(_value);
     setError(false);
     setErrorMessage('');
   }
+
   useEffect(() => {
     try {
-      userService
-        .getCurrentUser(localStorage.getItem('email'), firebase)
-        .then((data) => {
-          setCurrentDisplayName(data.username);
-        });
+      userService.getCurrentUser(localStorage.getItem("email"), firebase)
+      .then(data => {
+          setCurrentDisplayName(data.username)
+        })
     } catch (e) {}
-  }, []);
-  return (
-    <IonPage>
-      <Header name={currentDisplayName} />
->>>>>>> d6170d0a5faa213bb2f4738ba7883a1e00741fc2
+  }, [])
+
+    return (
+      
+      <IonPage>
+      <Header name={currentDisplayName}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
        */}
