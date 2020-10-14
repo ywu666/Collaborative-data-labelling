@@ -31,7 +31,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		currentUser,
 		firebase,
 	} = props;
-	const [unassign, setUnassgin] = useState<boolean>(false);
 	const [page, setPage] = useState(0);
 	const [page_size, setPageSize] = useState(10);
 	const [documents, setDocuments] = useState<any[]>([]);
@@ -110,10 +109,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let doc = documents.find(e => e._id === documentIndex)
 		let email = localStorage.getItem("email")
 
-		if(label == ""){
-			setUnassgin(true)
-		}
-
 		if (doc.user_and_labels.some((e: { email: string | null; }) => e.email === email))
 			doc.user_and_labels.find((e: { email: string | null; }) => e.email === email).label = label._id 
 
@@ -182,7 +177,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 							? isNullOrUndefined(user_label)
 								? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
 								: user_label_confirmed
-									? !unassign ? <IonButton disabled={true} color="success" fill="outline" slot="end">{user_label.name} </IonButton> :  <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
+									? <IonButton disabled={true} color="success" fill="outline" slot="end">{user_label.name} </IonButton> 
 									: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
 							: <div/>	
 					}
@@ -230,7 +225,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			</div>
 			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
 				<div className="inner-content">
-					<IonButton fill="outline" color="danger" onClick={() => changeTag(documentIndex, "")}>Unassign Tag</IonButton>
 					{labels.map((label, i) =>
 						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(documentIndex, label)}>{label.name}</IonButton>
 					)}
