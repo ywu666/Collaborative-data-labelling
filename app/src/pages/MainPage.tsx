@@ -56,7 +56,6 @@ import { EPERM } from 'constants';
           setProjectNames(data)
         })
       } catch (e) {
-        console.log(e)
       }
     }, [])
 
@@ -64,33 +63,26 @@ import { EPERM } from 'constants';
       projectNames.forEach(e => {
         documentServices.getNumberOfUnlabelledDocs(e, firebase)
         .then(data => {
-          console.log(data)
           return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
           
         })
         .then(data => {
-          console.log(e)
           if (isNullOrUndefined(data) || data === 0) {
             projectServices.getProjectAgreementScore(e, firebase)
             .then(_data => {
-              console.log(_data)
               _data.name = e
               _data.unlabelled = data
               if (projectData.some(e_p => e_p.name === _data.name)) {
                 let temp = [...projectData]
-                console.log(projectData)
                 temp.forEach(e_t => {
                   if (e_t.name === _data.name) {
                     e_t = _data
                   }
                 })
-                console.log(temp)
                 setProjectData(temp)
               }
               else {
                 setProjectData(e_p => [...e_p, _data])
-                console.log(_data)
-
               }
             })
           } else {
@@ -102,29 +94,21 @@ import { EPERM } from 'constants';
                   e_t = temp
                 }
               })
-              console.log(temp_data)
               setProjectData(temp_data)
 
             }
             else {
-              console.log(temp)
               setProjectData(e_p => [...e_p, temp])
 
             }
           }
         })
       })
-      console.log("projectdata updated");
-      console.log(projectData);
-
     }, [projectNames])
 
     useEffect(() => {
-      console.log("projectData detected update");
-      console.log(projectData);
       let temp = [...projectLoading]
       projectData.forEach(e => {
-        console.log(e)
         temp.forEach(e_p => {
           if (e_p.name === e.name) {
             e_p.loading = false
@@ -144,8 +128,6 @@ import { EPERM } from 'constants';
       try {
         projectServices.createProject(newProject, firebase).then(data =>{
           setProjectNames(projectNames=> [...projectNames, newProject]);
-          console.log(projectNames)
-          console.log(data)
         }
         ).catch(reason => {
           setError(true);
@@ -191,7 +173,6 @@ import { EPERM } from 'constants';
           setCurrentDisplayName(data.username)
         })
       } catch (e) {
-        console.log(e)
       }
     }, [])
     return (
@@ -234,11 +215,6 @@ import { EPERM } from 'constants';
                     <IonCardTitle>
                       {data.name}
                     </IonCardTitle>
-                    {/** current project backend api does not have project description
-                    <IonCardContent >
-                            {data.description}
-                    </IonCardContent>
-                    */}
                     <IonCardContent>
                       {progressProject(data)}
                       <p>{progressMessage}</p>

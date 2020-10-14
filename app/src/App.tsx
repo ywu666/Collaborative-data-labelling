@@ -41,11 +41,6 @@ const App: React.FC<AppProps> = (props: AppProps) => {
   const [loaded, setLoaded] = useState(false);
 
    firebase.auth.onAuthStateChanged(function(user: any) {
-      if (user) {
-        console.log("SIGNED IN")
-      } else {
-        console.log("SIGNED OUT")
-      }
       setLoaded(true)
     });
 
