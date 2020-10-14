@@ -54,7 +54,6 @@ async function getProjectNames(firebase: any) {
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
-            console.log("token ID was changed to match current user token ID")
         }
        })
    }else{
@@ -82,7 +81,6 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
          if(token !== idToken){
              localStorage.setItem('user-token',idToken)
-             console.log("token ID was changed to match current user token ID")
          }
         })
     }else{
@@ -113,7 +111,6 @@ function exportCsv(projectName: string) {
     .then(handleResponse)
     .then(downloadHelpers.collectionToCSV(exportFields))
     .then(csv => {
-        console.log(csv)
         const blob = new Blob([csv], {type: 'text/csv'});
         downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
     })
