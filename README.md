@@ -11,6 +11,14 @@ Then run:
 
 If you do not have docker, run each component individually (backend/main.py, and "npm run start" in app/)
 
+
+Otherwise, to run the frontend, run 'npm install' then 'npm start' within the 'app' directory: https://www.npmjs.com/
+To run the backend, run "pip install -r requirements.txt" then 'python main.py' within the 'backend' directory
+You must have the following installed:
+- Python 3
+- pip
+- npm
+
 ## Project Requirements
 Web based tool to label text documents, for machine learning tasks. Supervised machine learning with text requires manual labels to be assigned to many documents by human coders. This tool will facilitate human coders to privately (still online) assign predefined labels to a set of documents and then compare their labels with other coders to give an agreed label. 
 
