@@ -1,6 +1,5 @@
 import {
   IonContent,
-  IonHeader,
   IonPage,
   IonList,
   IonItem,
@@ -9,7 +8,6 @@ import {
   IonCardTitle,
   IonSkeletonText,
   IonCheckbox,
-  IonCardContent,
   IonAlert,
   IonSpinner,
 } from '@ionic/react';
@@ -19,8 +17,6 @@ import Moment from 'moment';
 import './DocumentPage.css';
 import { documentServices } from '../services/DocumentService';
 import { userService } from '../services/UserServices';
-import firebase from 'firebase';
-import app from 'firebase/app';
 import 'firebase/auth';
 import Header from '../components/Header';
 import NewCommentInput from '../components/NewCommentInput';
@@ -92,12 +88,14 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         }
         setChecked(data);
         setLabelLoading(false);
+        setIsLoading(false);
       })
       .catch((error) => {
         //handle the error of fetching labels
         let err = 'Error fetching label confirm';
         setError(err);
         setDisabled(true);
+        setIsLoading(false);
       });
   }, []);
 
@@ -107,12 +105,13 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
       .getLabels(project, firebase)
       .then((data) => {
         setLabelList(data);
+        setIsLoading(false);
       })
       .catch((e) => {
         let err = 'Error fetching labels';
         setError(err);
+        setIsLoading(false);
       });
-    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -128,6 +127,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   }, []);
 
   useEffect(() => {
+    setIsNotLabeled(true);
     labelData.forEach((element: any) => {
       labelList.forEach((element1: any) => {
         if (element.label === element1._id) {
@@ -142,15 +142,12 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               };
               setList((e) => [...e, pair]);
             });
-          } catch (e) {
-            console.log(e);
-          }
+          } catch (e) {}
         }
       });
     });
     if (labelData.length > 0) {
       setIsNotLabeled(false);
-      console.log(labelData.length)
       if(labelData.length <2){
         setHideConfirm(true);
       }
@@ -164,9 +161,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
         .then((data) => {
           setCurrentDisplayName(data.username);
         });
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -193,16 +188,14 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
               setCommentData(data.comments);
             });
         });
-    } catch (e) {
-      console.error(e);
-    }
+    } catch (e) {}
   };
 
   async function handleCheckedUpdate() {
     try {
       labelServices
         .updateConfirmedLabel(project, document_id, currentLabel, firebase)
-        .then((data) => {
+        .then(() => {
           setDisabled(true);
           setChecked(true);
         })
@@ -219,7 +212,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
   return (
     <IonPage>
       <Header routerLink={'/project/' + project} name={currentDisplayName} />
-
+      
       <IonContent>
         {/**
          * skeleton is displayed if isLoading is true, otherwise projectData is displayed
@@ -326,7 +319,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                     </IonLabel>
                   </IonItem>
                 ))}
-                {isNotLabeled && (
+                {isNotLabeled &&  (
                   <h5 className="promptMessage">
                     No labels have yet been set for this document
                   </h5>

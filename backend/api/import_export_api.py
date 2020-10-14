@@ -1,8 +1,8 @@
 import csv
 import os
 
-from api.methods import JSONEncoder, check_all_labels_for_document_match, get_label_name_by_label_id
-from bson import ObjectId
+from api.methods import JSONEncoder, get_label_name_by_label_id
+from api.validation_methods import check_id_token, user_unauthorised_response
 from firebase_auth import get_email
 from flask import Blueprint, request, make_response
 from model.document import Document, get_db_collection
@@ -20,17 +20,11 @@ import_export_api = Blueprint('import_export_api', __name__)
 @import_export_api.route('/projects/upload', methods=['POST'])
 def upload_file():
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     if 'projectName' in request.form:
         project_name = str(request.form['projectName'])
@@ -43,28 +37,22 @@ def upload_file():
     requestor = users_col.find_one({'email': requestor_email},
                                    {'$or': [{'isContributor': True}, {'isAdmin': True}]})
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     if 'inputFile' not in request.files:
         response = {'message': 'No file selected'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     file = request.files['inputFile']
-
     # Check file name
     if file.filename == '':
         response = {'message': 'No file selected'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     # Check file type
     if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
         response = {'message': 'Incorrect filetype/format'}
-        response = make_response(response)
-        return response, 400
+        return make_response(response), 400
 
     if file:
         filename = secure_filename(file.filename)
@@ -76,9 +64,7 @@ def upload_file():
         response = {'message': 'Documents imported successfully'}
 
         with open(filelocation) as csv_file:
-
             csv_reader = csv.reader(csv_file, delimiter=",")
-
             is_first_line = True
 
             # Default is that user provides their own IDs
@@ -158,7 +144,6 @@ def upload_file():
         os.remove(filelocation)
 
         if response == {'message': 'Incorrect filetype/format'}:
-            print("true")
             return make_response(response), 400
         else:
             # Insert docs
@@ -173,34 +158,24 @@ def upload_file():
             elif len(ids_incorrectly_formatted) > 0:
                 response = {'Documents with incorrectly formatted IDs': list(ids_incorrectly_formatted)}
 
-            response = make_response(response)
-            return response, 200
+            return make_response(response), 200
 
 
 # Endpoint for exporting documents with labels for project
 @import_export_api.route('/projects/<project_name>/export', methods=['GET'])
 def export_documents(project_name):
     id_token = request.args.get('id_token')
-
-    if id_token is None or id_token == "":
-        response = {'message': "ID Token is not included with the request uri in args"}
-        response = make_response(response)
-        return response, 400
-
     requestor_email = get_email(id_token)
 
-    if requestor_email is None:
-        response = {'message': "ID Token has expired or is invalid"}
-        response = make_response(response)
-        return response, 400
+    invalid_token = check_id_token(id_token, requestor_email)
+    if invalid_token is not None:
+        return make_response(invalid_token), 400
 
     user_col = get_col(project_name, "users")
     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
 
     if requestor is None:
-        response = {'message': "You are not authorised to perform this action"}
-        response = make_response(response)
-        return response, 403
+        return user_unauthorised_response()
 
     # get all documents and labels
     label_col = get_db_collection(project_name, 'labels')
@@ -210,7 +185,6 @@ def export_documents(project_name):
     # Get contributors of project?
     user_col = get_db_collection(project_name, "users")
     contributor_emails = user_col.find({'isContributor': True}, {'_id': 0, 'email': 1})
-    # print(len(list(contributor_emails)))
     if len(list(contributor_emails)) == 2:
         contributor_one_index = 0
         contributor_two_index = 1
