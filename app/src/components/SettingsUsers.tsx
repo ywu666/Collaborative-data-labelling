@@ -45,7 +45,6 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         userService.getAllUsersInDatabase() //change when creating tables of user
         .then(data => {
             setAllUsers(data)
-            console.log(data)
         })
     } catch (e) {
 

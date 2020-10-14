@@ -245,7 +245,7 @@ function getIfCurrentUserConfirmedLabel(project: any, document_id: any, firebase
         }
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id + "/label-is-confirmed"
-        + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.labelIsConfirmed;

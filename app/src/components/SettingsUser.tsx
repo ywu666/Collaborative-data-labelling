@@ -42,11 +42,9 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     try{
       userService.getCurrentUser(user, firebase)
       .then(data => {
-        console.log(data)
         setCurrentDisplayName(data.username)
       })
     } catch (e) {
-      console.log(e)
     }
   }, [user])
   
@@ -81,20 +79,16 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
           if (data.includes("Contributor")) {
             setLocalIsContributor(true);
             refContributor.current = true
-            console.log("trying to make contributor")
           } else {
             setLocalIsContributor(false);
             refContributor.current = false
-            console.log("trying to set contributor to false")
           }
           if (data.includes("Admin")) {
             setLocalIsAdmin(true);
             refAdmin.current = true
-            console.log("trying to make admin")
           } else {
             setLocalIsAdmin(false);
             refAdmin.current = false
-            console.log("trying to set admin to false")
           }
           projectServices.setUserPermissions(project, user, refAdmin.current, refContributor.current, firebase)
             .catch(e => {
@@ -102,7 +96,6 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
             setLocalIsAdmin(isAdmin)
             setShowError(true)
           })
-
         }
       }
     ]}
@@ -127,17 +120,17 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
       <TableCell><IonLabel>{user}</IonLabel></TableCell>
       <TableCell align="center" style={ {width: '16px'} }>
         <Tooltip title="User has administrative permissions">
-          <IonIcon icon={buildOutline} hidden={!localIsAdmin}></IonIcon>
+          <IonIcon title="" icon={buildOutline} hidden={!localIsAdmin}></IonIcon>
         </Tooltip>
       </TableCell>
       <TableCell align="center" style={ {width: '16px'} }>
           <Tooltip title="User has collaborator permissions">
-            <IonIcon icon={peopleOutline} hidden={!localIsContributor}></IonIcon>
+            <IonIcon title="" icon={peopleOutline} hidden={!localIsContributor}></IonIcon>
           </Tooltip>
       </TableCell>
       <TableCell align="center" style={ {width: '16px'} }>
           <Tooltip title="User only has observer permissions">
-            <IonIcon icon={eyeOutline} hidden={localIsAdmin || localIsContributor}></IonIcon>
+            <IonIcon title="" icon={eyeOutline} hidden={localIsAdmin || localIsContributor}></IonIcon>
           </Tooltip>
       </TableCell>
       <TableCell align="right" style={ {width: '60px'} }>

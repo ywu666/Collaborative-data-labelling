@@ -8,13 +8,11 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     setProjectUsers,
-    //getProjectTags,
     setProjectTags,
     setUserPermissions,
     uploadDocuments,
     createProject,
     getProjectAgreementScore,
-    //uploadDocuments
 }
 
 async function createProject(project_name: any, firebase: any){
@@ -35,13 +33,9 @@ async function createProject(project_name: any, firebase: any){
     window.location.href = '/auth';
    }
 
-   console.log("create project call reached projectService.ts")
-
     return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
     .then(handleResponse)
     .then(data => {
-        console.log("call for creating project reached back end")
-        console.log(data)
         return data
     })
 }
@@ -60,7 +54,6 @@ async function getProjectNames(firebase: any) {
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
-            console.log("token ID was changed to match current user token ID")
         }
        })
    }else{
@@ -88,7 +81,6 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
          if(token !== idToken){
              localStorage.setItem('user-token',idToken)
-             console.log("token ID was changed to match current user token ID")
          }
         })
     }else{
@@ -119,7 +111,6 @@ function exportCsv(projectName: string) {
     .then(handleResponse)
     .then(downloadHelpers.collectionToCSV(exportFields))
     .then(csv => {
-        console.log(csv)
         const blob = new Blob([csv], {type: 'text/csv'});
         downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
     })

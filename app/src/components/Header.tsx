@@ -21,11 +21,8 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   const {
     routerLink,
     title,
-		name,
 		logout
   } = props;
-
-
 
   return (
     <IonHeader>

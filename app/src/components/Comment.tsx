@@ -56,7 +56,6 @@ import { userService } from '../services/UserServices';
             setDisplayName(data.username)
           })
         } catch (e) {
-          console.log(e)
         }
       }, [])
     //const unixTimestamp = 198784740;

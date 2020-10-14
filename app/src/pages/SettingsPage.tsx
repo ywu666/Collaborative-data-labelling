@@ -4,10 +4,6 @@ import {
     IonGrid,
     IonRow,
     IonCol,
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle
   } from '@ionic/react';
   import React, { useState, useEffect } from 'react';
   import { useParams } from 'react-router';
@@ -34,7 +30,6 @@ import {
           setCurrentDisplayName(data.username)
         })
       } catch (e) {
-        console.log(e)
       }
     }, [])
   
