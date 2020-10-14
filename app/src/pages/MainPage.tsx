@@ -112,21 +112,23 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   }, [projectLoading]);
 
   useEffect(() => {
-    try {
-      projectServices
-        .createProject(newProject, firebase)
-        .then((data) => {
-          setProjectNames((projectNames) => [...projectNames, newProject]);
-        })
-        .catch((reason) => {
-          setError(true);
-          setErrorMessage(reason);
-          setLoading(false);
-        });
-    } catch (err) {
-      setError(true);
-      setErrorMessage(err.message);
-      setLoading(false);
+    if (newProject !== "") {
+      try {
+        projectServices
+          .createProject(newProject, firebase)
+          .then((data) => {
+            setProjectNames((projectNames) => [...projectNames, newProject]);
+          })
+          .catch((reason) => {
+            setError(true);
+            setErrorMessage(reason);
+            setLoading(false);
+          });
+      } catch (err) {
+        setError(true);
+        setErrorMessage(err.message);
+        setLoading(false);
+      }
     }
   }, [newProject]);
 
@@ -170,9 +172,8 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     } catch (e) {}
   }, [])
 
-    return (
-      
-      <IonPage>
+  return ( 
+    <IonPage>
       <Header name={currentDisplayName}/>
 
       {/**will add an onclick function which will parse the new project name information to the system
