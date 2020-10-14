@@ -1,10 +1,11 @@
-FROM python:3.8-alpine
-WORKDIR /backend
+FROM python:3.7-alpine
+RUN apk update && apk add --no-cache gcc libc-dev make git libffi-dev openssl-dev python3-dev libxml2-dev libxslt-dev musl-dev linux-headers build-base alpine-sdk
+WORKDIR .
+ENV PYTHONPATH="."
 ENV FLASK_APP="main.py"
+ENV FLASK_ENV="development"
 ENV FLASK_RUN_HOST="0.0.0.0"
-RUN apk add --no-cache gcc musl-dev linux-headers
-COPY requirements.txt requirements.txt
+COPY . ./
 RUN pip install -r requirements.txt
 EXPOSE 5000
-COPY . /backend/.
 CMD ["flask", "run"]
