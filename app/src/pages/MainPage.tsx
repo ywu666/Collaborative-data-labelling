@@ -193,6 +193,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
                     const formData = new FormData(e.target as HTMLFormElement);
                     setNewProject(formData.get('projectName'));
                     formData.delete('projectName');
+                    setText("")
                   }}
                 >
                   <IonItem>
