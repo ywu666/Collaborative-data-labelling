@@ -2,6 +2,12 @@
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)  
 Backend Status: [![Build Status](https://travis-ci.com/saddboys/Collaborative_content_coding.svg?branch=master)](https://travis-ci.com/saddboys/Collaborative_content_coding)
 
+ENVIRONMENT FILES:
+- Put the environment files (.env) within the /app and the /backend directories
+- App environment file should contain the following "REACT_APP_API_URL='<URL FOR BACKEND API>'"
+- Backend environment file should contain the following "ATLAS_URI='<URL FOR MONGODB ATLAS>'"
+- Please contact cche381@aucklanduni.ac.nz for the environment files required to run the project if you are having trouble
+
 TO RUN (DOCKER):  
 You must have Docker Desktop installed (With educational license): https://www.docker.com/  
 Or you must have Docker toolbox: https://docs.docker.com/toolbox/toolbox_install_windows/  
@@ -28,6 +34,8 @@ Lanuages:
 front end - HTML CSS Javascript, ionic, material ui
 
 back end - optional (maybe python)
+
+database - MongoDB: please note that there must be a database named "users" with a collection named "users" existing within the database before running the project
 
 
 ### Desired Features
