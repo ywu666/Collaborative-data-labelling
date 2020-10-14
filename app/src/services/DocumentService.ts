@@ -248,7 +248,6 @@ function getIfCurrentUserConfirmedLabel(project: any, document_id: any, firebase
         + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
-            console.log(data.labelIsConfirmed)
             return data.labelIsConfirmed;
         })
 }
@@ -260,7 +259,6 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);
        }
-        console.log(data)
        return data;
    });
 }
