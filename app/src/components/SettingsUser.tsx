@@ -42,11 +42,9 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
     try{
       userService.getCurrentUser(user, firebase)
       .then(data => {
-        console.log(data)
         setCurrentDisplayName(data.username)
       })
     } catch (e) {
-      console.log(e)
     }
   }, [user])
   
@@ -81,20 +79,16 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
           if (data.includes("Contributor")) {
             setLocalIsContributor(true);
             refContributor.current = true
-            console.log("trying to make contributor")
           } else {
             setLocalIsContributor(false);
             refContributor.current = false
-            console.log("trying to set contributor to false")
           }
           if (data.includes("Admin")) {
             setLocalIsAdmin(true);
             refAdmin.current = true
-            console.log("trying to make admin")
           } else {
             setLocalIsAdmin(false);
             refAdmin.current = false
-            console.log("trying to set admin to false")
           }
           projectServices.setUserPermissions(project, user, refAdmin.current, refContributor.current, firebase)
             .catch(e => {
@@ -102,7 +96,6 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
             setLocalIsAdmin(isAdmin)
             setShowError(true)
           })
-
         }
       }
     ]}

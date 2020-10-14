@@ -70,8 +70,6 @@ class SignInFormBase extends Component {
 
     onSubmit = event => {
         this.setState({ loading: true});
-        console.log("button click")
- 
             
         const { email, password, loggedin, loading } = this.state;
         this.props.firebase
@@ -83,8 +81,6 @@ class SignInFormBase extends Component {
                 this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
                     localStorage.setItem("email", email)
                     localStorage.setItem("user-token", idToken);
-                    console.log(idToken)
-                    
                     this.setState({loggedIn: true});
                     this.setState({ redirect: "/" });
                     this.setState({ loading: false});
@@ -99,7 +95,6 @@ class SignInFormBase extends Component {
     };
 
     onChange = event => {
-        console.log("change")
         this.setState({error: ''})
         this.setState({ [event.target.name]: event.target.value });
     };

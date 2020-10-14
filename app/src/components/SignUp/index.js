@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { withFirebase} from '../Firebase';
+import { withFirebase } from '../Firebase';
 import { compose } from 'recompose';
 import { css } from 'glamor';
 import { Redirect } from "react-router-dom";
@@ -22,6 +22,8 @@ const lightPadding = css({
     maxWidth: '400px',
 
     display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'center',
 });
 
 const inputBoxStyling = css({
@@ -45,7 +47,7 @@ class SignUpFormBase extends Component {
     }
 
     onSubmit = event => {
-        this.setState({ loading: true});
+        this.setState({ loading: true });
         const { username, email, passwordOne, loading } = this.state;
 
         this.props.firebase
@@ -53,17 +55,17 @@ class SignUpFormBase extends Component {
             .then(authUser => {
                 this.setState({ ...INITIAL_STATE });
                 this.setState({ redirect: "/auth" });
-                this.setState({ loading: false});
+                this.setState({ loading: false });
             }).then(() => {
-                this.props.firebase.auth.currentUser.getIdToken().then(idToken =>{
+                this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
                     localStorage.setItem("user-token", idToken);
                     userService.signup(username, email, idToken);
                 })
-                this.setState({ loading: false});
+                this.setState({ loading: false });
             })
             .catch(error => {
                 this.setState({ error });
-                this.setState({ loading: false});
+                this.setState({ loading: false });
             });
 
         event.preventDefault();
@@ -88,70 +90,78 @@ class SignUpFormBase extends Component {
             passwordOne === '' ||
             email === '' ||
             username === '';
-            if (this.state.redirect) {
-                return <Redirect to={this.state.redirect} />
-            }
+        if (this.state.redirect) {
+            return <Redirect to={this.state.redirect} />
+        }
         return (
             <Card >
-                 <CardContent>
-                <form onSubmit={this.onSubmit}>
-                <Typography variant="h5" component="h2">
-                        Sign Up
+                <CardContent>
+                    <form onSubmit={this.onSubmit}>
+                        <Typography variant="h5" component="h2">
+                            Sign Up
                     </Typography>
-                    <Typography color="textSecondary">
-                        Verify your password.
+                        <div {...lightPadding}>
+                            <Typography color="textSecondary">
+                                Verify your password.
                     </Typography>
-                    <div {...lightPadding}>
-                <div {...inputBoxStyling}>
-                <TextField
-                    name="username"
-                    value={username}
-                    onChange={this.onChange}
-                    type="text"
-                    placeholder="User Name"
-                />
-                 </div>
-                 <div {...inputBoxStyling}>
-                <TextField
-                    name="email"
-                    value={email}
-                    onChange={this.onChange}
-                    type="text"
-                    placeholder="Email Address"
-                />
-                  </div>
-                  <div {...inputBoxStyling}>
-                <TextField
-                    name="passwordOne"
-                    value={passwordOne}
-                    onChange={this.onChange}
-                    type="password"
-                    placeholder="Password"
-                />
-                </div>
-                <div {...inputBoxStyling}>
-                <TextField
-                    name="passwordTwo"
-                    value={passwordTwo}
-                    onChange={this.onChange}
-                    type="password"
-                    placeholder="Confirm Password"
-                />
-                </div>
-                <CardActions>
-                <Button color="primary" disabled={isInvalid} type="submit">
-                    Sign Up
-                    {loading && <IonSpinner name="crescent" />} 
-                </Button>
-                </CardActions>
-                
+                        </div>
+                        <div {...lightPadding}>
+                            <div {...inputBoxStyling}>
+                                <TextField
+                                    style={{ maxWidth: '400px', minWidth: '270px' }}
+                                    name="username"
+                                    value={username}
+                                    onChange={this.onChange}
+                                    type="text"
+                                    placeholder="User Name"
+                                />
+                            </div>
+                            <div {...inputBoxStyling}>
+                                <TextField
+                                    style={{ maxWidth: '400px', minWidth: '270px' }}
+                                    name="email"
+                                    value={email}
+                                    onChange={this.onChange}
+                                    type="text"
+                                    placeholder="Email Address"
+                                />
+                            </div>
+                            <div {...inputBoxStyling}>
+                                <TextField
+                                    style={{ maxWidth: '400px', minWidth: '270px' }}
+                                    name="passwordOne"
+                                    value={passwordOne}
+                                    onChange={this.onChange}
+                                    type="password"
+                                    placeholder="Password"
+                                />
+                            </div>
+                            <div {...inputBoxStyling}>
+                                <TextField
+                                    style={{ maxWidth: '400px', minWidth: '270px' }}
+                                    name="passwordTwo"
+                                    value={passwordTwo}
+                                    onChange={this.onChange}
+                                    type="password"
+                                    placeholder="Confirm Password"
+                                />
+                            </div>
+                            <div {...inputBoxStyling}>
+                                <CardActions>
+                                    <Button color="primary" disabled={isInvalid} type="submit">
+                                        Sign Up
+                    {loading && <IonSpinner name="crescent" />}
+                                    </Button>
+                                </CardActions>
+                            </div>
 
-                {error && <p>{error.message}</p>}
-                </div>
-            </form>
-            </CardContent>
-           </Card>
-           
+
+                            {error && <p>{error.message}</p>}
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+
         );
     }
 }

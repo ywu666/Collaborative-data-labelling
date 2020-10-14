@@ -14,7 +14,6 @@ import { add } from 'ionicons/icons'
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
-import { userService } from '../services/UserServices'
 import { isNullOrUndefined } from 'util';
 import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
 
