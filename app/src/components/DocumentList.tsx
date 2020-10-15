@@ -106,6 +106,12 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		setDocumentIndex(id)
 	}
 
+	let total_unlabelled = 0
+
+		contributor.forEach(e => {
+			total_unlabelled = total_unlabelled + e.number_unlabelled;
+		})
+
 	const changeTag = (documentIndex:any, label:any) => {
 		let doc = documents.find(e => e._id === documentIndex)
 		let email = localStorage.getItem("email")
@@ -120,6 +126,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		if (contributor.some(e => e.email === email)) {
 			let contributor_temp = contributor
 			contributor_temp.find(e => e.email === email).number_unlabelled = contributor_temp.find(e => e.email === email).number_unlabelled - 1
+			total_unlabelled --;
 			setContributor(contributor_temp)
 		}
 
@@ -155,11 +162,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		let error = docError?.find(e => e.doc_id === doc._id)
 		let user_label = labels?.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
 		let user_label_confirmed = doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label_confirmed
-		let total_unlabelled = 0
-
-		contributor.forEach(e => {
-			total_unlabelled = total_unlabelled + e.number_unlabelled;
-		})
 		
 		return (
 			<TableRow key = {index} >
