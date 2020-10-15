@@ -6,6 +6,7 @@ ENVIRONMENT FILES:
 - Put the environment files (.env) within the /app and the /backend directories
 - App environment file should contain the following "REACT_APP_API_URL='URL FOR BACKEND API'"
 - Backend environment file should contain the following "ATLAS_URI='URL FOR MONGODB DATABASE'"
+- Backend should also have the file for firebase configurations
 - Please contact cche381@aucklanduni.ac.nz for the environment files required to run the project if you are having trouble
 
 TO RUN (DOCKER):  
