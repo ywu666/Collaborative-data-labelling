@@ -87,6 +87,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(name, firebase)
 		.then(data => {
+			console.log(data)
 		  setContributor(data)
 		})
 	}, [])
@@ -105,6 +106,12 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		setDocumentIndex(id)
 	}
 
+	let total_unlabelled = 0
+
+		contributor.forEach(e => {
+			total_unlabelled = total_unlabelled + e.number_unlabelled;
+		})
+
 	const changeTag = (documentIndex:any, label:any) => {
 		let doc = documents.find(e => e._id === documentIndex)
 		let email = localStorage.getItem("email")
@@ -119,6 +126,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		if (contributor.some(e => e.email === email)) {
 			let contributor_temp = contributor
 			contributor_temp.find(e => e.email === email).number_unlabelled = contributor_temp.find(e => e.email === email).number_unlabelled - 1
+			total_unlabelled --;
 			setContributor(contributor_temp)
 		}
 
@@ -164,7 +172,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				</TableCell>
 				<TableCell colSpan={5}>
 					<IonLabel>
-						{ (contributor.find(e => e.email === email)?.number_unlabelled === 0)
+						{ (total_unlabelled <= 0)
 						? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 						: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
 					</IonLabel>
