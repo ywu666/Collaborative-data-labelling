@@ -34,8 +34,13 @@ def upload_file():
         return response, 400
 
     users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email},
-                                   {'$or': [{'isContributor': True}, {'isAdmin': True}]})
+    # need to figure out what's this or is about here   
+    requestor = users_col.find_one({
+        '$and' : [
+            {'email': requestor_email},
+            {'$or': [{'isContributor': True}, {'isAdmin': True}]}
+        ]
+    })
     if requestor is None:
         return user_unauthorised_response()
 
