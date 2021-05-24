@@ -2,15 +2,15 @@ import app from 'firebase/app';
 import 'firebase/auth';
 import firebase from "firebase";
 
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const config = {
-    apiKey: "AIzaSyBjxqi-CKBglWGn4Dfj0rkY4-mtwP_nwMk",
-    authDomain: "collaborative-content-coding.firebaseapp.com",
-    databaseURL: "https://collaborative-content-coding.firebaseio.com",
-    projectId: "collaborative-content-coding",
-    storageBucket: "collaborative-content-coding.appspot.com",
-    messagingSenderId: "172478633646",
-    appId: "1:172478633646:web:004d73a6e1b65283b63f3f",
-    measurementId: "G-Y8T1KM5DSB"
+    apiKey: "AIzaSyBF8xcbg2ipLYEvwtbopRBuZeVf0o5yNSM",
+    authDomain: "collaborative-data-labelling.firebaseapp.com",
+    projectId: "collaborative-data-labelling",
+    storageBucket: "collaborative-data-labelling.appspot.com",
+    messagingSenderId: "622015500073",
+    appId: "1:622015500073:web:41715cfded3590c45c7138",
+    measurementId: "G-RV8EPBQNQ4"
 };
 
 class Firebase {

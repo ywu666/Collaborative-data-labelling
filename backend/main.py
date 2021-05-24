@@ -13,7 +13,7 @@ app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
 app.register_blueprint(import_export_api.import_export_api)
 
-cred = credentials.Certificate("collaborative-content-coding-firebase-adminsdk-dpj86-0d9f3ad3d8.json")
+cred = credentials.Certificate("collaborative-data-labelling-firebase-adminsdk-95tuz-b0d97a170a.json")
 default_app = firebase_admin.initialize_app(cred)
 
 # Start listing users from the beginning, 1000 at a time.

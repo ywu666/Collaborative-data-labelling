@@ -1,6 +1,6 @@
 # Collaborative_content_coding
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)  
-Backend Status: [![Build Status](https://travis-ci.com/saddboys/Collaborative_content_coding.svg?branch=master)](https://travis-ci.com/saddboys/Collaborative_content_coding)
+Backend Status: [![Build Status](https://travis-ci.org/zyan225/Collaborative_content_coding.svg?branch=master)](https://travis-ci.org/zyan225/Collaborative_content_coding)
 
 ENVIRONMENT FILES:
 - Put the environment files (.env) within the /app and the /backend directories
