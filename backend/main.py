@@ -1,4 +1,6 @@
+from backend.model.mongoDBInterface import get_db, get_init_db
 import firebase_admin
+import os
 from api import document_api, label_api, project_api, user_api, import_export_api, document_label_api
 from firebase_admin import auth
 from firebase_admin import credentials
@@ -12,6 +14,8 @@ app.register_blueprint(label_api.label_api)
 app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
 app.register_blueprint(import_export_api.import_export_api)
+
+db = get_init_db(app)
 
 cred = credentials.Certificate("collaborative-data-labelling-firebase-adminsdk-95tuz-b0d97a170a.json")
 default_app = firebase_admin.initialize_app(cred)

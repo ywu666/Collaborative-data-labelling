@@ -8,11 +8,11 @@ def get_db_collection(proj, col):
     return col
 
 
+# represent one line of data that needs to be labelled 
 class Document:
-
-    def __init__(self, display_id, data, comments, user_and_labels):
+    
+    def __init__(self, display_id, data, user_and_labels):
         self.data = data
-        self.comments = comments
         self.user_and_labels = user_and_labels
         self.display_id = display_id
         self.final_label = None
