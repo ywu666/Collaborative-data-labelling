@@ -1,6 +1,6 @@
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
-from flask import Blueprint, request, make_response, jsonify
+from flask import Blueprint, request, make_response, jsonify, g
 # from mongoDBInterface import get_col
 from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user
 from json import JSONEncoder
@@ -140,6 +140,7 @@ body:
 @user_api.route("/users/create", methods=["Post"])
 @check_token
 def create_user():
+    requestor_email = g.requestor_email
     requestor_email = request.json["email"]
     db_user = get_user_from_database_by_email(requestor_email)
 

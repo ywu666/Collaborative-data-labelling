@@ -1,5 +1,5 @@
 from firebase_admin import auth
-from flask import request
+from flask import request, g
 from functools import wraps
 
 '''
@@ -25,8 +25,9 @@ def check_token(f):
             return {'message': 'No token provided'},400
         try:
             user = auth.verify_id_token(auth_token)
-            request.json["email"] = user['email']
-        except:
+            g.requestor_email = user['email']
+        except Exception as e:
+            print(e)
             return {'message':'Invalid token provided.'},400
         return f(*args, **kwargs)
     return wrap
