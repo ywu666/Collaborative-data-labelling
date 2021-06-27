@@ -130,24 +130,20 @@ def get_user_info():
     return user_json, 200
 
 
+
+"""
+called when a new user signup, it creates a new user in the database 
+expected request format:
+body: 
+{
+    username: username
+}
+"""
 @user_api.route("/users/create", methods=["Post"])
+@check_token
 def create_user():
-    print("create user function gets called");
-
-    # creates a new user based ogn the ID token that gets sent over
-    invalid_token = check_id_token(request.args.get('id_token'))
-    print("invalid token is: ")
-    print(invalid_token)
-
-    if invalid_token is not None:
-        return make_response(invalid_token), 
-
-    requestor_email = get_email(request.args.get('id_token'))
-    print("email: " + requestor_email)
-
+    requestor_email = request.json["email"]
     db_user = get_user_from_database_by_email(requestor_email)
-    print("user find from database using email")
-    print(db_user)
 
     if db_user is not None:
         response = {'message': "User already exists"}
@@ -155,8 +151,6 @@ def create_user():
 
     if 'username' in request.json:
         username = request.json['username']
-        print("username: " + username)
-        
         db_user = get_user_from_database_by_username(username)
         if db_user is not None:
             response = {'message': "Username is already taken"}
