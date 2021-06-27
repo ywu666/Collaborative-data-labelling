@@ -3,23 +3,22 @@ import datetime
 import os
 
 from pathlib import Path
-from typing import Tuple  # python3 only
-from typing_extensions import Required
-from backend.enum.projectState import ProjectState
+# from typing import Tuple  # python3 only
+# from typing_extensions import Required
+from states.project_state import ProjectState
+from dotenv import load_dotenv
 
-import flask
+from flask import Flask
 from flask_mongoengine import MongoEngine
 
-db = None
+db = MongoEngine()
 
-def get_init_db(app):
+def init_db(app):
     global db
-    if db is None:
-        ATLAS_URI = os.getenv("ATLAS_URI")
-        app.config["MONGO_URI"] = ATLAS_URI
-        db = MongoEngine(app)
-    return db
-
+    load_dotenv()
+    ATLAS_URI = os.getenv("ATLAS_URI")
+    app.config["MONGODB_HOST"] = ATLAS_URI
+    db = MongoEngine(app)
 class DataLabelResult(db.EmbeddedDocument):
     user = db.ReferenceField('User')
     label = db.ReferenceField("Label")
@@ -62,10 +61,10 @@ class Project(db.Document):
     agreement_scores = db.EmbeddedDocumentListField(AgreementScore)
 
 class User(db.Document):    
-    username = db.StringField()
+    username = db.StringField(Required=True)
     email = db.StringField(Required=True)
     projects = db.ListField(db.ReferenceField(Project))
-    key = db.EmbeddedDocument(UserKey)
+    key = db.EmbeddedDocumentField(UserKey)
     notifications = db.ListField(db.ReferenceField(Notification))
 
 # def get_col(proj, col):

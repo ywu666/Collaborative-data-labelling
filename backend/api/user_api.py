@@ -132,28 +132,41 @@ def get_user_info():
 
 @user_api.route("/users/create", methods=["Post"])
 def create_user():
+    print("create user function gets called");
+
     # creates a new user based ogn the ID token that gets sent over
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
+    invalid_token = check_id_token(request.args.get('id_token'))
+    print("invalid token is: ")
+    print(invalid_token)
 
-    invalid_token = check_id_token(id_token, requestor_email)
     if invalid_token is not None:
-        return make_response(invalid_token), 400
+        return make_response(invalid_token), 
 
-    all_users = get_col("users", "users")
+    requestor_email = get_email(request.args.get('id_token'))
+    print("email: " + requestor_email)
 
-    if all_users.find_one({'email': requestor_email}) is not None:
+    db_user = get_user_from_database_by_email(requestor_email)
+    print("user find from database using email")
+    print(db_user)
+
+    if db_user is not None:
         response = {'message': "User already exists"}
         return make_response(response), 400
 
     if 'username' in request.json:
         username = request.json['username']
-        if all_users.find_one({'username': username}) is not None:
+        print("username: " + username)
+        
+        db_user = get_user_from_database_by_username(username)
+        if db_user is not None:
             response = {'message': "Username is already taken"}
             return make_response(response), 400
         else:
-            all_users.insert_one({'email': requestor_email, 'projects': [],
-                                  'username': username})
+            user = {
+                "username": username,
+                "email": requestor_email
+            } 
+            save_user(user)
     else:
         response = {'message': "Missing username"}
         return make_response(response), 400
