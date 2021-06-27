@@ -1,33 +1,31 @@
-from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
-from api.validation_methods import check_id_token
-from firebase_auth import get_email
-from flask import Blueprint, request, make_response
-from mongoDBInterface import get_col
+from middleware.auth import check_token
+# from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
+from flask import Blueprint, request, make_response, jsonify
+# from mongoDBInterface import get_col
+from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user
+from json import JSONEncoder
 
 user_api = Blueprint('user_api', __name__)
 
-
+'''
+get information of a single user
+request format: /users?email=email
+TODO email is also passed in as parameter, I don't quite understand why we allow users to get information of another user, maybe we need to change it. But requires 
+analysing of frontend first 
+'''
 @user_api.route("/users", methods=["GET"])
+@check_token
 def get_user_info_from_email():
-    # inputs: id_token of requestor, project name, email of user to be added to project
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
     email = request.args.get('email')
     if email is None or email == "":
         response = {'message': "Email is not included with the request uri in args"}
         return make_response(response), 400
 
-    user_to_add = get_col("users", "users").find_one({'email': email})
+    user_to_add = get_user_from_database_by_email(email)
     if user_to_add is None:
         response = {'message': "User does not exist/does not have an account"}
         return make_response(response), 400
-
-    user_to_add = JSONEncoder().encode(user_to_add)
+    user_to_add = jsonify(user_to_add)    
     return user_to_add, 200
 
 
