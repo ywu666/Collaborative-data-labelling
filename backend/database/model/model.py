@@ -1,11 +1,9 @@
 # OR, explicitly providing path to '.env'
+from enums.user_role import UserRole
 import datetime
 import os
 
-from pathlib import Path
-# from typing import Tuple  # python3 only
-# from typing_extensions import Required
-from states.project_state import ProjectState
+from enums.project_state import ProjectState
 from dotenv import load_dotenv
 
 from flask import Flask
@@ -31,7 +29,7 @@ class UserKey(db.EmbeddedDocument):
 class Collaborator(db.EmbeddedDocument):
     entry_key = db.StringField()
     user = db.ReferenceField('User')
-    role = db.StringField()
+    role = db.EnumField(UserRole)
 
 # one line of data that needs to be labelled 
 class Data(db.EmbeddedDocument):
@@ -52,8 +50,8 @@ class Notification(db.Document):
     value = db.StringField(Required=True)
 
 class Project(db.Document):
-    name = db.StringField(Required=True)
-    state = db.EnumField(ProjectState)  
+    project_name = db.StringField(Required=True)
+    state = db.EnumField(ProjectState, default=None)  
     encryption_state = db.BooleanField(default=False)
     data = db.EmbeddedDocumentListField(Data)
     labels = db.EmbeddedDocumentListField(Label)
@@ -66,21 +64,3 @@ class User(db.Document):
     projects = db.ListField(db.ReferenceField(Project))
     key = db.EmbeddedDocumentField(UserKey)
     notifications = db.ListField(db.ReferenceField(Notification))
-
-# def get_col(proj, col):
-#     myclient = get_db_client()
-#     return myclient[proj][col]
-
-
-# def create_db_for_proj(proj_name):
-#     myclient = get_db_client()
-#     mydb = myclient[proj_name]
-#     mydb.create_collection("users")
-#     mydb.create_collection("documents")
-#     mydb.create_collection("labels")
-
-
-# if __name__ == '__main__':
-#     mycol = get_col("Test", "Labels")
-#     print(mycol.find_one())
-#     create_db_for_proj("Test")

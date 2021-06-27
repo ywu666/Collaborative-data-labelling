@@ -15,6 +15,5 @@ def get_user_from_database_by_username(username):
         return None
 
 def save_user(user):
-    print(user)
     user = User(**user)
     user.save()

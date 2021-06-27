@@ -1,4 +1,3 @@
-from middleware.firebase_auth import get_email
 from bson import ObjectId
 from flask import make_response
 # from model.document import get_db_collection

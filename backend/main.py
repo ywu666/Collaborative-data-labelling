@@ -15,7 +15,7 @@ init_db(app)
 # app.register_blueprint(document_api.document_api)
 # app.register_blueprint(document_label_api.document_label_api)
 # app.register_blueprint(label_api.label_api)
-# app.register_blueprint(project_api.project_api)
+app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
 # app.register_blueprint(import_export_api.import_export_api)
 
