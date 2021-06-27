@@ -2,8 +2,7 @@ from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
 # from mongoDBInterface import get_col
-from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user
-from json import JSONEncoder
+from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user, get_all_user_email_from_database
 
 user_api = Blueprint('user_api', __name__)
 
@@ -28,21 +27,24 @@ def get_user_info_from_email():
     user_to_add = jsonify(user_to_add)    
     return user_to_add, 200
 
-
+'''
+get emails of all users
+response:
+{
+    email: [
+        email1,
+        email2
+    ]
+}
+'''
 @user_api.route("/user/all", methods=['Get'])
+@check_token
 def get_all_users_emails():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
+    all_user_emails = get_all_user_email_from_database()
+    all_user_emails = jsonify({"users": [user_email.email for user_email in all_user_emails]})
+    return all_user_emails, 200
 
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
 
-    users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1})
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
 
 
 @user_api.route("/projects/<project_name>/user", methods=["Get"])

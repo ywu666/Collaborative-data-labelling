@@ -17,3 +17,7 @@ def get_user_from_database_by_username(username):
 def save_user(user):
     user = User(**user)
     user.save()
+
+def get_all_user_email_from_database():
+    users = User.objects.only('email')
+    return users
