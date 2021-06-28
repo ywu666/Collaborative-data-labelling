@@ -41,21 +41,6 @@ def get_all_users_emails():
 
 
 
-@user_api.route("/projects/<project_name>/user", methods=["Get"])
-def get_current_user_for_proj(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    project_user_col = get_col(project_name, "users")
-    requestor = project_user_col.find_one({'email': requestor_email})
-    user_json = JSONEncoder().encode(requestor)
-    return user_json, 200
-
-
 @user_api.route("/users/all", methods=["Get"])
 # Gets all user emails within any database
 def get_user_emails():
@@ -123,6 +108,23 @@ def get_user_info():
     user_json = JSONEncoder().encode(user_dict)
     return user_json, 200
 
+
+@user_api.route("/projects/<project_id>/user", methods=["Get"])
+@check_token
+def get_current_user_for_proj(project_id):
+    # get_all_users_associated_with_a_project(project_id)
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    users = []
+    for collaborator in collaborators:
+        user = collaborator.user
+        dict = {
+            '_id': str(user.id),
+            'email': user.email,
+            'role': collaborator.role.name
+        }
+        users.append(dict)
+    
+    return jsonify(users), 200
 
 
 """

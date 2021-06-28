@@ -1,8 +1,6 @@
 from database.user_dao import get_user_from_database_by_email
-from flask.globals import request
 from enums.user_role import UserRole
-from database.model.model import Collaborator, User, Project
-from enums.project_state import ProjectState
+from database.model.model import Collaborator, Project
 
 def get_project_by_name(name):
     try:
@@ -24,3 +22,10 @@ def create_new_project(requestor_email, project, encryption_key=None):
     db_ser.projects.append(project)
     db_ser.save()
 
+def get_all_users_associated_with_a_project(project_id):
+    try:
+        project = Project.objects(id=project_id).get_or_404()        
+        collaborators = project.collaborators
+        return collaborators
+    except:
+        return None
