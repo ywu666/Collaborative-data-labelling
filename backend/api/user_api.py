@@ -1,3 +1,4 @@
+from database.project_dao import get_all_users_associated_with_a_project
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
@@ -9,7 +10,7 @@ user_api = Blueprint('user_api', __name__)
 '''
 get information of a single user
 request format: /users?email=email
-TODO email is also passed in as parameter, I don't quite understand why we allow users to get information of another user, maybe we need to change it. But requires 
+FIXME email is also passed in as parameter, I don't quite understand why we allow users to get information of another user, maybe we need to change it. But requires 
 analysing of frontend first 
 '''
 @user_api.route("/users", methods=["GET"])
@@ -29,20 +30,13 @@ def get_user_info_from_email():
 
 '''
 get emails of all users
-response:
-{
-    email: [
-        email1,
-        email2
-    ]
-}
+FIXME why is this even needed?????
 '''
 @user_api.route("/user/all", methods=['Get'])
 @check_token
 def get_all_users_emails():
     all_user_emails = get_all_user_email_from_database()
-    all_user_emails = jsonify({"users": [user_email.email for user_email in all_user_emails]})
-    return all_user_emails, 200
+    return jsonify(all_user_emails), 200
 
 
 
