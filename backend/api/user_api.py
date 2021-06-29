@@ -80,15 +80,10 @@ def get_user_emails():
     all_users_json = JSONEncoder().encode(all_users_dict)
     return all_users_json, 200
 
-
-@user_api.route("/projects/<project_name>/users", methods=["Get"])
-def get_user_infos_for_project(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
+@user_api.route("/projects/<project_id>/users", methods=["Get"])
+@check_token
+def get_user_infos_for_project(project_id):
+    requestor_email = g.requestor_email
 
     try:
         page = int(request.args.get('page'))
@@ -96,18 +91,11 @@ def get_user_infos_for_project(project_name):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         return make_response(response), 400
-
-    users_col = get_col(project_name, "users")
-
-    if users_col.find_one({'email': requestor_email}) is None:
+    
+    if does_user_belong_to_a_project(requestor_email, project_id) is False:
         response = {'message': "Not allowed to perform this action unless you are part of the project"}
         response = make_response(response)
         return response, 403
-
-    all_users = users_col.find({}).skip(page * page_size).limit(page_size)
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
 
 
 @user_api.route("/user", methods=["Get"])
@@ -124,12 +112,7 @@ def get_user_info():
     user_json = JSONEncoder().encode(user_dict)
     return user_json, 200
 
-
-@user_api.route("/projects/<project_id>/user", methods=["Get"])
-@check_token
-def get_current_user_for_proj(project_id):
-    # get_all_users_associated_with_a_project(project_id)
-    collaborators = get_all_users_associated_with_a_project(project_id)
+    collaborators = get_users_associated_with_a_project(project_id, page, page_size)
     users = []
     for collaborator in collaborators:
         user = collaborator.user
@@ -139,7 +122,6 @@ def get_current_user_for_proj(project_id):
             'role': collaborator.role.name
         }
         users.append(dict)
-    
     return jsonify(users), 200
 
 

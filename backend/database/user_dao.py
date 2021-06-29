@@ -21,3 +21,9 @@ def save_user(user):
 def get_all_user_email_from_database():
     users = User.objects.only('email')
     return users
+
+def does_user_belong_to_a_project(email, project_id):
+    user = User.objects(projects=project_id, email=email)
+    if not user:
+        return False 
+    return True
