@@ -1,4 +1,4 @@
-from database.model.model import User
+from database.model import User
 
 def get_user_from_database_by_email(email):
     try:

@@ -42,7 +42,6 @@ def get_all_users_emails():
 @user_api.route("/projects/<project_id>/user", methods=["Get"])
 @check_token
 def get_current_user_for_proj(project_id):
-    # get_all_users_associated_with_a_project(project_id)
     collaborators = get_all_users_associated_with_a_project(project_id)
     users = []
     for collaborator in collaborators:
@@ -56,29 +55,6 @@ def get_current_user_for_proj(project_id):
     
     return jsonify(users), 200
 
-
-@user_api.route("/users/all", methods=["Get"])
-# Gets all user emails within any database
-def get_user_emails():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    try:
-        page = int(request.args.get('page'))
-        page_size = int(request.args.get('page_size'))
-    except (ValueError, TypeError):
-        response = {'message': "page and page_size must be integers"}
-        return make_response(response), 400
-
-    users_col = get_col("users", "users")
-    all_users = users_col.find({}, {'email': 1}).skip(page * page_size).limit(page_size)
-    all_users_dict = {"users": list(all_users)}
-    all_users_json = JSONEncoder().encode(all_users_dict)
-    return all_users_json, 200
 
 @user_api.route("/projects/<project_id>/users", methods=["Get"])
 @check_token
@@ -97,21 +73,6 @@ def get_user_infos_for_project(project_id):
         response = make_response(response)
         return response, 403
 
-
-@user_api.route("/user", methods=["Get"])
-def get_user_info():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    users_col = get_col("users", "users")
-    user_dict = users_col.find_one({"email": requestor_email})
-    user_json = JSONEncoder().encode(user_dict)
-    return user_json, 200
-
     collaborators = get_users_associated_with_a_project(project_id, page, page_size)
     users = []
     for collaborator in collaborators:
@@ -124,6 +85,20 @@ def get_user_info():
         users.append(dict)
     return jsonify(users), 200
 
+
+# @user_api.route("/user", methods=["Get"])
+# def get_user_info():
+#     id_token = request.args.get('id_token')
+#     requestor_email = get_email(id_token)
+
+#     invalid_token = check_id_token(id_token, requestor_email)
+#     if invalid_token is not None:
+#         return make_response(invalid_token), 400
+
+#     users_col = get_col("users", "users")
+#     user_dict = users_col.find_one({"email": requestor_email})
+#     user_json = JSONEncoder().encode(user_dict)
+#     return user_json, 200
 
 """
 called when a new user signup, it creates a new user in the database 
@@ -165,136 +140,136 @@ def create_user():
     return "", 204
 
 
-@user_api.route("/projects/<project_name>/users/add", methods=["Post"])
-# Adding a new user to a project
-def add_user_to_project(project_name):
-    # inputs: id_token of requestor, project name, email of user to be added to project
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
+# @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
+# # Adding a new user to a project
+# def add_user_to_project(project_name):
+#     # inputs: id_token of requestor, project name, email of user to be added to project
+#     id_token = request.args.get('id_token')
+#     requestor_email = get_email(id_token)
 
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
+#     invalid_token = check_id_token(id_token, requestor_email)
+#     if invalid_token is not None:
+#         return make_response(invalid_token), 400
 
-    if 'user' in request.json:
-        email = request.json['user']
-    else:
-        response = {'message': "Missing user"}
-        return make_response(response), 400
+#     if 'user' in request.json:
+#         email = request.json['user']
+#     else:
+#         response = {'message': "Missing user"}
+#         return make_response(response), 400
 
-    # check if the new user is already in the "users" collection in the "users" database
-    user_to_add = get_col("users", "users").find_one({'email': email})
+#     # check if the new user is already in the "users" collection in the "users" database
+#     user_to_add = get_col("users", "users").find_one({'email': email})
 
-    if user_to_add is None:
-        response = {'message': "User does not exist/does not have an account"}
-        return make_response(response), 400
+#     if user_to_add is None:
+#         response = {'message': "User does not exist/does not have an account"}
+#         return make_response(response), 400
 
-    project_user_col = get_col(project_name, "users")
-    if project_user_col.find_one(
-            {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
-        response = {'message': "Not authorised to perform this action"}
-        return make_response(response), 401
+#     project_user_col = get_col(project_name, "users")
+#     if project_user_col.find_one(
+#             {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
+#         response = {'message': "Not authorised to perform this action"}
+#         return make_response(response), 401
 
-    if not project_user_col.find_one({'email': requestor_email})[
-        'isAdmin']:  # if the requestor is not an admin, return forbidden
-        response = {'message': "Forbidden to perform this action"}
-        return make_response(response), 403
+#     if not project_user_col.find_one({'email': requestor_email})[
+#         'isAdmin']:  # if the requestor is not an admin, return forbidden
+#         response = {'message': "Forbidden to perform this action"}
+#         return make_response(response), 403
 
-    if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
-        project_user_col.insert_one({'email': email, 'isAdmin': False, 'isContributor': False})
-        add_project_to_user(email, project_name)
-        return "", 204
-    else:
-        response = {'message': "That user is already in the provided project"}
-        return make_response(response), 400
-
-
-@user_api.route("/projects/<project_name>/users/update", methods=["Put"])
-# Updating user permissions in a particular project
-def update_user(project_name):
-    # inputs: id_token of requestor, project name, email of user to be changed, and changes to be applied
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
-
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
-
-    if 'user' in request.json:
-        email = request.json['user']
-    else:
-        response = {'message': "Missing user"}
-        return make_response(response), 400
-    if 'permissions' in request.json:
-        permissions = request.json['permissions']
-    else:
-        response = {'message': "Missing permissions"}
-        return make_response(response), 400
-
-    project_user_col = get_col(project_name, "users")
-    if project_user_col.find_one(
-            {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
-        response = {'message': "Not authorised to perform this action"}
-        return make_response(response), 401
-
-    if not project_user_col.find_one({'email': requestor_email})[
-        'isAdmin']:  # if the requestor is not an admin, return forbidden
-        response = {'message': "Forbidden to perform this action"}
-        return make_response(response), 403
-
-    if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
-        response = {'message': "That user does not exist in the project, add them to the project first"}
-        return make_response(response), 400
-
-    count = project_user_col.count_documents({'isContributor': True})
-
-    if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
-        response = {'message': "There are already two contributors within this project, and you cannot add more"}
-        return make_response(response), 400
-    # if user is going to not be a contributor, remove that the labels assigned by that contributor
-    elif not permissions['isContributor']:
-        remove_all_labels_of_user(email, project_name)
-
-    project_user_col.update_one({'email': email}, {'$set': permissions})
-    return "", 204
+#     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
+#         project_user_col.insert_one({'email': email, 'isAdmin': False, 'isContributor': False})
+#         add_project_to_user(email, project_name)
+#         return "", 204
+#     else:
+#         response = {'message': "That user is already in the provided project"}
+#         return make_response(response), 400
 
 
-@user_api.route("/projects/<project_name>/users/delete", methods=["Put"])
-# admin or requestor can remove
-def remove_user_from_project(project_name):
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
+# @user_api.route("/projects/<project_name>/users/update", methods=["Put"])
+# # Updating user permissions in a particular project
+# def update_user(project_name):
+#     # inputs: id_token of requestor, project name, email of user to be changed, and changes to be applied
+#     id_token = request.args.get('id_token')
+#     requestor_email = get_email(id_token)
 
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
+#     invalid_token = check_id_token(id_token, requestor_email)
+#     if invalid_token is not None:
+#         return make_response(invalid_token), 400
 
-    if 'user' in request.json:
-        email = request.json['user']
-    else:
-        response = {'message': "Missing user"}
-        response = make_response(response)
-        return response, 400
+#     if 'user' in request.json:
+#         email = request.json['user']
+#     else:
+#         response = {'message': "Missing user"}
+#         return make_response(response), 400
+#     if 'permissions' in request.json:
+#         permissions = request.json['permissions']
+#     else:
+#         response = {'message': "Missing permissions"}
+#         return make_response(response), 400
 
-    users_col = get_col(project_name, "users")
-    requestor = users_col.find_one({'email': requestor_email})
-    if requestor_email == email or requestor[
-        'isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
-        users_col.delete_one({'email': email})
-        remove_project_from_user(email, project_name)
-        remove_all_labels_of_user(email, project_name)
-    return "", 204
+#     project_user_col = get_col(project_name, "users")
+#     if project_user_col.find_one(
+#             {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
+#         response = {'message': "Not authorised to perform this action"}
+#         return make_response(response), 401
+
+#     if not project_user_col.find_one({'email': requestor_email})[
+#         'isAdmin']:  # if the requestor is not an admin, return forbidden
+#         response = {'message': "Forbidden to perform this action"}
+#         return make_response(response), 403
+
+#     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
+#         response = {'message': "That user does not exist in the project, add them to the project first"}
+#         return make_response(response), 400
+
+#     count = project_user_col.count_documents({'isContributor': True})
+
+#     if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
+#         response = {'message': "There are already two contributors within this project, and you cannot add more"}
+#         return make_response(response), 400
+#     # if user is going to not be a contributor, remove that the labels assigned by that contributor
+#     elif not permissions['isContributor']:
+#         remove_all_labels_of_user(email, project_name)
+
+#     project_user_col.update_one({'email': email}, {'$set': permissions})
+#     return "", 204
 
 
-@user_api.route("/user/delete", methods=["Delete"])
-# requestor can remove themself
-def remove_user():
-    id_token = request.args.get('id_token')
-    requestor_email = get_email(id_token)
+# @user_api.route("/projects/<project_name>/users/delete", methods=["Put"])
+# # admin or requestor can remove
+# def remove_user_from_project(project_name):
+#     id_token = request.args.get('id_token')
+#     requestor_email = get_email(id_token)
 
-    invalid_token = check_id_token(id_token, requestor_email)
-    if invalid_token is not None:
-        return make_response(invalid_token), 400
+#     invalid_token = check_id_token(id_token, requestor_email)
+#     if invalid_token is not None:
+#         return make_response(invalid_token), 400
 
-    get_col("users", "users").delete_one({"email": requestor_email})
-    return "", 204
+#     if 'user' in request.json:
+#         email = request.json['user']
+#     else:
+#         response = {'message': "Missing user"}
+#         response = make_response(response)
+#         return response, 400
+
+#     users_col = get_col(project_name, "users")
+#     requestor = users_col.find_one({'email': requestor_email})
+#     if requestor_email == email or requestor[
+#         'isAdmin']:  # if you want to delete yourself, or are an admin, can delete others
+#         users_col.delete_one({'email': email})
+#         remove_project_from_user(email, project_name)
+#         remove_all_labels_of_user(email, project_name)
+#     return "", 204
+
+
+# @user_api.route("/user/delete", methods=["Delete"])
+# # requestor can remove themself
+# def remove_user():
+#     id_token = request.args.get('id_token')
+#     requestor_email = get_email(id_token)
+
+#     invalid_token = check_id_token(id_token, requestor_email)
+#     if invalid_token is not None:
+#         return make_response(invalid_token), 400
+
+#     get_col("users", "users").delete_one({"email": requestor_email})
+#     return "", 204

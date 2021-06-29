@@ -1,4 +1,4 @@
-from database.model.model import init_db
+from database.model import init_db
 import firebase_admin
 import os
 from api import document_api, label_api, project_api, user_api, import_export_api, document_label_api

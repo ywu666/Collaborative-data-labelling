@@ -1,6 +1,6 @@
 from database.user_dao import get_user_from_database_by_email
 from enums.user_role import UserRole
-from database.model.model import Collaborator, Project
+from database.model import Collaborator, Project
 
 def get_project_by_name(name):
     try:
