@@ -29,3 +29,8 @@ def get_all_users_associated_with_a_project(project_id):
         return collaborators
     except:
         return None
+
+def get_users_associated_with_a_project(project_id, page, page_limite):
+    project = Project.objects(id=project_id).only('collaborators').paginate(page=page, per_page=page_limite)
+    collaborators = project.items[0].collaborators
+    return collaborators
