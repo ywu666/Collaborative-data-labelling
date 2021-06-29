@@ -184,45 +184,47 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
           <Masonry
             options={{ columnWidth: '.projectCard', percentPosition: true }}
           >
-            <IonCard>
-              <IonCardContent>
-                <form
-                  onSubmit={(e: React.FormEvent) => {
-                    setLoading(true);
-                    e.preventDefault();
-                    const formData = new FormData(e.target as HTMLFormElement);
-                    setNewProject(formData.get('projectName'));
-                    formData.delete('projectName');
-                    setText("")
-                  }}
-                >
-                  <IonItem>
-                    <IonLabel position="floating">New Project</IonLabel>
-                    <IonInput
-                      placeholder="Enter Project Name"
-                      value={text}
-                      name="projectName"
-                      id="projectName"
-                      onIonChange={(e) =>
-                        handleEnterProjectName(e.detail.value)
-                      }
-                      type="text"
-                    />
-                  </IonItem>
-                  <IonButton
-                    disabled={text == null || text.length < 1}
-                    fill="outline"
-                    className="ion-margin-top"
-                    type="submit"
-                    expand="block"
-                  >
-                    <IonIcon icon={add} />
-                    create
-                  </IonButton>
-                  {error && <p>{errorMessage}</p>}
-                </form>
-              </IonCardContent>
-            </IonCard>
+            {/*<IonCard>*/}
+            {/*  <IonCardContent>*/}
+
+            {/*    <form*/}
+            {/*      onSubmit={(e: React.FormEvent) => {*/}
+            {/*        setLoading(true);*/}
+            {/*        e.preventDefault();*/}
+            {/*        const formData = new FormData(e.target as HTMLFormElement);*/}
+            {/*        setNewProject(formData.get('projectName'));*/}
+            {/*        formData.delete('projectName');*/}
+            {/*        setText("")*/}
+            {/*      }}*/}
+            {/*    >*/}
+            {/*      <IonItem>*/}
+            {/*        <IonLabel position="floating">New Project</IonLabel>*/}
+            {/*        <IonInput*/}
+            {/*          placeholder="Enter Project Name"*/}
+            {/*          value={text}*/}
+            {/*          name="projectName"*/}
+            {/*          id="projectName"*/}
+            {/*          onIonChange={(e) =>*/}
+            {/*            handleEnterProjectName(e.detail.value)*/}
+            {/*          }*/}
+            {/*          type="text"*/}
+            {/*        />*/}
+            {/*      </IonItem>*/}
+            {/*      <IonButton*/}
+            {/*        disabled={text == null || text.length < 1}*/}
+            {/*        fill="outline"*/}
+            {/*        className="ion-margin-top"*/}
+            {/*        type="submit"*/}
+            {/*        expand="block"*/}
+            {/*      >*/}
+            {/*        <IonIcon icon={add} />*/}
+            {/*        create*/}
+            {/*      </IonButton>*/}
+            {/*      {error && <p>{errorMessage}</p>}*/}
+            {/*    </form>*/}
+            {/*  </IonCardContent>*/}
+            {/*</IonCard>*/}
+
             {projectData.map((data, index) => {
               return (
                 <IonCard
