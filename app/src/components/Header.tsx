@@ -5,7 +5,11 @@ import {
   IonIcon,
   IonSearchbar,
   IonItem,
-  IonPopover, IonCard, IonCardContent, IonLabel, IonInput, IonAlert, IonModal, IonTitle,
+  IonPopover,
+  IonLabel,
+  IonInput,
+  IonModal,
+  IonCheckbox, IonTitle,
 } from '@ionic/react';
 import { add, addOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -34,10 +38,12 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   const [newProject, setNewProject] = useState<any>('');
   const [showCreateProject, setShowCreateProject] = useState(false)
   const [owner, setOwner] = useState(null);
-  const [status, setStatus] = useState<string>('');
+  const [initialEncryptionStatus, setInitialEncryptionStatus] = useState(false);
+  const [encryptionStatus, setEncryptionStatus] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [text, setText] = useState<any>();
+  const [encryptionKey, setEncryptionKey] = useState<any>();
 
   const {
     firebase,iniProjectNames
@@ -77,6 +83,12 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
     setErrorMessage('');
   }
 
+  function handleEnterEncryptionKey (_value:any) {
+    setEncryptionKey(_value)
+    setError(false);
+    setErrorMessage('');
+  }
+
   return (
     <>
       {/*Create project window */}
@@ -98,8 +110,8 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
           }}
           style={{'margin':'10px','height':'100%'}}
         >
+          <IonTitle >New Project</IonTitle>
           <IonItem>
-            <IonLabel position="floating">New Project</IonLabel>
             <IonInput
               placeholder="Enter Project Name"
               value={text}
@@ -110,16 +122,37 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               }
               type="text"
             />
+         </IonItem>
+          <IonItem lines='none'>
+            <IonLabel>Encryption the project</IonLabel>
+            <IonCheckbox
+              slot='start'
+              checked={initialEncryptionStatus}
+              onIonChange={e => setInitialEncryptionStatus(e.detail.checked)}
+              name='encryptionStatus'/>
           </IonItem>
+
+          {/*{initialEncryptionStatus  &&*/}
+          {/*<IonItem><IonInput*/}
+          {/*  placeholder="Enter the key"*/}
+          {/*  name='encryptionKey'*/}
+          {/*  id='encryptionKey'*/}
+          {/*  value={encryptionKey}*/}
+          {/*  onIonChange={ (e) =>*/}
+          {/*    handleEnterEncryptionKey(e.detail.value)*/}
+          {/*  }*/}
+          {/*  type='text'*/}
+          {/*/>*/}
+          {/*</IonItem>*/}
+          {/*}*/}
           <IonButton
             disabled={text == null || text.length < 1}
             fill="outline"
             type="submit"
             expand="block"
-          >create</IonButton>
+          >CREATE</IonButton>
           {error && <p>{errorMessage}</p>}
         </form>
-
       </IonModal>
 
       <IonHeader>
