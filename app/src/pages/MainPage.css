@@ -61,7 +61,8 @@
   }
 
   .createProject{
-    width: 200px;
-    margin-left: 42%;
-    margin-top: 20px;
+    --width: 35%;
+    --height: 30%;
+    --border-style:none;
+    --border-width: 10px;
   }

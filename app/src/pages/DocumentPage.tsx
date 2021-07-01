@@ -224,7 +224,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 <IonSkeletonText
                   animated
                   style={{ width: '100%' }}
-                ></IonSkeletonText>
+                />
               </IonCardTitle>
             </IonCard>
             <IonCard>
@@ -232,7 +232,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 <IonSkeletonText
                   animated
                   style={{ width: '100%' }}
-                ></IonSkeletonText>
+                />
               </IonCardTitle>
             </IonCard>
             <IonCard>
@@ -240,7 +240,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 <IonSkeletonText
                   animated
                   style={{ width: '100%' }}
-                ></IonSkeletonText>
+                />
               </IonCardTitle>
             </IonCard>
           </div>
@@ -284,7 +284,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                     onClick={handlePopuo}
                     checked={checked}
                     slot="start"
-                  ></IonCheckbox>
+                  />
                 )}
                 <IonLabel>
                   <h3>Confirm Your Label</h3>
@@ -333,7 +333,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                 inputRef={newCommentElement}
                 onSubmit={onSubmitComment}
                 disabled={false}
-              ></NewCommentInput>
+              />
               <IonList color="light">
                 {commentData.map((data, i) => (
                   <IonItem key={i} color="light">
@@ -343,7 +343,7 @@ var DocumentPage: React.FC<DocumentPageProps> = (props: DocumentPageProps) => {
                       content={data.comment_body}
                       time={data.time}
                       firebase={firebase}
-                    ></Comment>
+                    />
                   </IonItem>
                 ))}
               </IonList>
