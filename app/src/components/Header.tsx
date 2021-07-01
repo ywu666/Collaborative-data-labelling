@@ -89,6 +89,15 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
     setErrorMessage('');
   }
 
+  function handleSubmit(e:React.FormEvent) {
+    if(props.handleLoading) props.handleLoading(true);
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    setNewProject(formData.get('projectName'));
+    formData.delete('projectName');
+    setText("")
+  }
+
   return (
     <>
       {/*Create project window */}
@@ -101,12 +110,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
       >
         <form
           onSubmit={(e: React.FormEvent) => {
-            if(props.handleLoading) props.handleLoading(true);
-            e.preventDefault();
-            const formData = new FormData(e.target as HTMLFormElement);
-            setNewProject(formData.get('projectName'));
-            formData.delete('projectName');
-            setText("")
+            handleSubmit(e)
           }}
           style={{'margin':'10px','height':'100%'}}
         >
