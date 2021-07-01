@@ -39,12 +39,12 @@ import { StringDecoder } from "string_decoder";
 function signup(username: string, email: string , token: string){
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json',
+        'token':'' + localStorage.getItem('user-token')},
         body: JSON.stringify({username, email})
     };
 
-    return fetch(process.env.REACT_APP_API_URL + `/users/create` + '?id_token=' + token
-        , requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + `/users/create`, requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.users
@@ -52,26 +52,26 @@ function signup(username: string, email: string , token: string){
 }
 
 function getCurrentUser(email: any, firebase: any){
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
-    };
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      'token':'' + token
+    }};
 
-    const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
-        }
-       })
-   }else{
+        }})
+   } else {
     window.location.href = '/auth';
    }
 
-   return fetch(process.env.REACT_APP_API_URL + "/users" + "?id_token=" + token + "&email=" + email ,  requestOptions)
+   return fetch(process.env.REACT_APP_API_URL + "/users?email=" + email, requestOptions)
    .then(handleResponse)
    .then(data => {
        return data
@@ -165,7 +165,6 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
             const error = (data && data.message) || response.statusText;
             return Promise.reject(error);
         }
-
         return data;
     });
 }

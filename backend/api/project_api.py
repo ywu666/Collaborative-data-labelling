@@ -1,4 +1,4 @@
-from database.project_dao import create_new_project, get_project_by_name
+from database.project_dao import create_new_project, get_project_by_name, get_projects_names_of_the_owner
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
 import re
@@ -6,26 +6,16 @@ import re
 project_api = Blueprint('project_api', __name__)
 
 
-# @project_api.route("/projects/all", methods=['GET'])
-# def get_projects():
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
-
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
-
-#     all_users_col = get_col("users", "users")
-#     requestor = all_users_col.find_one({"email": requestor_email})
-
-#     if requestor is None:
-#         return user_unauthorised_response()
-
-#     users_col = get_col("users", "users")
-#     requestor = users_col.find_one({'email': requestor_email})
-#     names = requestor['projects']
-#     response = {'projects': names}
-#     return make_response(response), 200
+@project_api.route("/projects/all", methods=['GET'])
+@check_token
+def get_projects():
+    requestor_email = g.requestor_email
+    projects_of_the_user = get_projects_names_of_the_owner(requestor_email)
+    project_names = []
+    for p in projects_of_the_user:
+        project_names.append(p.project_name)
+    response = {'projects': project_names}
+    return make_response(response), 200
 
 
 # @project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])
@@ -75,6 +65,8 @@ body： {
     encryption_state: True/False
 }
 '''
+
+
 @project_api.route("/projects/create", methods=['POST'])
 @check_token
 def create_project():
@@ -101,7 +93,6 @@ def create_project():
         return make_response(response), 400
 
     return "", 204
-
 
 # @project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
 # def delete_project(project_name):

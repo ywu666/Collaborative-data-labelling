@@ -11,23 +11,24 @@ This requires request has the following header:
     Authorization: Bearer token
 }
 '''
+
+
 def check_token(f):
     @wraps(f)
-    def wrap(*args,**kwargs):
-        auth_header = request.headers.get('Authorization')
-
-        if auth_header:
-            auth_token = auth_header.split(" ")[1]
-        else:
+    def wrap(*args, **kwargs):
+        auth_token = request.headers.get('token')
+        print(auth_token)
+        if auth_token is None:
             auth_token = ""
 
         if not auth_token:
-            return {'message': 'No token provided'},400
+            return {'message': 'No token provided'}, 400
         try:
             user = auth.verify_id_token(auth_token)
             g.requestor_email = user['email']
         except Exception as e:
             print(e)
-            return {'message':'Invalid token provided.'},400
+            return {'message': 'Invalid token provided.'}, 400
         return f(*args, **kwargs)
+
     return wrap
