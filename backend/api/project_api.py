@@ -14,6 +14,7 @@ def get_projects():
     projects = []
     for p in projects_of_the_user:
         projects.append({
+            '_id': p.id,
             'name': p.project_name,
             'owner': get_owner_of_the_projects(projects_of_the_user).username
         })

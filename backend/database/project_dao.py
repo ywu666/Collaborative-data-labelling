@@ -45,9 +45,9 @@ def get_projects_names_of_the_user(requestor_email):
     return db_ser.projects
 
 
-def get_owner_of_the_projects(projects_0f_user):
-    for p in projects_0f_user:
-        for c in p.collaborators:
+def get_owner_of_the_projects(projects_of_user):
+    for project in projects_of_user:
+        for c in project.collaborators:
             if c.role.value == 'owner':
                 return c.user
 
