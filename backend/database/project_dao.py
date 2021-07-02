@@ -40,9 +40,18 @@ def get_users_associated_with_a_project(project_id, page, page_limite):
     return collaborators
 
 
-def get_projects_names_of_the_owner(requestor_email):
+def get_projects_names_of_the_user(requestor_email):
     db_ser = get_user_from_database_by_email(requestor_email)
     return db_ser.projects
+
+
+def get_owner_of_the_projects(projects_0f_user):
+    for p in projects_0f_user:
+        for c in p.collaborators:
+            if c.role.value == 'owner':
+                return c.user
+
+
 
 
 

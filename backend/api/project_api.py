@@ -1,4 +1,4 @@
-from database.project_dao import create_new_project, get_project_by_name, get_projects_names_of_the_owner
+from database.project_dao import create_new_project, get_project_by_name, get_projects_names_of_the_user,get_owner_of_the_projects
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
 import re
@@ -10,12 +10,16 @@ project_api = Blueprint('project_api', __name__)
 @check_token
 def get_projects():
     requestor_email = g.requestor_email
-    projects_of_the_user = get_projects_names_of_the_owner(requestor_email)
-    project_names = []
+    projects_of_the_user = get_projects_names_of_the_user(requestor_email)
+    projects = []
     for p in projects_of_the_user:
-        project_names.append(p.project_name)
-    response = {'projects': project_names}
+        projects.append({
+            'name': p.project_name,
+            'owner': get_owner_of_the_projects(projects_of_the_user).username
+        })
+    response = {'projects': projects}
     return make_response(response), 200
+
 
 
 # @project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])

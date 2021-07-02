@@ -4,6 +4,7 @@ import {
   IonCard,
   IonCardTitle,
   useIonViewWillEnter,
+  IonTitle,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-component';
@@ -159,6 +160,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
        */}
 
       <IonContent>
+        <IonTitle color='primary' style={{margin:'10px'}}>Projects</IonTitle>
         <div className="container">
           <Masonry options={{ columnWidth: '.projectCard', percentPosition: true }}>
             {projectNames.map((data, index) => {
