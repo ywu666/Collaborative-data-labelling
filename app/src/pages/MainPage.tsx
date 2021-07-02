@@ -12,9 +12,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import './MainPage.css';
 import 'firebase/auth';
 import { projectServices } from '../services/ProjectServices';
-import { documentServices } from '../services/DocumentService';
 import Header from '../components/Header';
-import { isNullOrUndefined } from 'util';
 import { userService } from '../services/UserServices';
 
 interface MainPageProps {
@@ -23,7 +21,6 @@ interface MainPageProps {
 const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   const [projectNames, setProjectNames] = useState<any[]>([]);
   const [projectLoading, setProjectLoading] = useState<any[]>([]);
-  const [projectData, setProjectData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDisplayName, setCurrentDisplayName] = useState('');
 
@@ -34,15 +31,12 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
 
   useIonViewWillEnter(() => {
     setLoading(true)
-    setProjectData([])
     try {
       projectServices.getProjectNames(firebase)
         .then(data => {
           let loadings:any[] = []
-          //let names:string[] = []
           data.forEach((e: { name: string;}) => {
             let temp = {name:e.name, loading: true}
-            // names.push( e.name)
             loadings.push(temp)
           })
           setProjectLoading(loadings)
@@ -50,31 +44,6 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
         })
     } catch (e) {}
   },[]);
-
-  // useEffect(() => {
-  //   projectNames.forEach(e => {
-  //     if (!projectData.some(e_p => e_p.name === e)) {
-  //       documentServices.getNumberOfUnlabelledDocs(e, firebase)
-  //         .then(data => {
-  //           return data.find((_e: { email: string | null; }) =>
-  //             _e.email === localStorage.getItem("email"))?.number_unlabelled
-  //         })
-  //         .then(data => {
-  //           if (isNullOrUndefined(data) || data === 0) {
-  //             projectServices.getProjectAgreementScore(e, firebase)
-  //               .then(_data => {
-  //                 _data.name = e
-  //                 _data.unlabelled = data
-  //                 setProjectData(e_p => [...e_p, _data])
-  //               })
-  //           } else {
-  //             let temp = { name: e, unlabelled:data }
-  //             setProjectData(e_p => [...e_p, temp])
-  //           }
-  //         })
-  //     }
-  //   })
-  // }, [projectNames])
 
   useEffect(() => {
     let temp = [...projectLoading]
@@ -88,22 +57,10 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     setProjectLoading(temp);
   }, [projectNames]);
 
-  // useEffect(() => {
-  //   let temp = [...projectLoading];
-  //   projectData.forEach((e) => {
-  //     temp.forEach((e_p) => {
-  //       if (e_p.name === e.name) {
-  //         e_p.loading = false;
-  //       }
-  //     });
-  //   });
-  //   setProjectLoading(temp);
-  // }, [projectData]);
-
   useEffect(() => {
     setLoading(projectLoading.some((e) => e.loading === true));
   }, [projectLoading]);
-  
+
   // const progressProject = (data: any) => {
   //   let agreed_number = (data.agreed_number / data.analysed_number) * 100;
   //   if (data.total_number === 0) {
