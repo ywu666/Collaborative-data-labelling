@@ -38,8 +38,10 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
       projectServices.getProjectNames(firebase)
         .then(data => {
           let loadings:any[] = []
-          data.forEach((e: { name: string; }) => {
-            let temp = {name:e, loading: true}
+          //let names:string[] = []
+          data.forEach((e: { name: string;}) => {
+            let temp = {name:e.name, loading: true}
+            // names.push( e.name)
             loadings.push(temp)
           })
           setProjectLoading(loadings)
@@ -48,53 +50,54 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     } catch (e) {}
   },[]);
 
-  useEffect(() => {
-    projectNames.forEach(e => {
-      if (!projectData.some(e_p => e_p.name === e)) {
-        documentServices.getNumberOfUnlabelledDocs(e, firebase)
-          .then(data => {
-            return data.find((_e: { email: string | null; }) => _e.email === localStorage.getItem("email"))?.number_unlabelled
-
-          })
-          .then(data => {
-            if (isNullOrUndefined(data) || data === 0) {
-              projectServices.getProjectAgreementScore(e, firebase)
-                .then(_data => {
-                  _data.name = e
-                  _data.unlabelled = data
-                  setProjectData(e_p => [...e_p, _data])
-                })
-            } else {
-              let temp = { name: e, unlabelled:data }
-              setProjectData(e_p => [...e_p, temp])
-            }
-          })
-      }
-    })
-  }, [projectNames])
+  // useEffect(() => {
+  //   projectNames.forEach(e => {
+  //     if (!projectData.some(e_p => e_p.name === e)) {
+  //       documentServices.getNumberOfUnlabelledDocs(e, firebase)
+  //         .then(data => {
+  //           return data.find((_e: { email: string | null; }) =>
+  //             _e.email === localStorage.getItem("email"))?.number_unlabelled
+  //         })
+  //         .then(data => {
+  //           if (isNullOrUndefined(data) || data === 0) {
+  //             projectServices.getProjectAgreementScore(e, firebase)
+  //               .then(_data => {
+  //                 _data.name = e
+  //                 _data.unlabelled = data
+  //                 setProjectData(e_p => [...e_p, _data])
+  //               })
+  //           } else {
+  //             let temp = { name: e, unlabelled:data }
+  //             setProjectData(e_p => [...e_p, temp])
+  //           }
+  //         })
+  //     }
+  //   })
+  // }, [projectNames])
 
   useEffect(() => {
     let temp = [...projectLoading]
-    projectData.forEach(e => {
+    projectNames.forEach(e => {
       temp.forEach(e_p => {
         if (e_p.name === e.name) {
           e_p.loading = false
         }
       });
     });
+    setProjectLoading(temp);
   }, [projectNames]);
 
-  useEffect(() => {
-    let temp = [...projectLoading];
-    projectData.forEach((e) => {
-      temp.forEach((e_p) => {
-        if (e_p.name === e.name) {
-          e_p.loading = false;
-        }
-      });
-    });
-    setProjectLoading(temp);
-  }, [projectData]);
+  // useEffect(() => {
+  //   let temp = [...projectLoading];
+  //   projectData.forEach((e) => {
+  //     temp.forEach((e_p) => {
+  //       if (e_p.name === e.name) {
+  //         e_p.loading = false;
+  //       }
+  //     });
+  //   });
+  //   setProjectLoading(temp);
+  // }, [projectData]);
 
   useEffect(() => {
     setLoading(projectLoading.some((e) => e.loading === true));
@@ -135,7 +138,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   }, [])
 
   function handleCreateProject(name:any) {
-    setProjectNames((projectNames)=>[...projectNames,name])
+    setProjectNames((projectNames)=>[...projectNames,{'name':name,'owner':currentDisplayName}])
   }
 
   function handleLoading(load:boolean) {
@@ -158,15 +161,14 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
       <IonContent>
         <div className="container">
           <Masonry options={{ columnWidth: '.projectCard', percentPosition: true }}>
-
-            {projectData.map((data, index) => {
+            {projectNames.map((data, index) => {
               return (
                 <IonCard
                   key={index}
                   className="projectCard"
                   routerLink={'/project/' + data.name}
                 >
-                  <IonCardTitle>{data.name}</IonCardTitle>
+                  <IonCardTitle>{data.owner + ' / ' + data.name}</IonCardTitle>
                   {/*<IonCardContent>*/}
                   {/*  {progressProject(data)}*/}
                   {/*  <p>{progressMessage}</p>*/}
