@@ -16,24 +16,26 @@ export const projectServices = {
 }
 
 async function createProject(project_name: any, firebase: any){
-    const requestOptions = {
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type' : 'application/json'},
+        headers: {
+          'Content-Type' : 'application/json',
+          "Authorization":"Bearer " + token
+        },
         body: JSON.stringify( {project_name} )
     }
        //await handleAuthorization(firebase);
-   const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
-        }
-       })
-   }else{
+        }})
+   } else{
     window.location.href = '/auth';
    }
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/create?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/create', requestOptions) // TODO:config.apiUrl
     .then(handleResponse)
     .then(data => {
         return data
@@ -41,26 +43,28 @@ async function createProject(project_name: any, firebase: any){
 }
 
 async function getProjectNames(firebase: any) {
-   const requestOptions = {
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
        method: 'GET',
        headers: { 'Content-Type': 'application/json', 
        "Access-Control-Allow-Origin": "*",
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-   };
+       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+       "Authorization":"Bearer " + token
+       }};
+
    //await handleAuthorization(firebase);
-   const token = localStorage.getItem('user-token');
    if(firebase.auth.currentUser != null){
     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
         if(token !== idToken){
             localStorage.setItem('user-token',idToken)
         }
        })
-   }else{
-    window.location.href = '/auth';
+   } else {
+     window.location.href = '/auth';
    }
 
-   return fetch(process.env.REACT_APP_API_URL + '/projects/all?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+   return fetch(process.env.REACT_APP_API_URL + '/projects/all', requestOptions) // TODO:config.apiUrl
        .then(handleResponse)
        .then(data => {
            return data.projects
@@ -83,7 +87,7 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
              localStorage.setItem('user-token',idToken)
          }
         })
-    }else{
+    } else {
      window.location.href = '/auth';
     }
  
@@ -243,9 +247,6 @@ async function getProjectUsers(project: string, firebase: any) {
          .then(data => {
              return data.message
          })
-
-
-
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
@@ -271,5 +272,4 @@ export async function handleAuthorization(firebaseAuth: any) {
     }else{
      window.location.href = '/auth';
     }
-
 }

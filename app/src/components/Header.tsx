@@ -101,7 +101,6 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   return (
     <>
       {/*Create project window */}
-
       <IonModal
         isOpen={showCreateProject}
         cssClass='createProject'
@@ -135,20 +134,6 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               onIonChange={e => setInitialEncryptionStatus(e.detail.checked)}
               name='encryptionStatus'/>
           </IonItem>
-
-          {/*{initialEncryptionStatus  &&*/}
-          {/*<IonItem><IonInput*/}
-          {/*  placeholder="Enter the key"*/}
-          {/*  name='encryptionKey'*/}
-          {/*  id='encryptionKey'*/}
-          {/*  value={encryptionKey}*/}
-          {/*  onIonChange={ (e) =>*/}
-          {/*    handleEnterEncryptionKey(e.detail.value)*/}
-          {/*  }*/}
-          {/*  type='text'*/}
-          {/*/>*/}
-          {/*</IonItem>*/}
-          {/*}*/}
           <IonButton
             disabled={text == null || text.length < 1}
             fill="outline"

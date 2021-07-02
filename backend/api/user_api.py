@@ -3,7 +3,8 @@ from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
 # from mongoDBInterface import get_col
-from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user, get_all_user_email_from_database, does_user_belong_to_a_project
+from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user, \
+    get_all_user_email_from_database, does_user_belong_to_a_project
 
 user_api = Blueprint('user_api', __name__)
 
@@ -13,6 +14,8 @@ request format: /users?email=email
 FIXME email is also passed in as parameter, I don't quite understand why we allow users to get information of another user, maybe we need to change it. But requires 
 analysing of frontend first 
 '''
+
+
 @user_api.route("/users", methods=["GET"])
 @check_token
 def get_user_info_from_email():
@@ -25,13 +28,16 @@ def get_user_info_from_email():
     if user_to_add is None:
         response = {'message': "User does not exist/does not have an account"}
         return make_response(response), 400
-    user_to_add = jsonify(user_to_add)    
+    user_to_add = jsonify(user_to_add)
     return user_to_add, 200
+
 
 '''
 get emails of all users
 FIXME why is this even needed?????
 '''
+
+
 @user_api.route("/user/all", methods=['Get'])
 @check_token
 def get_all_users_emails():
@@ -52,7 +58,7 @@ def get_current_user_for_proj(project_id):
             'role': collaborator.role.name
         }
         users.append(dict)
-    
+
     return jsonify(users), 200
 
 
@@ -67,7 +73,7 @@ def get_user_infos_for_project(project_id):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         return make_response(response), 400
-    
+
     if does_user_belong_to_a_project(requestor_email, project_id) is False:
         response = {'message': "Not allowed to perform this action unless you are part of the project"}
         response = make_response(response)
@@ -108,6 +114,8 @@ body:
     username: username
 }
 """
+
+
 @user_api.route("/users/create", methods=["Post"])
 @check_token
 def create_user():
@@ -129,7 +137,7 @@ def create_user():
             user = {
                 "username": username,
                 "email": requestor_email
-            } 
+            }
             save_user(user)
     else:
         response = {'message': "Missing username"}
@@ -138,7 +146,6 @@ def create_user():
     # is part of! When a new user is created it should be empty
 
     return "", 204
-
 
 # @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
 # # Adding a new user to a project
