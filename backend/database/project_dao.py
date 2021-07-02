@@ -45,13 +45,7 @@ def get_projects_names_of_the_user(requestor_email):
     return db_ser.projects
 
 
-def get_owner_of_the_projects(projects_of_user):
-    for project in projects_of_user:
-        for c in project.collaborators:
-            if c.role.value == 'owner':
-                return c.user
-
-
-
-
+def get_owner_of_the_project(project):
+    owner = list(filter(lambda collaborator: collaborator.role.value == 'owner', project.collaborators))[0]
+    return owner.user
 
