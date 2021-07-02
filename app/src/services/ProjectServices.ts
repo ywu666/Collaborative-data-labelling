@@ -21,7 +21,7 @@ async function createProject(project_name: any, firebase: any){
         method: 'POST',
         headers: {
           'Content-Type' : 'application/json',
-          'token':'' + token
+          "Authorization":"Bearer " + token
         },
         body: JSON.stringify( {project_name} )
     }
@@ -50,7 +50,7 @@ async function getProjectNames(firebase: any) {
        "Access-Control-Allow-Origin": "*",
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-       "token": '' + token
+       "Authorization":"Bearer " + token
        }};
 
    //await handleAuthorization(firebase);
@@ -247,9 +247,6 @@ async function getProjectUsers(project: string, firebase: any) {
          .then(data => {
              return data.message
          })
-
-
-
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
@@ -275,5 +272,4 @@ export async function handleAuthorization(firebaseAuth: any) {
     }else{
      window.location.href = '/auth';
     }
-
 }

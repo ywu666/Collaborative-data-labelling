@@ -1,11 +1,9 @@
-import { StringDecoder } from "string_decoder";
 
 /**
  * The user service encapsulates all backend api calls for performing CRUD operations on user data
  */
  export const userService = {
      login,
-     logout,
      getAllUsers,
      getAllUsersInDatabase,
      signup,
@@ -13,11 +11,6 @@ import { StringDecoder } from "string_decoder";
      getCurrentUser,
      getUser
  }
-
- function logout() {
-    // remove emailForSignIn from local storage to log user out
-    localStorage.removeItem('emailForSignIn');
-}
 
  function login(email: any, password: any) {
     const requestOptions = {
@@ -40,7 +33,8 @@ function signup(username: string, email: string , token: string){
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
-        'token':'' + localStorage.getItem('user-token')},
+          "Authorization":"Bearer " + localStorage.getItem('user-token')
+        },
         body: JSON.stringify({username, email})
     };
 
@@ -59,7 +53,7 @@ function getCurrentUser(email: any, firebase: any){
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-      'token':'' + token
+      "Authorization":"Bearer " + token
     }};
 
    if(firebase.auth.currentUser != null){
@@ -101,10 +95,10 @@ function getAllUsers(page_num: any, page_size: any) {
         headers: { 'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
  },
     };
-    
+
     return fetch(process.env.REACT_APP_API_URL + '/users/all'
         + '?id_token=' + localStorage.getItem('user-token')
         + '&page=' + page_num
@@ -157,9 +151,10 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
         const data = text && JSON.parse(text);
         if (!response.ok) {
             if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                logout();
-                //location.reload(true);
+              // auto logout if 401 response returned from api
+              // remove emailForSignIn from local storage to log user out
+              localStorage.removeItem('emailForSignIn');
+              //location.reload(true);
             }
 
             const error = (data && data.message) || response.statusText;

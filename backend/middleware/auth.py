@@ -16,9 +16,11 @@ This requires request has the following header:
 def check_token(f):
     @wraps(f)
     def wrap(*args, **kwargs):
-        auth_token = request.headers.get('token')
-        print(auth_token)
-        if auth_token is None:
+        auth_header = request.headers.get('Authorization')
+
+        if auth_header:
+            auth_token = auth_header.split(" ")[1]
+        else:
             auth_token = ""
 
         if not auth_token:
