@@ -14,7 +14,7 @@ function collectionToCSV(keys : string[] = []) {
 }
 
 
-  function downloadBlob(blob: Blob, filename: string) {
+function downloadBlob(blob: Blob, filename: string) {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);

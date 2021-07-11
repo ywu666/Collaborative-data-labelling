@@ -3,10 +3,12 @@ import { withFirebase } from '../Firebase';
 import { compose } from 'recompose';
 import { css } from 'glamor';
 import { Redirect } from "react-router-dom";
-import { Button, Card, CardActions, CardContent, CardHeader, TextField } from '@material-ui/core';
+import { Button, Card, CardActions, CardContent, TextField } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import { IonSpinner } from '@ionic/react';
 import { userService } from '../../services/UserServices'
+import { EncryptedHelpers } from '../../helpers/encryption';
+
 //import * as ROUTES from '../../constants/routes';
 
 const SignUpPage = () => (
@@ -59,11 +61,17 @@ class SignUpFormBase extends Component {
                 this.setState({ loading: false });
 
             }).then(() => {
-                this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
-                    localStorage.setItem("user-token", idToken);
-                    userService.signup(username, email, idToken);
-                })
-                this.setState({ loading: false });
+                EncryptedHelpers.generateKeys(encryptionKey).then((keys) => {
+                    this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
+                        localStorage.setItem("user-token", idToken);
+                        userService.signup(username, email, idToken, keys).then(
+                          (data) => {
+                              localStorage.setItem('salt', keys.salt)
+                          });
+                    })
+                    this.setState({ loading: false });
+                  }
+                )
             })
             .catch(error => {
                 this.setState({ error });

@@ -156,7 +156,7 @@ class SignInFormBase extends Component {
 
                     </div>
                     <div className="container">
-                        <p>Don't have an account? <a href="http://localhost:3000/signup">Sign up here</a></p>
+                        <p>Don't have an account? <a href="https://localhost:3000/signup">Sign up here</a></p>
                     </div>
                 </CardContent>
             </Card>

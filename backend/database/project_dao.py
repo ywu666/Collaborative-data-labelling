@@ -15,7 +15,7 @@ def create_new_project(requestor_email, project, encryption_key=None):
     db_ser = get_user_from_database_by_email(requestor_email)
     collaborator = Collaborator(user=db_ser, role=UserRole.OWNER)
     if encryption_key is not None:
-        collaborator.entry_key = project.entry_key
+        collaborator.entry_key = encryption_key
 
     project = Project(**project)
     project.collaborators.append(collaborator)

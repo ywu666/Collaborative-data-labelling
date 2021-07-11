@@ -28,7 +28,7 @@ class DataLabelResult(db.EmbeddedDocument):
 class UserKey(db.EmbeddedDocument):
     en_private_key = db.StringField()
     salt = db.StringField()
-    key_pair = db.StringField()
+    public_key = db.StringField()
 
 
 class Collaborator(db.EmbeddedDocument):

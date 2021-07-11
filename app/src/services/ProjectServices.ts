@@ -1,4 +1,3 @@
-
 import {downloadHelpers} from '../helpers/download'
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
@@ -15,7 +14,7 @@ export const projectServices = {
     getProjectAgreementScore,
 }
 
-async function createProject(project_name: any, firebase: any){
+async function createProject(project_name: any, firebase: any, encryption_state:boolean){
   const token = localStorage.getItem('user-token');
   const requestOptions = {
         method: 'POST',
@@ -23,7 +22,7 @@ async function createProject(project_name: any, firebase: any){
           'Content-Type' : 'application/json',
           "Authorization":"Bearer " + token
         },
-        body: JSON.stringify( {project_name} )
+        body: JSON.stringify( {project_name, encryption_state} )
     }
        //await handleAuthorization(firebase);
    if(firebase.auth.currentUser != null){

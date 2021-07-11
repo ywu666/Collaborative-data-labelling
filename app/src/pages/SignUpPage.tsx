@@ -5,12 +5,13 @@ import {
     IonTitle,
     IonToolbar,
   } from '@ionic/react';
-  import React from 'react';
-  import { useParams } from 'react-router';
-  import './LoginPage.css';
-  import SignUp from "../components/SignUp";
+import React from 'react';
+import { useParams } from 'react-router';
+import './LoginPage.css';
+import SignUp from "../components/SignUp";
 import Header from '../components/Header';
-  const SignUpPage: React.FC = () => {
+
+const SignUpPage: React.FC = () => {
     const { name } = useParams<{ name: string }>();
   
     return (

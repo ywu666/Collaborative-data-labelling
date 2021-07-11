@@ -1,4 +1,5 @@
 from database.model import User
+from database.model import UserKey
 
 
 def get_user_from_database_by_email(email):
@@ -17,8 +18,10 @@ def get_user_from_database_by_username(username):
         return None
 
 
-def save_user(user):
+def save_user_and_keys(user, user_keys):
+    user_key = UserKey(**user_keys)
     user = User(**user)
+    user.key = user_key
     user.save()
 
 
@@ -32,3 +35,8 @@ def does_user_belong_to_a_project(email, project_id):
     if not user:
         return False
     return True
+
+
+def get_user_public_key(requestor_email):
+    db_user = get_user_from_database_by_email(requestor_email)
+    return db_user.key.public_key

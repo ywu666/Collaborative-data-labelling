@@ -37,13 +37,10 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   //states for the createProject popup window
   const [newProject, setNewProject] = useState<any>('');
   const [showCreateProject, setShowCreateProject] = useState(false)
-  const [owner, setOwner] = useState(null);
-  const [initialEncryptionStatus, setInitialEncryptionStatus] = useState(false);
   const [encryptionStatus, setEncryptionStatus] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [text, setText] = useState<any>();
-  const [encryptionKey, setEncryptionKey] = useState<any>();
 
   const {
     firebase,iniProjectNames
@@ -51,9 +48,10 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
 
   useEffect(() => {
     if (newProject !== "") {
+      let entry_key = ''
       try {
         projectServices
-          .createProject(newProject, firebase)
+          .createProject(newProject, firebase, encryptionStatus)
           .then((data) => {
             if(props.handleCreateProject) props.handleCreateProject(newProject)
             setShowCreateProject(false)
@@ -71,6 +69,10 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
     }
   }, [newProject]);
 
+  useEffect(() => {
+
+  },[encryptionStatus])
+
   const {
     routerLink,
     title,
@@ -79,12 +81,6 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
 
   function handleEnterProjectName (_value:any) {
     setText(_value);
-    setError(false);
-    setErrorMessage('');
-  }
-
-  function handleEnterEncryptionKey (_value:any) {
-    setEncryptionKey(_value)
     setError(false);
     setErrorMessage('');
   }
@@ -130,8 +126,8 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
             <IonLabel>Encryption the project</IonLabel>
             <IonCheckbox
               slot='start'
-              checked={initialEncryptionStatus}
-              onIonChange={e => setInitialEncryptionStatus(e.detail.checked)}
+              checked={encryptionStatus}
+              onIonChange={e => setEncryptionStatus(e.detail.checked)}
               name='encryptionStatus'/>
           </IonItem>
           <IonButton

@@ -18,13 +18,12 @@
     "@types/react-router": "^5.1.4",
     "@types/react-router-dom": "^5.1.3",
     "@types/request": "^2.48.5",
-    "bcrypt": "^5.0.1",
-    "crypto-js": "^4.0.0",
     "firebase": "^7.21.0",
     "firebase-admin": "^9.2.0",
     "glamor": "^2.20.40",
     "ionicons": "^5.0.0",
     "moment": "^2.29.0",
+    "node-forge": "^0.10.0",
     "npm-watch": "^0.7.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
@@ -40,7 +39,7 @@
     "typescript": "3.8.3"
   },
   "scripts": {
-    "start": "set PORT=3000 && react-scripts start",
+    "start": "export HTTPS=true&&PORT=3000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
