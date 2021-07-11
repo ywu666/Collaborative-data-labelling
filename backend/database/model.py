@@ -35,6 +35,7 @@ class Collaborator(db.EmbeddedDocument):
     entry_key = db.StringField()
     user = db.ReferenceField('User')
     role = db.EnumField(UserRole)
+    dataNumber = db.ListField()
 
 
 # one line of data that needs to be labelled
