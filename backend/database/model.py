@@ -22,7 +22,7 @@ def init_db(app):
 
 class DataLabelResult(db.EmbeddedDocument):
     user = db.ReferenceField('User')
-    label = db.ReferenceField("Label")
+    label = db.StringField() 
 
 
 class UserKey(db.EmbeddedDocument):

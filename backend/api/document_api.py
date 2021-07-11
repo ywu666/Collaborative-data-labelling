@@ -1,43 +1,45 @@
-# import datetime
-# from api.methods import JSONEncoder
-# from api.validation_methods import check_id_token, user_unauthorised_response
-# from bson import ObjectId
-# from firebase_auth import get_email
-# from flask import Blueprint, request, make_response
-# from model.document import Document, get_db_collection
-# from mongoDBInterface import get_col
+from flask.json import jsonify
+from database.user_dao import does_user_belong_to_a_project, get_user_from_database_by_email
+from api.validation_methods import user_unauthorised_response
+from database.project_dao import get_document_of_a_project
+from middleware.auth import check_token
+from flask import Blueprint, request, make_response, g
+import re
+document_api = Blueprint('document_api', __name__)
 
-# document_api = Blueprint('document_api', __name__)
+@document_api.route('/projects/<project_id>/documents', methods=['Get'])
+@check_token
+def get_document_ids(project_id):
+    print("get document ids called")
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
+    
+    requestor_email = g.requestor_email
+    userId = get_user_from_database_by_email(requestor_email).id
+
+    # check the user is one of the collaborators
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
 
 
-# @document_api.route('/projects/<project_name>/documents', methods=['Get'])
-# def get_document_ids(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+    data = get_document_of_a_project(project_id, page, page_size, userId)
+    
+    results = []
+    # for each data, only keep label given by the current user
+    for d in data:
+        labelByUser = next((item for item in d.labels if item.user.id == userId), None)
+        result = {
+            'display_id': d.display_id,
+            'label': labelByUser.label if labelByUser else None,
+            'value': d.value
+        }
+        results.append(result)
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
-
-#     try:
-#         page = int(request.args.get('page'))
-#         page_size = int(request.args.get('page_size'))
-#     except (ValueError, TypeError):
-#         response = {'message': "page and page_size must be integers"}
-#         return make_response(response), 400
-
-#     users_col = get_col(project_name, "users")
-#     requestor = users_col.find_one({'email': requestor_email})
-#     if requestor is None:
-#         return user_unauthorised_response()
-
-#     col = get_db_collection(project_name, "documents")
-#     count = col.count_documents({})
-#     docs = col.find({}).skip(page * page_size).limit(page_size)
-#     docs_dict = {'docs': list(docs),
-#                  'count': count}
-#     docs = JSONEncoder().encode(docs_dict)
-#     return docs, 200
+    return jsonify(results), 200
 
 
 # @document_api.route('/projects/<project_name>/documents/<document_id>', methods=['Get'])

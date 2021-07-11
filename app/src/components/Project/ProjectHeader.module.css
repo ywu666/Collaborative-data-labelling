@@ -1,0 +1,46 @@
+.projectDiv {
+    background-color: rgb(234,234,234);
+    padding: 1% 1% 0 2%;
+}
+
+.headerDiv {
+    display: flex;
+}
+
+.folderIcon {
+    font-size: xx-large;
+    color: rgb(56,128,255);
+}
+
+.projectName {
+    color: rgb(56,128,255);
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 1%;
+    font-size: x-large;
+}
+
+.tabBar {
+    background: none;
+    display: flex;
+    justify-content: start;
+    border: none;
+}
+
+.tabButton {
+    background: none;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+}
+
+.tabIcon {
+    font-size: x-large;
+}
+
+.tabLabel {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: 7px;
+    font-size: large;
+}

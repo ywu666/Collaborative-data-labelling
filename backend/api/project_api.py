@@ -1,6 +1,7 @@
-from database.user_dao import get_user_from_database_by_email
-from database.project_dao import create_new_project, get_projects_names_of_the_user,get_owner_of_the_project
 from database.user_dao import get_user_public_key
+from api.validation_methods import user_unauthorised_response
+from database.user_dao import does_user_belong_to_a_project, get_user_public_key
+from database.project_dao import create_new_project, get_all_projects_of_a_user,get_owner_of_the_project, get_project_by_id
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
 import re
@@ -17,7 +18,7 @@ project_api = Blueprint('project_api', __name__)
 @check_token
 def get_projects():
     requestor_email = g.requestor_email
-    projects_of_the_user = get_projects_names_of_the_user(requestor_email)
+    projects_of_the_user = get_all_projects_of_a_user(requestor_email)
     projects = []
 
     for p in projects_of_the_user:
@@ -26,7 +27,34 @@ def get_projects():
             'name': p.project_name,
             'owner': get_owner_of_the_project(p).username
         })
+
+    # sort projects by owner
+    projects = sorted(projects, key=lambda k: k['owner']) 
     response = {'projects': projects}
+    return make_response(response), 200
+
+
+@project_api.route("/projects/<project_id>", methods=['GET'])
+@check_token
+def get_project_description(project_id):
+    requestor_email = g.requestor_email
+
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
+
+    project = get_project_by_id(project_id)
+    owner = get_owner_of_the_project(project)
+
+    project = {
+        '_id': str(project.id),
+        'owner': owner.username,
+        'name': project.project_name,
+        'state': project.state,
+        'encryption_state': project.encryption_state
+    }
+
+    # sort projects by owner
+    response = {'project': project}
     return make_response(response), 200
 
 

@@ -53,14 +53,14 @@ const App: React.FC<AppProps> = (props: AppProps) => {
 
             <IonContent>
                 <div className="pageInit">
-                <IonSpinner class="spinner" name="crescent" color="primary"/>
+                <IonSpinner className="spinner" name="crescent" color="primary"/>
                 </div>
             </IonContent>
             </IonPage>
 
         : <IonReactRouter>
           <IonRouterOutlet id="main">
-            <Route path="/project/:name" component={()=><ProjectPage firebase={firebase} />} exact />
+            <Route path="/project/:id" component={()=><ProjectPage firebase={firebase} />} />
             <Route path="/auth" component={LoginPage}  />
             <Route path="/signup" component={SignUpPage}  />
             <Route path="/" component={()=><MainPage firebase={firebase} />} exact />

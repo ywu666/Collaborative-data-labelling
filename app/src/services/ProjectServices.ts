@@ -6,6 +6,7 @@ export const projectServices = {
     getProjectNames,
     exportCsv,
     getProjectUsers,
+    getDescriptionOfAProject,
     setProjectUsers,
     setProjectTags,
     setUserPermissions,
@@ -148,6 +149,28 @@ async function getProjectUsers(project: string, firebase: any) {
             return data.users
         })
  }
+
+async function getDescriptionOfAProject(firebase: any, project_id: any) {
+    const token = localStorage.getItem('user-token');
+    const requestOptions = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+            "Authorization": "Bearer " + token
+        }
+    };
+
+    await handleAuthorization(firebase);
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id, requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data.project
+        })
+}
 
  async function setProjectUsers(project: string, user: string, firebase:any) {
     const requestOptions = {

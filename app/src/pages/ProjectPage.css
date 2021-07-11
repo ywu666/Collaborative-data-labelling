@@ -97,3 +97,7 @@ ion-modal.auto-height ion-button {
 .spinner{
     transform: scale(1.5);
 }
+
+.ion-page-project-display{
+  justify-content: unset !important;
+}
