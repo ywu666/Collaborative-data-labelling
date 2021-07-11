@@ -1,5 +1,5 @@
-from database.project_dao import create_new_project, get_project_by_name, get_projects_names_of_the_user, \
-    get_owner_of_the_project
+from database.user_dao import get_user_from_database_by_email
+from database.project_dao import create_new_project, get_projects_names_of_the_user,get_owner_of_the_project
 from database.user_dao import get_user_public_key
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
@@ -95,8 +95,9 @@ def create_project():
         response = {'message': "Project name can only be Alphanumerics and underscores"}
         return make_response(response), 400
 
-    db_project = get_project_by_name(project_name)
-    if db_project is None:
+    db_project = get_user_from_database_by_email(requestor_email).projects
+    # check this user did not create a project with the same name before 
+    if not any((project.project_name == project_name and get_owner_of_the_project(project).email == requestor_email ) for project in db_project):
         # TODO check if the project should be encrypted, if yes, generate encrypted entry key 
         encryption_state = request.json['encryption_state']
         print('encrypt_status: ', encryption_state)
