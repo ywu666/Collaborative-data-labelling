@@ -1,6 +1,5 @@
-from database.user_dao import get_user_public_key
 from api.validation_methods import user_unauthorised_response
-from database.user_dao import does_user_belong_to_a_project, get_user_public_key
+from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
 from database.project_dao import create_new_project, get_all_projects_of_a_user,get_owner_of_the_project, get_project_by_id
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
