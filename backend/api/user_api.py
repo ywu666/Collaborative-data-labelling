@@ -1,3 +1,5 @@
+from os import terminal_size
+from enums.user_role import UserRole
 from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
@@ -46,22 +48,20 @@ def get_all_users_emails():
     all_user_emails = get_all_user_email_from_database()
     return jsonify(all_user_emails), 200
 
-
+# return the role of the current user on a specific project
 @user_api.route("/projects/<project_id>/user", methods=["Get"])
 @check_token
 def get_current_user_for_proj(project_id):
     collaborators = get_all_users_associated_with_a_project(project_id)
-    users = []
-    for collaborator in collaborators:
-        user = collaborator.user
-        dict = {
-            '_id': str(user.id),
-            'email': user.email,
-            'role': collaborator.role.name
-        }
-        users.append(dict)
+    collaborator = next((collaborator for collaborator in collaborators if collaborator.user.email == g.requestor_email), None)
+    user = {
+        '_id': str(collaborator.user.id),
+        # a user had admin rights if he is the owner or a admin
+        'isAdmin': True if collaborator.role == UserRole.OWNER else False,
+        'isContributor': True if collaborator.role == UserRole.COLLABORATOR else False
+    }
 
-    return jsonify(users), 200
+    return jsonify(user), 200
 
 
 @user_api.route("/projects/<project_id>/users", methods=["Get"])

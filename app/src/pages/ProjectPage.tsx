@@ -38,7 +38,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
       <ProjectHeader firebase={firebase}/>
       <Switch>
         <Route exact path={`/project/${id}/labelling`}>
-          <ProjectLabelling firebase={firebase} />
+          <ProjectLabelling firebase={firebase} projectId={id}/>
         </Route>
         <Route exact path={`/project/${id}/insight`}>
           <ProjectInsight />

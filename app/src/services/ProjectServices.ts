@@ -251,24 +251,26 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
         .then(handleResponse)
  }
 
- async function uploadDocuments(project : string, file : File, firebase: any){
+ async function uploadDocuments(projectId : string, file : File, firebase: any){
     const formData = new FormData();
-
     formData.append("inputFile", file);
-    formData.append("projectName", project);
+    formData.append("projectId", projectId);
 
     const requestOptions = {
         method : "POST",
+        headers: {
+            "Authorization":"Bearer " + localStorage.getItem('user-token')
+        },
         body : formData
     }
     await handleAuthorization(firebase)
 
-     return fetch(process.env.REACT_APP_API_URL + '/projects/upload' + '?id_token=' +
-         localStorage.getItem('user-token'), requestOptions)
+     return fetch(process.env.REACT_APP_API_URL + '/projects/upload', requestOptions)
          .then(handleResponse)
          .then(data => {
-             return data.message
-         })
+             return data
+         }
+    )
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {

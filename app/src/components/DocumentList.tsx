@@ -181,7 +181,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				<TableCell colSpan={2}>
 					{isNullOrUndefined(email)
 						? <div/>
-						: currentUser.isContributor
+						: currentUser.isAdmin
 							? isNullOrUndefined(user_label)
 								? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
 								: user_label_confirmed

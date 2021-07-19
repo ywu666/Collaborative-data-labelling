@@ -17,7 +17,7 @@ app.register_blueprint(document_api.document_api)
 # app.register_blueprint(label_api.label_api)
 app.register_blueprint(project_api.project_api)
 app.register_blueprint(user_api.user_api)
-# app.register_blueprint(import_export_api.import_export_api)
+app.register_blueprint(import_export_api.import_export_api)
 
 cred = credentials.Certificate("collaborative-data-labelling-firebase-adminsdk-95tuz-b0d97a170a.json")
 default_app = firebase_admin.initialize_app(cred)

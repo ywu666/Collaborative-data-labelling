@@ -125,18 +125,19 @@ function getAllUsers(page_num: any, page_size: any) {
         })
  }
 
-function getCurrentProjectUser(project_name: any) {
+function getCurrentProjectUser(project_id: any) {
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
+        headers: { 
+            'Authorization': 'Bearer ' +  localStorage.getItem('user-token'),
+            'Content-Type': 'application/json',
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
         },
     };
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/'+ project_name + '/user'
-        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + '/projects/'+ project_id + '/user', requestOptions)
         .then(handleResponse)
         .then(data => {
             return data

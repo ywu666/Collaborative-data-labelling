@@ -19,16 +19,16 @@ const theme = createMuiTheme({
 });
 
 interface UploadProps {
-  name: string;
+  projectId: string;
   firebase: any;
   isUploading(val: boolean): any;
-  uploadError(val: boolean): any;
+  uploadError(val: boolean, message: string): any;
   enable: boolean;
 }
 
 const Upload: React.FC<UploadProps> = (props:UploadProps) => {
   const {
-    name,
+    projectId,
     firebase,
     isUploading,
     uploadError,
@@ -41,15 +41,15 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
     if (upload === true) {
       try {
         isUploading(true);
-        uploadError(false)
+        uploadError(false, "")
 
         // @ts-ignore
-        projectServices.uploadDocuments(name, inputFile.current.files[0], firebase).then(data => {
+        projectServices.uploadDocuments(projectId, inputFile.current.files[0], firebase).then(data => {
           isUploading(false);
         })
           .catch(e => {
-            uploadError(true)
-            isUploading(false)
+            uploadError(true, e);
+            isUploading(false);
           })
       } catch (e) {}
       setUpload(false)

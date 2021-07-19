@@ -1,7 +1,6 @@
 from database.user_dao import get_user_from_database_by_email
 from enums.user_role import UserRole
-from database.model import Collaborator, Project
-
+from database.model import Collaborator, Project, Data
 
 def get_project_by_name(name):
     try:
@@ -57,3 +56,11 @@ def get_owner_of_the_project(project):
 def get_document_of_a_project(project_id, page, page_limite, userId):
     project = Project.objects(id=project_id, data__labels__user=userId).fields(slice__data=[page * page_limite, page_limite]).get()
     return project.data
+
+def create_new_document(display_id, value):
+    document = Data(display_id=display_id, value=value)
+    return document
+
+def add_documents_to_database(project, data_array):
+    project.data.extend(data_array)
+    project.save()
