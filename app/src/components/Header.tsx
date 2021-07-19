@@ -53,18 +53,23 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
         projectServices
           .createProject(newProject, firebase, encryptionStatus)
           .then((data) => {
-            if(props.handleCreateProject) props.handleCreateProject(newProject)
+            if(props.handleCreateProject)
+              props.handleCreateProject(newProject)
+            // store the en_entry_key in an array in the localStorage
+            
             setShowCreateProject(false)
           })
           .catch((reason) => {
             setError(true);
             setErrorMessage(reason);
-            if(props.handleLoading) props.handleLoading(false);
+            if(props.handleLoading)
+              props.handleLoading(false);
           });
       } catch (err) {
         setError(true);
         setErrorMessage(err.message);
-        if(props.handleLoading) props.handleLoading(false);
+        if(props.handleLoading)
+          props.handleLoading(false);
       }
     }
   }, [newProject]);
@@ -86,7 +91,8 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   }
 
   function handleSubmit(e:React.FormEvent) {
-    if(props.handleLoading) props.handleLoading(true);
+    if(props.handleLoading)
+      props.handleLoading(true);
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     setNewProject(formData.get('projectName'));

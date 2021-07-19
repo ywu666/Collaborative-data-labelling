@@ -1,8 +1,11 @@
+from bson import ObjectId
 from api.validation_methods import user_unauthorised_response
 from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
-from database.project_dao import create_new_project, get_all_projects_of_a_user,get_owner_of_the_project, get_project_by_id
+from database.project_dao import create_new_project, get_all_projects_of_a_user, get_owner_of_the_project, \
+    get_project_by_id
 from middleware.auth import check_token
-from flask import Blueprint, request, make_response, g
+from database.model import Project
+from flask import Blueprint, request, make_response, g, jsonify
 import re
 import os
 from base64 import b64encode
@@ -28,7 +31,7 @@ def get_projects():
         })
 
     # sort projects by owner
-    projects = sorted(projects, key=lambda k: k['owner']) 
+    projects = sorted(projects, key=lambda k: k['owner'])
     response = {'projects': projects}
     return make_response(response), 200
 
@@ -124,10 +127,10 @@ def create_project():
 
     db_project = get_user_from_database_by_email(requestor_email).projects
     # check this user did not create a project with the same name before 
-    if not any((project.project_name == project_name and get_owner_of_the_project(project).email == requestor_email ) for project in db_project):
+    if not any((project.project_name == project_name and get_owner_of_the_project(project).email == requestor_email) for
+               project in db_project):
         # TODO check if the project should be encrypted, if yes, generate encrypted entry key 
         encryption_state = request.json['encryption_state']
-        print('encrypt_status: ', encryption_state)
 
         if encryption_state:
             pkstring = get_user_public_key(requestor_email)
@@ -141,6 +144,8 @@ def create_project():
                     algorithm=hashes.SHA256(),
                     label=None)
             )
+            print(b64encode(entry_key).decode())
+            print(b64encode(en_entry_key).decode())
             create_new_project(requestor_email, request.json, b64encode(en_entry_key).decode())
         else:
             create_new_project(requestor_email, request.json)
@@ -149,6 +154,21 @@ def create_project():
         return make_response(response), 400
 
     return "", 204
+
+
+@project_api.route("/projects/<project_id>/en_entry_key", methods=['GET'])
+@check_token
+def get_en_entry_key(project_id):
+    project = Project.objects(id=project_id).get_or_404()
+    owner = list(filter(lambda collaborator: collaborator.role.value == 'owner', project.collaborators))[0]
+    print(owner.entry_key)
+    print(owner.entry_key)
+    if owner.entry_key:
+        en_entry_key = {'en_entry_key': owner.entry_key}
+        return en_entry_key, 200
+    else:
+        response = {'message': "The owner of the project did not have entry_key"}
+        return make_response(response), 400
 
 # @project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
 # def delete_project(project_name):

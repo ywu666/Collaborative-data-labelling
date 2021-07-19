@@ -7,8 +7,6 @@ from flask import Blueprint, request, make_response, jsonify, g
 # from mongoDBInterface import get_col
 from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user_and_keys, \
     get_all_user_email_from_database, does_user_belong_to_a_project
-from cryptography.hazmat.primitives.asymmetric import rsa
-from cryptography.hazmat.primitives import serialization
 
 user_api = Blueprint('user_api', __name__)
 
@@ -36,6 +34,20 @@ def get_user_info_from_email():
     return user_to_add, 200
 
 
+@user_api.route("/user/user_key", methods=['GET'])
+@check_token
+def get_current_user_key():
+    requestor_email = g.requestor_email
+    print(requestor_email)
+    user = get_user_from_database_by_email(requestor_email)
+    if user.key:
+        print(user.key)
+        return jsonify(user.key), 200
+    else:
+        response = {'message': "The user didn't have the user key"}
+        return make_response(response), 400
+
+
 '''
 get emails of all users
 FIXME why is this even needed?????
@@ -51,7 +63,7 @@ def get_all_users_emails():
 # return the role of the current user on a specific project
 @user_api.route("/projects/<project_id>/user", methods=["Get"])
 @check_token
-def get_current_user_for_proj(project_id):
+def get_current_user_for_project(project_id):
     collaborators = get_all_users_associated_with_a_project(project_id)
     collaborator = next((collaborator for collaborator in collaborators if collaborator.user.email == g.requestor_email), None)
     user = {

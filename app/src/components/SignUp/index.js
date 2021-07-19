@@ -9,8 +9,6 @@ import { IonSpinner } from '@ionic/react';
 import { userService } from '../../services/UserServices'
 import { EncryptedHelpers } from '../../helpers/encryption';
 
-//import * as ROUTES from '../../constants/routes';
-
 const SignUpPage = () => (
     <div>
         <SignUpForm />
@@ -61,12 +59,14 @@ class SignUpFormBase extends Component {
                 this.setState({ loading: false });
 
             }).then(() => {
-                EncryptedHelpers.generateKeys(encryptionKey).then((keys) => {
+                EncryptedHelpers.generateKeys(encryptionKey)
+                  .then((keys) => {
                     this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
                         localStorage.setItem("user-token", idToken);
-                        userService.signup(username, email, idToken, keys).then(
-                          (data) => {
+                        userService.signup(username, email, idToken, keys)
+                          .then((data) => {
                               localStorage.setItem('salt', keys.salt)
+                              localStorage.setItem('en_private_key', keys.en_private_key)
                           });
                     })
                     this.setState({ loading: false });

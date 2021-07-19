@@ -1,10 +1,15 @@
 import * as crypto from 'crypto'
+import { EncryptionServices } from '../services/EncryptionService'
+import AES from 'crypto-js/aes'
+import Base64 from 'crypto-js/enc-base64'
 
 const forge = require('node-forge')
   ,  pki = forge.pki;
 
 export const EncryptedHelpers = {
   generateKeys,
+  encryptData,
+  decryptData,
 }
 
 async function generateKeys(phrase: string) {
@@ -53,20 +58,22 @@ function exportCryptoKeyToPKCS(exported:ArrayBuffer, isPublic:boolean) {
   }
 }
 
-function decryptEncryptedPrivateKey(en_private_key:string, phrase:string, salt:string) {
+function decryptEncryptedPrivateKey(en_private_key:any, phrase:string, salt:any) {
   const hashPhrase = crypto.createHmac("sha256", salt).update(phrase).digest("base64").toString();
   // decrypt the private key in the pem format
   return pki.privateKeyToPem(pki.decryptRsaPrivateKey(en_private_key, hashPhrase))
 }
 
-async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:string) {
+async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:any) {
   const derData = window.atob(en_entry_key)
   const privateKey = await importPrivateKey(privateKey_pem);
 
-  return await window.crypto.subtle.decrypt(
+  const entry_key = await window.crypto.subtle.decrypt(
       { name: 'RSA-OAEP'},
       privateKey,
       str2ab(derData));
+
+  return ab2Str(entry_key)
 }
 
 async function importPrivateKey(privateKey_pem:string) {
@@ -76,6 +83,7 @@ async function importPrivateKey(privateKey_pem:string) {
   const pemFooter = "-----END PRIVATE KEY-----";
   let pemContents = privateKey_pkcs8.replace(pemHeader,'');
   pemContents = pemContents.replace(pemFooter,'');
+
   // base64 decode the string to get the binary data
   const binaryDerString = window.atob(pemContents);
   // convert from a binary string to an ArrayBuffer
@@ -105,7 +113,9 @@ function ab2Str(ab:ArrayBuffer) {
   for (var i = 0; i < bytes.byteLength; i++) {
     exportedAsString += String.fromCharCode(bytes[i]);
   }
-  return exportedAsString
+
+  return window.btoa(exportedAsString);
+
 }
 
 function pem2pkcs8 (pem:string) {
@@ -115,50 +125,65 @@ function pem2pkcs8 (pem:string) {
   return pki.privateKeyInfoToPem(privateKeyInfo);
 }
 
-// function decryptEncryptedEntryKey(private_key:string,en_entry_key:string) {
-//   en_entry_key = 'rLnY6WUP0TMent5PV+V4hiRu4dYP3Tn0jU5ysROS+JH1d2ELnu7L5yIMa6Em9aan3jm/S+Dryr98/48iVXDLQ0o0V9gHAGubJp/mfq4S6fYpYf/1UVWMuxQGmLVVAjZRSg9wpVOz4c3FajOe7HU3JjF8DB1qJ1VlRP6FDlTzBtgL6k92b1aDrpb71PXqZWmlhU0O+E2wF9fxMQMrWkix3ZZzc3URbky/a1K/z8IuxlPZ5BcKMFuarbnh5qY9uKA6YaAxI8LCkZ96uE2R6HcnrTDZkWe6T5tzLBMLv1LHkFQkxbGlimfOVcufcMQVzTTNqiSuS5X3Uzq/gEsiTaj02Q=='
-//
-//
-//   return window.crypto.subtle.decrypt(
-//     {
-//       name: "RSA-OAEP"
-//     },
-//     private_key,
-//     ciphertext
-//   );
-// }
 
+async function encryptData(phrase:string, file:File, firebase:any,projectId:string) {
+  // get keys from local storage
+  await getKeys(firebase)
+  console.log(localStorage)
 
+  // get these keys from local storage
+  const en_private_key = localStorage.getItem('en_private_key')
+  const salt = localStorage.getItem('salt')
+  const en_entry_key = await EncryptionServices.getEncryptedEntryKey(projectId, firebase)
+  console.log(en_entry_key)
+  const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, phrase, salt)
+  const entry_key = await decryptEncryptedEntryKey(privateKey_pem, en_entry_key)
 
+  console.log('entry_key',entry_key)
 
-// function encryptData(phrase,publicKey) {
-//   var data = ''
-//     , encryptedData= CryptoJS.AES.encrypt(data, phrase)
-//     , entryKey = encrypted.key
-//     , encryptedEntryKey = encryptEntryKey(entryKey,publicKey);
-//
-//   res['EN_entryKey'] = encryptedEntryKey;
-//   res['data'] = encryptedData;
-// }
+  // get the text of the file
+  const lines = await getDocument(file)
+  const encryptedDataArray = []
+  for (var x in lines) {
+    const value = lines[x]
+    const encrypted = AES.encrypt(value, entry_key)
+    encryptedDataArray.push(encrypted.ciphertext.toString(Base64))
+  }
+  console.log(encryptedDataArray)
+  return encryptedDataArray
+}
 
-// function decryptKey(phrase,encrypted) {
-//   //get the salt, keypair from DB
-//   var hashStr = CryptoJS.SHA256(phrase, salt).toString(CryptoJS.enc.Base64)
-//     , hashStrDB = '';
-//   //compare the hash within the DB
-//   if(hashStr === hashStrDB) { // return the decrypted private key
-//     return CryptoJS.AES.decrypt(encrypted, hashStr);
-//   } else {
-//     // the phrase is wrong
-//   }
-// }
+function decryptData(phrase:string, file:File) {
 
-// function decryptData(phrase, key) {
-//   var encrypted = ''
-//   if(phrase != null) {
-//      return decryptKey(phrase)
-//   } else { //find the key in the localstorage
-//     return CryptoJS.AES.decrypt(encrypted, key);
-//   }
-//
-// }
+}
+
+async function getKeys(firebase:any) {
+  let en_private_key = localStorage.getItem('en_private_key')
+  let salt = localStorage.getItem('salt')
+
+  // check if its in the local storage
+  if(en_private_key === null || salt === null) {
+    EncryptionServices.getUserKeys(firebase).then((key) => {
+      localStorage.setItem('en_private_key',key.en_private_key)
+      localStorage.setItem('salt',key.salt)
+    })
+  }
+}
+
+async function getDocument(file:File) {
+  let text = await file.text();
+  text = text.replace(/['"]+/g, '')
+  const lines = text.split("\r\n")
+  const firstLine = 'ID,DOCUMENT'
+  const dataArray = []
+
+  for (let x in lines) {
+    if (lines[x].includes(firstLine)) { // remove the fist line
+      lines.shift()
+    } else {
+      const value = lines[x].split(',')[1]
+      dataArray.push(value)
+    }
+  }
+  return dataArray
+}

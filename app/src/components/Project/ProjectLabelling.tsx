@@ -46,7 +46,14 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
 
             <div className="fabHolder">
                 <div className="fableft">
-                    <Upload projectId={projectId} firebase={firebase} isUploading={isUploading} uploadError={isUploadError} enable={currentUser.isAdmin && !uploading} />
+                    <Upload
+                      projectId={projectId}
+                      firebase={firebase}
+                      isUploading={isUploading}
+                      uploadError={isUploadError}
+                      enable={currentUser.isAdmin && !uploading}
+                      encryptStatus={true}
+                    />
                 </div>
                 <div className="fabright">
                     <Download name={'name'} enable={!uploading} />
