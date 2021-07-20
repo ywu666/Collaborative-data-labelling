@@ -130,23 +130,10 @@ def create_project():
     if not any((project.project_name == project_name and get_owner_of_the_project(project).email == requestor_email) for
                project in db_project):
         # TODO check if the project should be encrypted, if yes, generate encrypted entry key 
-        encryption_state = request.json['encryption_state']
-
-        if encryption_state:
-            pkstring = get_user_public_key(requestor_email)
-            public_key = load_pem_public_key(bytes(pkstring, 'utf-8'))
-            entry_key = os.urandom(32)
-
-            en_entry_key = public_key.encrypt(
-                entry_key,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None)
-            )
-            print(b64encode(entry_key).decode())
-            print(b64encode(en_entry_key).decode())
-            create_new_project(requestor_email, request.json, b64encode(en_entry_key).decode())
+        en_entry_key = request.json['en_entry_key']
+        print(en_entry_key)
+        if en_entry_key != '':
+            create_new_project(requestor_email, request.json, en_entry_key)
         else:
             create_new_project(requestor_email, request.json)
     else:

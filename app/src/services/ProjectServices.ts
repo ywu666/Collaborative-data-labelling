@@ -1,5 +1,6 @@
 import { downloadHelpers } from '../helpers/download'
 import { EncryptedHelpers} from '../helpers/encryption'
+import { EncryptionServices } from './EncryptionService';
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
@@ -19,6 +20,19 @@ export const projectServices = {
 async function createProject(project_name: any, firebase: any, encryption_state:boolean){
   await handleAuthorization(firebase);
   const token = localStorage.getItem('user-token');
+  let en_entry_key = ''
+
+  if(encryption_state) {
+    //get public key
+    let publicKey = localStorage.getItem('public_key')
+    if(publicKey == null || publicKey == '') {
+      // get from the backend
+      const userKey = await EncryptionServices.getUserKeys(firebase)
+      publicKey = userKey.publicKey
+    }
+    en_entry_key = await EncryptedHelpers.generateEncryptedEntryKey(publicKey)
+  }
+
 
   const requestOptions = {
         method: 'POST',
@@ -26,7 +40,7 @@ async function createProject(project_name: any, firebase: any, encryption_state:
           'Content-Type' : 'application/json',
           "Authorization":"Bearer " + token
         },
-        body: JSON.stringify( {project_name, encryption_state} )
+        body: JSON.stringify( {project_name, en_entry_key} )
     }
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/create', requestOptions) // TODO:config.apiUrl
