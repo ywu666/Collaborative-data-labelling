@@ -24,13 +24,14 @@ async function createProject(project_name: any, firebase: any, encryption_state:
 
   if(encryption_state) {
     //get public key
-    let publicKey = localStorage.getItem('public_key')
+    const publicKey = localStorage.getItem('public_key')
     if(publicKey == null || publicKey == '') {
       // get from the backend
       const userKey = await EncryptionServices.getUserKeys(firebase)
-      publicKey = userKey.publicKey
+      localStorage.setItem('public_key', userKey.public_key);
     }
-    en_entry_key = await EncryptedHelpers.generateEncryptedEntryKey(publicKey)
+
+    en_entry_key = await EncryptedHelpers.generateEncryptedEntryKey(localStorage.getItem('public_key'))
   }
 
 
