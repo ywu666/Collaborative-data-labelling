@@ -1,4 +1,3 @@
-from bson import ObjectId
 from api.validation_methods import user_unauthorised_response
 from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
 from database.project_dao import create_new_project, get_all_projects_of_a_user, get_owner_of_the_project, \
@@ -7,11 +6,6 @@ from middleware.auth import check_token
 from database.model import Project
 from flask import Blueprint, request, make_response, g, jsonify
 import re
-import os
-from base64 import b64encode
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.primitives import hashes
 
 project_api = Blueprint('project_api', __name__)
 
