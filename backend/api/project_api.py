@@ -115,6 +115,7 @@ def create_project():
     print("create project called")
     requestor_email = g.requestor_email
 
+    print(request.json)
     if 'project_name' in request.json:
         project_name = request.json['project_name']
     else:
@@ -131,11 +132,14 @@ def create_project():
                project in db_project):
         # TODO check if the project should be encrypted, if yes, generate encrypted entry key 
         en_entry_key = request.json['en_entry_key']
-        print(en_entry_key)
+        js = request.json
+        del js['en_entry_key']
+        print(js)
         if en_entry_key != '':
-            create_new_project(requestor_email, request.json, en_entry_key)
+
+            create_new_project(requestor_email, js, en_entry_key)
         else:
-            create_new_project(requestor_email, request.json)
+            create_new_project(requestor_email, js)
     else:
         response = {'message': "Project already exists"}
         return make_response(response), 400

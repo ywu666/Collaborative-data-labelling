@@ -109,7 +109,7 @@ return await window.crypto.subtle.importKey(
     name: "RSA-OAEP",
     hash: { name: "SHA-256"},
   },
-  false,
+  true,
   ["decrypt"]);
 }
 
@@ -125,15 +125,14 @@ async function importPublicKey(publicKey_pkcs:string) {
   const binaryDer = str2ab(binaryDerString);
 
   return await window.crypto.subtle.importKey(
-    "pkcs8",
+    "spki",
     binaryDer,
     {
       name: "RSA-OAEP",
-      hash: "SHA-256"
+      hash: {name: "SHA-256"},
     },
     true,
-    ["encrypt"]
-  );
+    ["encrypt"]);
 }
 
 function str2ab(str:string) {
@@ -201,7 +200,7 @@ async function getKeys(firebase:any) {
   if(en_private_key === null || salt === null) {
     EncryptionServices.getUserKeys(firebase).then((key) => {
       localStorage.setItem('en_private_key',key.en_private_key)
-      localStorage.setItem('salt',key.salt)
+      localStorage.setItem('salt', key.salt)
     })
   }
 }
