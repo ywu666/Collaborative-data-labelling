@@ -214,10 +214,8 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
  }
 
  async function uploadDocuments(projectId : string, file : File, firebase: any, encryptStatus:boolean){
-    console.log(file)
-   
    if(encryptStatus) {
-     EncryptedHelpers.encryptData('ywu660', file, firebase, projectId).then(
+     EncryptedHelpers.encryptData(file, firebase, projectId).then(
        (r)  => {
          console.log(r)
        }

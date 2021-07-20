@@ -19,6 +19,9 @@ async function generateKeys(phrase: string) {
     , hashPhrase = crypto.createHmac("sha256", salt).update(phrase).digest("base64").toString()
     , keys = { salt: salt, public_key: '', en_private_key: '' };
 
+  // set the hash phrase into the localStorage
+  localStorage.setItem('hashPhrase', hashPhrase);
+
   // generate public and private keypair
   const { publicKey, privateKey} = await window.crypto.subtle.generateKey(
     {
@@ -71,8 +74,7 @@ async function generateEncryptedEntryKey(publicKey_pkcs:any) {
   return ab2Str(arrayBuffer)
 }
 
-function decryptEncryptedPrivateKey(en_private_key:any, phrase:string, salt:any) {
-  const hashPhrase = crypto.createHmac("sha256", salt).update(phrase).digest("base64").toString();
+function decryptEncryptedPrivateKey(en_private_key:any, hashPhrase:any) {
   // decrypt the private key in the pem format
   return pki.privateKeyToPem(pki.decryptRsaPrivateKey(en_private_key, hashPhrase))
 }
@@ -161,17 +163,16 @@ function pem2pkcs8 (pem:string) {
 }
 
 
-async function encryptData(phrase:string, file:File, firebase:any,projectId:string) {
+async function encryptData(file:File, firebase:any, projectId:string) {
   // get keys from local storage
   await getKeys(firebase)
-  console.log(localStorage)
-
+  
   // get these keys from local storage
   const en_private_key = localStorage.getItem('en_private_key')
-  const salt = localStorage.getItem('salt')
+  const hashPhrase = localStorage.getItem('hashPhrase')
   const en_entry_key = await EncryptionServices.getEncryptedEntryKey(projectId, firebase)
 
-  const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, phrase, salt)
+  const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, hashPhrase)
   const entry_key = await decryptEncryptedEntryKey(privateKey_pem, en_entry_key)
 
   console.log('entry_key', entry_key)
@@ -194,13 +195,14 @@ function decryptData(phrase:string, file:File) {
 
 async function getKeys(firebase:any) {
   let en_private_key = localStorage.getItem('en_private_key')
-  let salt = localStorage.getItem('salt')
+  let hashPhrase = localStorage.getItem('hashPhrase')
 
   // check if its in the local storage
-  if(en_private_key === null || salt === null) {
+  if(en_private_key === null || hashPhrase === null) {
     EncryptionServices.getUserKeys(firebase).then((key) => {
       localStorage.setItem('en_private_key',key.en_private_key)
-      localStorage.setItem('salt', key.salt)
+       // ask the user for the phrase
+      // localStorage.setItem('hashPhrase', crypto.createHmac("sha256", key.salt).update(phrase).digest("base64").toString();)
     })
   }
 }
