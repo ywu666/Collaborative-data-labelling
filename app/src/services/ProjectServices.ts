@@ -1,5 +1,6 @@
 import { downloadHelpers } from '../helpers/download'
 import { EncryptedHelpers} from '../helpers/encryption'
+import { EncryptionServices } from './EncryptionService';
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
@@ -19,6 +20,20 @@ export const projectServices = {
 async function createProject(project_name: any, firebase: any, encryption_state:boolean){
   await handleAuthorization(firebase);
   const token = localStorage.getItem('user-token');
+  let en_entry_key = ''
+
+  if(encryption_state) {
+    //get public key
+    const publicKey = localStorage.getItem('public_key')
+    if(publicKey == null || publicKey == '') {
+      // get from the backend
+      const userKey = await EncryptionServices.getUserKeys(firebase)
+      localStorage.setItem('public_key', userKey.public_key);
+    }
+
+    en_entry_key = await EncryptedHelpers.generateEncryptedEntryKey(localStorage.getItem('public_key'))
+  }
+
 
   const requestOptions = {
         method: 'POST',
@@ -26,7 +41,7 @@ async function createProject(project_name: any, firebase: any, encryption_state:
           'Content-Type' : 'application/json',
           "Authorization":"Bearer " + token
         },
-        body: JSON.stringify( {project_name, encryption_state} )
+        body: JSON.stringify( {project_name, en_entry_key} )
     }
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/create', requestOptions) // TODO:config.apiUrl
@@ -199,10 +214,8 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
  }
 
  async function uploadDocuments(projectId : string, file : File, firebase: any, encryptStatus:boolean){
-    console.log(file)
-   
    if(encryptStatus) {
-     EncryptedHelpers.encryptData('ywu660', file, firebase, projectId).then(
+     EncryptedHelpers.encryptData(file, firebase, projectId).then(
        (r)  => {
          console.log(r)
        }

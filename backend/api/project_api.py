@@ -1,4 +1,3 @@
-from bson import ObjectId
 from api.validation_methods import user_unauthorised_response
 from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
 from database.project_dao import create_new_project, get_all_projects_of_a_user, get_owner_of_the_project, \
@@ -7,11 +6,6 @@ from middleware.auth import check_token
 from database.model import Project
 from flask import Blueprint, request, make_response, g, jsonify
 import re
-import os
-from base64 import b64encode
-from cryptography.hazmat.primitives.serialization import load_pem_public_key
-from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from cryptography.hazmat.primitives import hashes
 
 project_api = Blueprint('project_api', __name__)
 
@@ -115,6 +109,7 @@ def create_project():
     print("create project called")
     requestor_email = g.requestor_email
 
+    print(request.json)
     if 'project_name' in request.json:
         project_name = request.json['project_name']
     else:
@@ -130,25 +125,15 @@ def create_project():
     if not any((project.project_name == project_name and get_owner_of_the_project(project).email == requestor_email) for
                project in db_project):
         # TODO check if the project should be encrypted, if yes, generate encrypted entry key 
-        encryption_state = request.json['encryption_state']
+        en_entry_key = request.json['en_entry_key']
+        js = request.json
+        del js['en_entry_key']
+        print(js)
+        if en_entry_key != '':
 
-        if encryption_state:
-            pkstring = get_user_public_key(requestor_email)
-            public_key = load_pem_public_key(bytes(pkstring, 'utf-8'))
-            entry_key = os.urandom(32)
-
-            en_entry_key = public_key.encrypt(
-                entry_key,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None)
-            )
-            print(b64encode(entry_key).decode())
-            print(b64encode(en_entry_key).decode())
-            create_new_project(requestor_email, request.json, b64encode(en_entry_key).decode())
+            create_new_project(requestor_email, js, en_entry_key)
         else:
-            create_new_project(requestor_email, request.json)
+            create_new_project(requestor_email, js)
     else:
         response = {'message': "Project already exists"}
         return make_response(response), 400
