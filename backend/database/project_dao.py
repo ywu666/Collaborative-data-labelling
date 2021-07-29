@@ -56,8 +56,8 @@ def get_owner_of_the_project(project):
     return owner.user
 
 
-def get_document_of_a_project(project_id, page, page_limite, userId):
-    project = Project.objects(id=project_id, data__labels__user=userId).fields(
+def get_document_of_a_project(project_id, page, page_limite):
+    project = Project.objects(id=project_id).fields(
         slice__data=[page * page_limite, page_limite]).get()
     return project.data
 

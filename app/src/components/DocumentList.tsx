@@ -20,14 +20,14 @@ import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePag
 import './DocumentList.css'
 
 interface DocumentListProps {
-  name: string,
+  projectId: string,
   currentUser: any,
   firebase: any
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const {
-		name,
+		projectId,
 		currentUser,
 		firebase,
 	} = props;
@@ -47,7 +47,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 	useIonViewWillEnter(() => {
 		setLoading(true)
-        labelServices.getLabels(name,firebase)
+        labelServices.getLabels(projectId,firebase)
 		.then(data => {
 			setLabels(data)
 		})
@@ -60,7 +60,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 	const documentUpdate = () => {
 		if (filter === "unlabelled") {
-			documentServices.getUnlabelledDocuments(name, page, page_size)
+			documentServices.getUnlabelledDocuments(projectId, page, page_size)
 			.then(data => {
 				setDocuments(data.docs)
 				setCount(data.count)
@@ -68,14 +68,14 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			})
 		}
 		else if (filter === "unconfirmed") {
-			documentServices.getUnconfirmedDocuments(name, page, page_size)
+			documentServices.getUnconfirmedDocuments(projectId, page, page_size)
 			.then(data => {
 				setDocuments(data.docs)
 				setCount(data.count)
 				setLoading(false)
 			})
 		} else {
-			documentServices.getDocumentIds(name, page, page_size, firebase)
+			documentServices.getDocumentIds(projectId, page, page_size, firebase)
 			.then(data => {
 				setDocuments(data.docs)
 				setCount(data.count)
@@ -85,7 +85,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	}
 
 	useEffect(() => {
-		documentServices.getNumberOfUnlabelledDocs(name, firebase)
+		documentServices.getNumberOfUnlabelledDocs(projectId, firebase)
 		.then(data => {
 			console.log(data)
 		  setContributor(data)
@@ -130,13 +130,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			setContributor(contributor_temp)
 		}
 
-		documentServices.postDocumentLabel(name, documentIndex, localStorage.getItem("email"), label._id, firebase)
+		documentServices.postDocumentLabel(projectId, documentIndex, localStorage.getItem("email"), label._id, firebase)
 		.then(() => { 
-			documentServices.getNumberOfUnlabelledDocs(name, firebase)
+			documentServices.getNumberOfUnlabelledDocs(projectId, firebase)
 			.then(data => {
 			  setContributor(data)
 			})
-			return documentServices.getDocument(name, documentIndex, firebase)
+			return documentServices.getDocument(projectId, documentIndex, firebase)
 		})
 		.then(data => {
 			data.id = documentIndex
@@ -173,7 +173,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 				<TableCell colSpan={5}>
 					<IonLabel>
 						{ (total_unlabelled <= 0)
-						? <IonRouterLink color="dark" routerLink={"/project/" + name + "/document/" + doc._id}>{doc.data}</IonRouterLink>
+						? <IonRouterLink color="dark" routerLink={"/project/" + projectId + "/document/" + doc._id}>{doc.data}</IonRouterLink>
 						: <p className="document-text" onClick={() => setShowDocAlert(true)}>{doc.data}</p>}
 					</IonLabel>
 					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
@@ -238,8 +238,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					)}
 				</div>
 			</IonModal>
-			<TableContainer component={Paper}>
-				<Table size="small">
+			<TableContainer component={Paper} style={{ maxHeight: 300 }}>
+				<Table stickyHeader size="small">
         			<TableHead className="user-table-head">
         				<TableRow className="add-user">
         				    <TableCell colSpan={1}>
@@ -267,25 +267,24 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 								documentItem(doc, index)
 							)}
 					</TableBody>
-			
-					<TableFooter>
-          				<TableRow>
-							<TableCell>
-								Number of Documents: {count ?? 0}
-							</TableCell>
-          					<TablePagination
-          						count={count ?? 0}
-          						rowsPerPage={page_size}
-          						rowsPerPageOptions={[10,20,50,100]}
-          						page={page}
-								onChangePage={handleChangePage}
-								onChangeRowsPerPage={handleChangePageSize}
-          					/>
-          				</TableRow>
-        			</TableFooter>
+
 				</Table>
 			</TableContainer>
-
+			<TableFooter>
+				<TableRow>
+					<TableCell>
+						Number of Documents: {count ?? 0}
+					</TableCell>
+					<TablePagination
+						count={count ?? 0}
+						rowsPerPage={page_size}
+						rowsPerPageOptions={[10, 20, 50, 100]}
+						page={page}
+						onChangePage={handleChangePage}
+						onChangeRowsPerPage={handleChangePageSize}
+					/>
+				</TableRow>
+			</TableFooter>
 			<IonAlert
 				isOpen={showDocAlert}
 				onDidDismiss={() => setShowDocAlert(false)}

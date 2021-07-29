@@ -10,7 +10,6 @@ document_api = Blueprint('document_api', __name__)
 @document_api.route('/projects/<project_id>/documents', methods=['Get'])
 @check_token
 def get_document_ids(project_id):
-    print("get document ids called")
     try:
         page = int(request.args.get('page'))
         page_size = int(request.args.get('page_size'))
@@ -25,21 +24,25 @@ def get_document_ids(project_id):
     if not does_user_belong_to_a_project(requestor_email, project_id):
         return user_unauthorised_response()
 
-
-    data = get_document_of_a_project(project_id, page, page_size, userId)
-    
-    results = []
+    data = get_document_of_a_project(project_id, page, page_size)
+    docs = []
     # for each data, only keep label given by the current user
     for d in data:
         labelByUser = next((item for item in d.labels if item.user.id == userId), None)
+
         result = {
             'display_id': d.display_id,
             'label': labelByUser.label if labelByUser else None,
-            'value': d.value
+            'data': d.value
         }
-        results.append(result)
+        docs.append(result)
 
-    return jsonify(results), 200
+    result = {
+        'docs': docs,
+        'count': len(docs)
+    }
+
+    return jsonify(result), 200
 
 
 # @document_api.route('/projects/<project_name>/documents/<document_id>', methods=['Get'])

@@ -42,15 +42,8 @@ async function getDocument(project:any, document_id:any, firebase: any) {
         })
 }
 
-async function getDocumentIds(project:any, page:number, page_size:number ,firebase: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-
+async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
+    console.log("get document ids called")
     const token = localStorage.getItem('user-token');
     if(firebase.auth.currentUser != null){
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -61,11 +54,20 @@ async function getDocumentIds(project:any, page:number, page_size:number ,fireba
     }else{
      window.location.href = '/auth';
     }
-    
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents'
+
+    const requestOptions = {
+        method: 'GET',
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents'
         + '?page=' + page
-        + '&page_size=' + page_size
-        + '&id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        + '&page_size=' + page_size, requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data;

@@ -68,8 +68,7 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                     : <div></div>}
             </div>
 
-            {/* TODO: this div causes the whole page to refresh when changing from insight/setting to labelling, need to figure out why - emily */}
-            {/* <div className="document-list">
+            <div className="document-list">
                 {uploading && !uploadError ?
                     <div className="container">
                         <IonToolbar>
@@ -77,8 +76,8 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                         </IonToolbar>
                         <br />
                         <IonSpinner class="spinner" name="crescent" color="primary" /></div>
-                    : <DocumentList name={'name'} firebase={firebase} currentUser={currentUser} />}
-            </div> */}
+                    : <DocumentList projectId={projectId} firebase={firebase} currentUser={currentUser} />}
+            </div>
         </div>
     );
 }
