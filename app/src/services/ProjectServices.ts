@@ -41,7 +41,7 @@ async function createProject(project_name: any, firebase: any, encryption_state:
           'Content-Type' : 'application/json',
           "Authorization":"Bearer " + token
         },
-        body: JSON.stringify( {project_name, en_entry_key} )
+        body: JSON.stringify( {project_name, encryption_state, en_entry_key} )
     }
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/create', requestOptions) // TODO:config.apiUrl

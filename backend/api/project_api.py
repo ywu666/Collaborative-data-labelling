@@ -112,6 +112,7 @@ def create_project():
     print(request.json)
     if 'project_name' in request.json:
         project_name = request.json['project_name']
+        print(project_name)
     else:
         response = {'message': "Missing project name"}
         return make_response(response), 400
@@ -130,9 +131,9 @@ def create_project():
         del js['en_entry_key']
         print(js)
         if en_entry_key != '':
-
             create_new_project(requestor_email, js, en_entry_key)
         else:
+            print('not encrypt project')
             create_new_project(requestor_email, js)
     else:
         response = {'message': "Project already exists"}

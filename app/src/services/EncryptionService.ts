@@ -9,16 +9,14 @@ export const EncryptionServices = {
 async function getUserKeys(firebase: any) {
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token')
-
   const requestOptions = {
     method: 'GET',
     headers: { 'Content-Type': 'application/json',
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-      "Authorization": "Bearer " + token
-    },
-  };
+      "Authorization":"Bearer " + token
+    }};
 
   return fetch(process.env.REACT_APP_API_URL + '/user/user_key', requestOptions) // TODO:config.apiUrl
     .then(handleResponse)
@@ -60,7 +58,7 @@ async function storeCurrentUserkey(userKey:any, firebase:any) {
       'Content-Type' : 'application/json',
       "Authorization":"Bearer " + token
     },
-    body: JSON.stringify(userKey)
+    body: JSON.stringify({userKey})
   }
   console.log(requestOptions)
 

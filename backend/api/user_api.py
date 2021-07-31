@@ -167,18 +167,18 @@ def create_user():
 
 @user_api.route("/users/store_user_key", methods=["Post"])
 @check_token
-def create_user():
+def store_user_key():
     requestor_email = g.requestor_email
     db_user = get_user_from_database_by_email(requestor_email)
 
     if db_user is not None:
         keys = request.json["userKey"]
+
         save_user_key(keys, db_user)
     else:
         response = {'message': "Missing the user"}
         return make_response(response), 400
 
-    # a new user created, the en_private_key is returned to the frontend
     return '', 204
 
 # @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
