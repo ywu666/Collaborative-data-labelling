@@ -9,7 +9,7 @@ import {
   IonLabel,
   IonInput,
   IonModal,
-  IonCheckbox, IonTitle,
+  IonCheckbox, IonTitle, IonText,
 } from '@ionic/react';
 import { add, addOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -40,10 +40,11 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   const [encryptionStatus, setEncryptionStatus] = useState(false);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [text, setText] = useState<any>();
+  const [projectName, setProjectName] = useState<any>();
+  const [phrase, setPhrase] = useState<any>();
 
   const {
-    firebase,iniProjectNames
+    firebase
   } = props;
 
   useEffect(() => {
@@ -51,7 +52,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
       let entry_key = ''
       try {
         projectServices
-          .createProject(newProject, firebase, encryptionStatus)
+          .createProject(newProject, firebase, encryptionStatus, phrase)
           .then((data) => {
             if(props.handleCreateProject)
               props.handleCreateProject(newProject)
@@ -85,9 +86,15 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   } = props;
 
   function handleEnterProjectName (_value:any) {
-    setText(_value);
+    setProjectName(_value);
     setError(false);
     setErrorMessage('');
+  }
+
+  function handleEnterPhrase(_value:any) {
+    setPhrase(_value)
+    setError(false);
+    setErrorMessage('')
   }
 
   function handleSubmit(e:React.FormEvent) {
@@ -97,7 +104,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
     const formData = new FormData(e.target as HTMLFormElement);
     setNewProject(formData.get('projectName'));
     formData.delete('projectName');
-    setText("")
+    setProjectName("")
   }
 
   return (
@@ -106,20 +113,23 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
       <IonModal
         isOpen={showCreateProject}
         cssClass='createProject'
-        onDidDismiss={() => setShowCreateProject(false)}
+        onDidDismiss={() => {
+          setShowCreateProject(false)
+          setEncryptionStatus(false)
+        }}
         backdropDismiss
       >
         <form
           onSubmit={(e: React.FormEvent) => {
             handleSubmit(e)
           }}
-          style={{'margin':'10px','height':'100%'}}
+          style={{'margin':'50px'}}
         >
           <IonTitle >New Project</IonTitle>
           <IonItem>
             <IonInput
               placeholder="Enter Project Name"
-              value={text}
+              value={projectName}
               name="projectName"
               id="projectName"
               onIonChange={(e) =>
@@ -136,8 +146,27 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               onIonChange={e => setEncryptionStatus(e.detail.checked)}
               name='encryptionStatus'/>
           </IonItem>
+          { encryptionStatus &&
+          <IonItem>
+            <IonInput
+              placeholder="Enter the phrase to encrypt data"
+              value={phrase}
+              name="encryptPhrase"
+              id="encryptPhrase"
+              onIonChange={(e) =>
+                handleEnterPhrase(e.detail.value)
+              }
+              type="password"
+            />
+          </IonItem> }
+          { encryptionStatus &&
+          <IonItem>
+            <p className='encryption' >Encryption is used to ensure the data is kept private from the tool maintainers.
+              <IonText color="danger"><a>You must remember the encryption phrase.</a></IonText>
+            </p>
+          </IonItem> }
           <IonButton
-            disabled={text == null || text.length < 1}
+            disabled={projectName == null || projectName.length < 1}
             fill="outline"
             type="submit"
             expand="block"
