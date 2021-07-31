@@ -57,7 +57,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
         if(encryptionStatus && firstTimeEncrypt) {
           EncryptedHelpers.generateKeys(phrase).then((userKey) => {
             EncryptionServices.storeCurrentUserkey(userKey, firebase).then(r=> {
-              console.log(r)
+              setFirstTimeEncrypt(false);
             })
           })
         }
