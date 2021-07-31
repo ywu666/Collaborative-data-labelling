@@ -75,18 +75,21 @@ async function getDocumentIds(projectId:any, page:number, page_size:number ,fire
 }
 
 function getUnlabelledDocuments(project:any, page:number, page_size:number) {
+    const token = localStorage.getItem('user-token');
+
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
     
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unlabelled/documents'
         + '?page=' + page
-        + '&page_size=' + page_size
-        + '&id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+        + '&page_size=' + page_size, requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data;
@@ -94,18 +97,21 @@ function getUnlabelledDocuments(project:any, page:number, page_size:number) {
 }
 
 function getUnconfirmedDocuments(project: any, page: any, page_size: any) {
+    const token = localStorage.getItem('user-token');
+
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
     
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unconfirmed/documents'
         + '?page=' + page
-        + '&page_size=' + page_size
-        + '&id_token=' + localStorage.getItem('user-token'), requestOptions)
+        + '&page_size=' + page_size, requestOptions)
         .then(handleResponse)
         .then(data => {
             return data;

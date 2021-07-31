@@ -1,46 +1,49 @@
-# from api.methods import JSONEncoder, update_user_document_label, create_user_document_label, \
-#     check_all_labels_for_document_match, generate_response_for_getting_document_final_label_and_conflict_status
-# from api.validation_methods import check_id_token, user_unauthorised_response, invalid_label_response
-# from bson import ObjectId
-# from firebase_auth import get_email
-# from flask import Blueprint, request, make_response
-# from model.document import get_db_collection
-# from mongoDBInterface import get_col
+from flask.json import jsonify
+from database.project_dao import get_document_of_a_project
+from database.user_dao import does_user_belong_to_a_project, get_user_from_database_by_email
+from middleware.auth import check_token
+from api.validation_methods import user_unauthorised_response
+from flask import Blueprint, request, make_response, g
 
-# document_label_api = Blueprint('document_label_api', __name__)
+document_label_api = Blueprint('document_label_api', __name__)
 
+@document_label_api.route('/projects/<project_id>/unlabelled/documents', methods=['Get'])
+@check_token
+def get_unlabelled_document_ids(project_id):
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
 
-# @document_label_api.route('/projects/<project_name>/unlabelled/documents', methods=['Get'])
-# def get_unlabelled_document_ids(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+    requestor_email = g.requestor_email
+    userId = get_user_from_database_by_email(requestor_email).id
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
 
-#     try:
-#         page = int(request.args.get('page'))
-#         page_size = int(request.args.get('page_size'))
-#     except (ValueError, TypeError):
-#         response = {'message': "page and page_size must be integers"}
-#         return make_response(response), 400
+    data = get_document_of_a_project(project_id, page, page_size)
+    docs = []
+    # for each data, only look for label given by the current user
+    for d in data:
+        labelByUser = next((item for item in d.labels if item.user.id == userId), None)
 
-#     users_col = get_col(project_name, "users")
-#     requestor = users_col.find_one({'email': requestor_email})
-#     if requestor is None:
-#         return user_unauthorised_response()
+        # append result if the current user did not label it 
+        if not labelByUser:
+            result = {
+                'display_id': d.display_id,
+                'label': None,
+                'data': d.value
+            }
+            docs.append(result)
 
-#     col = get_db_collection(project_name, "documents")
-#     docs = col.find({"user_and_labels": {'$not': {'$elemMatch': {"email": requestor_email}}}})
-#     docs_in_page = docs.skip(page * page_size).limit(page_size)
+    result = {
+        'docs': docs,
+        'count': len(docs)
+    }
 
-#     count = docs.count()
-
-#     docs_dict = {'docs': list(docs_in_page),
-#                  'count': count}
-#     docs_json = JSONEncoder().encode(docs_dict)
-#     return docs_json, 200
+    return jsonify(result), 200
 
 
 # # Returns the ids of documents that have conflicting labels
@@ -94,39 +97,41 @@
 #     return docs, 200
 
 
-# # This end point returns the IDs of documents for which the final label is not confirmed for the user calling the method
-# @document_label_api.route('/projects/<project_name>/unconfirmed/documents', methods=['Get'])
-# def get_documents_with_unconfirmed_labels_for_user(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+# This end point returns the IDs of documents for which the final label is not confirmed for the user calling the method
+@document_label_api.route('/projects/<project_id>/unconfirmed/documents', methods=['Get'])
+@check_token
+def get_documents_with_unconfirmed_labels_for_user(project_id):
+    try:
+        page = int(request.args.get('page'))
+        page_size = int(request.args.get('page_size'))
+    except (ValueError, TypeError):
+        response = {'message': "page and page_size must be integers"}
+        return make_response(response), 400
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    requestor_email = g.requestor_email
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
 
-#     try:
-#         page = int(request.args.get('page'))
-#         page_size = int(request.args.get('page_size'))
-#     except (ValueError, TypeError):
-#         response = {'message': "page and page_size must be integers"}
-#         return make_response(response), 400
+    data = get_document_of_a_project(project_id, page, page_size)
+    docs = []
 
-#     users_col = get_col(project_name, "users")
-#     requestor = users_col.find_one({'email': requestor_email, 'isContributor': True})
-#     if requestor is None:
-#         return user_unauthorised_response()
+    # for each data, only look for label given by the current user
+    for d in data:
+        # append result if the current user did not label it 
+        if not d.final_label:
+            result = {
+                'display_id': d.display_id,
+                'label': None,
+                'data': d.value
+            }
+            docs.append(result)
 
-#     doc_col = get_db_collection(project_name, "documents")
-#     docs = doc_col.find(
-#         {'$and': [{'user_and_labels': {'$elemMatch': {'email': requestor_email, 'label_confirmed': False}}},
-#                   {'user_and_labels.label': {'$ne': None}}]}).skip(page * page_size).limit(page_size)
-
-#     count = docs.count()
-
-#     docs_dict = {'docs': list(docs),
-#                  'count': count}
-#     docs = JSONEncoder().encode(docs_dict)
-#     return docs, 200
+    result = {
+        'docs': docs,
+        'count': len(docs)
+    }
+  
+    return jsonify(result), 200
 
 
 # @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-is-confirmed', methods=['Get'])

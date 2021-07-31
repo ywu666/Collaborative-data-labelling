@@ -16,7 +16,8 @@ interface ProjectLabellingProps {
 const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabellingProps) => {
     const [currentUser, setCurrentUser] = useState<any>({
         '_id': '',
-        'isAdmin': false
+        'isAdmin': false,
+        'isContributor': false
     });
     const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState(false);

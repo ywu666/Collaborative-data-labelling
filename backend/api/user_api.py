@@ -70,7 +70,7 @@ def get_current_user_for_project(project_id):
         '_id': str(collaborator.user.id),
         # a user had admin rights if he is the owner or a admin
         'isAdmin': True if collaborator.role == UserRole.OWNER else False,
-        'isContributor': True if collaborator.role == UserRole.COLLABORATOR else False
+        'isContributor': True if collaborator.role == UserRole.COLLABORATOR or collaborator.role == UserRole.OWNER else False
     }
 
     return jsonify(user), 200
