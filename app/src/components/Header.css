@@ -5,3 +5,25 @@
 ion-header img {
 	max-height: 56px;
 }
+
+ion-modal.auto-height {
+    --height: auto;
+    --width: auto;
+}
+
+ion-modal.auto-height .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+    padding: 26px;
+}
+
+ion-modal.auto-height .inner-content {
+    max-height: 80vh;
+    overflow: auto;
+    padding: 10px;
+}
+
+ion-modal.auto-height ion-button {
+    margin: 8px;
+}

@@ -18,9 +18,13 @@ def get_user_from_database_by_username(username):
         return None
 
 
-def save_user_and_keys(user, user_keys):
-    user_key = UserKey(**user_keys)
+def save_user(user):
     user = User(**user)
+    user.save()
+
+
+def save_user_key(keys,user):
+    user_key = UserKey(**keys)
     user.key = user_key
     user.save()
 
