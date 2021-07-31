@@ -98,7 +98,6 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
         }
       }
     }
-    console.log('hello')
     checkFirstTime().then();
   },[])
 
