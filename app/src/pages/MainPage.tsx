@@ -91,7 +91,6 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
       userService.getCurrentUser(localStorage.getItem("email"), firebase)
         .then(data => {
           setCurrentDisplayName(data.username)
-          localStorage.setItem('en_private_key', data.key.en_private_key)
         })
     } catch (e) {}
   }, [])

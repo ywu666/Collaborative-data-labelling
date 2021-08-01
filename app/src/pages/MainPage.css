@@ -1,25 +1,3 @@
- 
-  ion-modal.auto-height {
-    --height: auto;
-    --width: auto;
-  }
-  
-  ion-modal.auto-height .ion-page {
-    position: relative;
-    display: block;
-    contain: content;
-    padding: 26px;
-  }
-  
-  ion-modal.auto-height .inner-content {
-    max-height: 80vh;
-    overflow: auto;
-    padding: 10px;
-  }
-  
-  ion-modal.auto-height ion-button {
-    margin: 8px;
-  }
 
   ion-card-title {
     padding: 16px;
@@ -58,11 +36,4 @@
       padding: 20px;
       font-size: 40px;
       text-align: center;
-  }
-
-  .createProject{
-    --width: 35%;
-    --height: 30%;
-    --border-style:none;
-    --border-width: 10px;
   }

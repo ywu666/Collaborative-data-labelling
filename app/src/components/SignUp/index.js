@@ -38,7 +38,6 @@ const INITIAL_STATE = {
     error: null,
     redirect: null,
     loading: false,
-    encryptionKey: ''
 };
 
 class SignUpFormBase extends Component {
@@ -49,7 +48,7 @@ class SignUpFormBase extends Component {
 
     onSubmit = event => {
         this.setState({ loading: true });
-        const { username, email, passwordOne, loading , encryptionKey} = this.state;
+        const { username, email, passwordOne, loading} = this.state;
 
         this.props.firebase
             .doCreateUserWithEmailAndPassword(email, passwordOne)
@@ -59,15 +58,11 @@ class SignUpFormBase extends Component {
                 this.setState({ loading: false });
 
             }).then(() => {
-                EncryptedHelpers.generateKeys(encryptionKey)
-                  .then((keys) => {
-                    this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
-                        localStorage.setItem("user-token", idToken);
-                        userService.signup(username, email, idToken, keys).then()
-                    })
-                    this.setState({ loading: false });
-                  }
-                )
+                this.props.firebase.auth.currentUser.getIdToken().then(idToken => {
+                    localStorage.setItem("user-token", idToken);
+                    userService.signup(username, email, idToken).then()
+                })
+            this.setState({ loading: false });
             })
             .catch(error => {
                 this.setState({ error });
@@ -89,15 +84,13 @@ class SignUpFormBase extends Component {
             passwordTwo,
             error,
             loading,
-           encryptionKey,
         } = this.state;
 
         const isInvalid =
             passwordOne !== passwordTwo ||
             passwordOne === '' ||
             email === '' ||
-            username === '' ||
-            encryptionKey === '';
+            username === '';
         if (this.state.redirect) {
             return <Redirect to={this.state.redirect} />
         }
@@ -153,24 +146,6 @@ class SignUpFormBase extends Component {
                                     type="password"
                                     placeholder="Confirm Password"
                                 />
-                            </div>
-                            <div {...inputBoxStyling}>
-                                <TextField
-                                  style={{ maxWidth: '400px', minWidth: '270px' }}
-                                  name="encryptionKey"
-                                  value={encryptionKey}
-                                  onChange={this.onChange}
-                                  onFocus={(e) => {
-                                      var ps = document.getElementsByClassName('encryption')
-                                      for(var x=0; x< ps.length; x++) {
-                                          ps[x].style.visibility = 'visible'
-                                      }
-                                  }}
-                                  type="password"
-                                  placeholder="Confirm encryption key"
-                                />
-                                <p className='encryption' style={{visibility:'hidden'}}>Encryption is used to ensure the data is kept private from the tool maintainers.</p>
-                                <p className='encryption' style={{visibility: 'hidden', color:'red'}}>Please remember your encryption key.</p>
                             </div>
                             <div {...inputBoxStyling}>
                                 <CardActions>

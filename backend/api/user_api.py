@@ -5,8 +5,8 @@ from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
 # from mongoDBInterface import get_col
-from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user_and_keys, \
-    get_all_user_email_from_database, does_user_belong_to_a_project
+from database.user_dao import get_user_from_database_by_email, get_user_from_database_by_username, save_user, \
+    save_user_key, get_all_user_email_from_database, does_user_belong_to_a_project
 
 user_api = Blueprint('user_api', __name__)
 
@@ -60,12 +60,14 @@ def get_all_users_emails():
     all_user_emails = get_all_user_email_from_database()
     return jsonify(all_user_emails), 200
 
+
 # return the role of the current user on a specific project
 @user_api.route("/projects/<project_id>/user", methods=["Get"])
 @check_token
 def get_current_user_for_project(project_id):
     collaborators = get_all_users_associated_with_a_project(project_id)
-    collaborator = next((collaborator for collaborator in collaborators if collaborator.user.email == g.requestor_email), None)
+    collaborator = next(
+        (collaborator for collaborator in collaborators if collaborator.user.email == g.requestor_email), None)
     user = {
         '_id': str(collaborator.user.id),
         # a user had admin rights if he is the owner or a admin
@@ -149,20 +151,34 @@ def create_user():
             response = {'message': "Username is already taken"}
             return make_response(response), 400
         else:
-            user_keys = request.json['keys']
-
-            print(user_keys)
             user = {
                 "username": username,
                 "email": requestor_email
             }
 
-            save_user_and_keys(user, user_keys)
+            save_user(user)
     else:
         response = {'message': "Missing username"}
         return make_response(response), 400
 
     # a new user created, the en_private_key is returned to the frontend
+    return '', 204
+
+
+@user_api.route("/users/store_user_key", methods=["Post"])
+@check_token
+def store_user_key():
+    requestor_email = g.requestor_email
+    db_user = get_user_from_database_by_email(requestor_email)
+
+    if db_user is not None:
+        keys = request.json["userKey"]
+
+        save_user_key(keys, db_user)
+    else:
+        response = {'message': "Missing the user"}
+        return make_response(response), 400
+
     return '', 204
 
 # @user_api.route("/projects/<project_name>/users/add", methods=["Post"])

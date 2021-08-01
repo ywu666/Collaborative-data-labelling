@@ -30,13 +30,13 @@ import { handleAuthorization } from './ProjectServices';
         });
 }
 
-function signup(username: string, email: string , token: string, keys:object) {
+function signup(username: string, email: string , token: string, ) {
    const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json',
           "Authorization":"Bearer " + localStorage.getItem('user-token')
         },
-        body: JSON.stringify({username, email, keys})
+        body: JSON.stringify({username, email})
     };
 
     return fetch(process.env.REACT_APP_API_URL + `/users/create`, requestOptions)
