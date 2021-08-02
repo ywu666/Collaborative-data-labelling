@@ -23,7 +23,7 @@ async function generateKeys(phrase: string) {
   localStorage.setItem('hashPhrase', hashPhrase);
 
   // generate public and private keypair
-  const { publicKey, privateKey} = await window.crypto.subtle.generateKey(
+  const { publicKey, privateKey } = await window.crypto.subtle.generateKey(
     {
       name: "RSA-OAEP",
       modulusLength: 2048,
@@ -175,17 +175,16 @@ async function encryptData(file:File, firebase:any, projectId:string) {
   const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, hashPhrase)
   const entry_key = await decryptEncryptedEntryKey(privateKey_pem, en_entry_key)
 
-  console.log('entry_key', entry_key)
-
   // get the text of the file
   const lines = await getDocument(file)
   const encryptedDataArray = []
-  for (var x in lines) {
+  for (let x in lines) {
     const value = lines[x]
     const encrypted = AES.encrypt(value, entry_key)
     encryptedDataArray.push(encrypted.ciphertext.toString(Base64))
   }
   console.log(encryptedDataArray)
+
   return encryptedDataArray
 }
 
@@ -196,14 +195,12 @@ function decryptData(phrase:string, file:File) {
 async function getKeys(firebase:any) {
   let en_private_key = localStorage.getItem('en_private_key')
   let hashPhrase = localStorage.getItem('hashPhrase')
-
   // check if its in the local storage
   if(en_private_key === null || hashPhrase === null) {
-    EncryptionServices.getUserKeys(firebase).then((key) => {
-      localStorage.setItem('en_private_key',key.en_private_key)
+    const key = await EncryptionServices.getUserKeys(firebase)
+    localStorage.setItem('en_private_key', key.en_private_key)
        // ask the user for the phrase
       // localStorage.setItem('hashPhrase', crypto.createHmac("sha256", key.salt).update(phrase).digest("base64").toString();)
-    })
   }
 }
 

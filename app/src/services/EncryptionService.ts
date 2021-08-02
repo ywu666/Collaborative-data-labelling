@@ -11,7 +11,8 @@ async function getUserKeys(firebase: any) {
   const token = localStorage.getItem('user-token')
   const requestOptions = {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json',
+    headers: {
+      'Content-Type': 'application/json',
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
@@ -31,7 +32,8 @@ async function getEncryptedEntryKey(project_id: any, firebase: any) {
 
   const requestOptions = {
     method: 'GET',
-    headers: { 'Content-Type': 'application/json',
+    headers: {
+      'Content-Type': 'application/json',
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",

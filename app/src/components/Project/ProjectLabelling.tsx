@@ -1,7 +1,10 @@
-import { IonPage, IonContent, IonButton, IonToolbar, IonTitle, IonSpinner, useIonViewWillEnter } from '@ionic/react';
-import firebase from 'firebase';
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import {
+    IonToolbar,
+    IonTitle,
+    IonSpinner,
+    useIonViewWillEnter
+} from '@ionic/react';
+import React, { useState } from 'react';
 import '../../pages/ProjectPage.css';
 import { userService } from '../../services/UserServices';
 import DocumentList from '../DocumentList';
@@ -53,7 +56,6 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                       isUploading={isUploading}
                       uploadError={isUploadError}
                       enable={currentUser.isAdmin && !uploading}
-                      encryptStatus={true}
                     />
                 </div>
                 <div className="fabright">

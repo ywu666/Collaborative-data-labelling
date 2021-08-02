@@ -3,7 +3,7 @@ from enums.user_role import UserRole
 from database.project_dao import get_project_by_id, add_documents_to_database, create_new_document
 import csv
 import os
-
+import json
 from api.validation_methods import user_unauthorised_response
 from flask import Blueprint, request, make_response, g
 from werkzeug.utils import secure_filename
@@ -31,149 +31,187 @@ def upload_file():
     # check the current user is allowed to uplaod data 
     project = get_project_by_id(project_id)
     collaborators = project.collaborators
+    # get documents in a project
+    docs = project.data
     collaborator = next((collaborator for collaborator in collaborators if collaborator.user.email == g.requestor_email), None)
     if (collaborator.role == UserRole.OWNER or collaborator.role == UserRole.ADMIN) is False:
         return user_unauthorised_response()
 
-    if 'inputFile' not in request.files:
+    if 'inputFile' not in request.files and 'encryptedData' not in request.form:
         response = {'message': 'No file selected'}
         return make_response(response), 400
 
-    file = request.files['inputFile']
-    # Check file name
-    if file.filename == '':
-        response = {'message': 'No file selected'}
-        return make_response(response), 400
+    if 'inputFile' in request.files:
+        print('file')
+        file = request.files['inputFile']
+        # Check file name
+        if file.filename == '':
+            response = {'message': 'No file selected'}
+            return make_response(response), 400
 
-    # Check file type
-    if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
-        response = {'message': 'Incorrect filetype/format'}
-        return make_response(response), 400
+        # Check file type
+        if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() == "csv"):
+            response = {'message': 'Incorrect filetype/format'}
+            return make_response(response), 400
 
-    if file:
-        filename = secure_filename(file.filename)
-        filelocation = os.path.join(uploads_dir, filename)
-        file.save(filelocation)
+            filename = secure_filename(file.filename)
+            filelocation = os.path.join(uploads_dir, filename)
+            file.save(filelocation)
 
-        # documents to import into the database 
-        documents_to_import = []
-        conflicting_display_id_docs = []
-        response = {'message': 'Documents imported successfully'}
+            # documents to import into the database
+            documents_to_import = []
+            conflicting_display_id_docs = []
+            response = {'message': 'Documents imported successfully'}
 
-        with open(filelocation) as csv_file:
-            csv_reader = csv.reader(csv_file, delimiter=",")
-            is_first_line = True
+            with open(filelocation) as csv_file:
+                csv_reader = csv.reader(csv_file, delimiter=",")
+                is_first_line = True
 
-            # Default is that user provides their own IDs
-            generate_display_ids = False
-            id_value_index = None
-            doc_value_index = None
+                # Default is that user provides their own IDs
+                generate_display_ids = False
+                id_value_index = None
+                doc_value_index = None
 
-            # get documents in a project
-            docs = project.data
+                # get documents in a project
+                docs = project.data
 
-            # get all ids in the database - import is adding more data into the database 
-            print("getting all current ids in the database")
-            ids_in_db = []
-            ids_incorrectly_formatted = []
-            for doc in docs:
-                print("id currently in the database")
-                print(doc.display_id)
-                ids_in_db.append(doc.display_id)
+                # get all ids in the database - import is adding more data into the database
+                print("getting all current ids in the database")
+                ids_in_db = []
+                ids_incorrectly_formatted = []
+                for doc in docs:
+                    print("id currently in the database")
+                    print(doc.display_id)
+                    ids_in_db.append(doc.display_id)
 
-            for row in csv_reader:
-                if is_first_line:
-                    is_first_line = False
+                for row in csv_reader:
+                    if is_first_line:
+                        is_first_line = False
 
-                    # Check number of fields
-                    if len(row) == 1:
-                        doc_value_index = 0
-                        # Check for proper formatting
-                        if row[doc_value_index] != "DOCUMENT":
-                            response = {'message': 'Incorrect filetype/format'}
-                            break
-
-                        generate_display_ids = True
-                    else:
-                        id_value_index = 0
-                        doc_value_index = 1
-
-                        # Check for proper formatting
-                        if "ID" not in row[id_value_index]:
-                            response = {'message': 'Incorrect filetype/format'}
-                            break
-
-                        if row[doc_value_index] != "DOCUMENT":
-                            response = {'message': 'Incorrect filetype/format'}
-                            break
-                else:
-                    doc_value = row[doc_value_index].strip()
-
-                    if not generate_display_ids:  # CASE 1: Do not need to generate display IDs
-                        # Check that ID is type int
-                        try:
-                            data_id = int(row[id_value_index])
-                        except ValueError:
-                            print("value exception throws")
-                            if len(documents_to_import) > 0:
-                                ids_incorrectly_formatted.append(row[id_value_index])
-                                continue
-                            else:
+                        # Check number of fields
+                        if len(row) == 1:
+                            doc_value_index = 0
+                            # Check for proper formatting
+                            if row[doc_value_index] != "DOCUMENT":
                                 response = {'message': 'Incorrect filetype/format'}
                                 break
 
-                        # ID Uniqueness check
-                        print("start checking ID uniqueness")
-                        print(row[id_value_index])
-                        print(ids_in_db)
-                        if data_id in ids_in_db:
-                            print("there is a conflicts in the id")
-                            print(data_id)
-                            conflicting_display_id_docs.append(data_id)
+                            generate_display_ids = True
                         else:
-                            print("creating a new document with id: " + data_id + " and value: " + doc_value)
-                            document = create_new_document(data_id, doc_value)
+                            id_value_index = 0
+                            doc_value_index = 1
+
+                            # Check for proper formatting
+                            if "ID" not in row[id_value_index]:
+                                response = {'message': 'Incorrect filetype/format'}
+                                break
+
+                            if row[doc_value_index] != "DOCUMENT":
+                                response = {'message': 'Incorrect filetype/format'}
+                                break
+                    else:
+                        doc_value = row[doc_value_index].strip()
+
+                        if not generate_display_ids:  # CASE 1: Do not need to generate display IDs
+                            # Check that ID is type int
+                            try:
+                                data_id = int(row[id_value_index])
+                            except ValueError:
+                                print("value exception throws")
+                                if len(documents_to_import) > 0:
+                                    ids_incorrectly_formatted.append(row[id_value_index])
+                                    continue
+                                else:
+                                    response = {'message': 'Incorrect filetype/format'}
+                                    break
+
+                            # ID Uniqueness check
+                            print("start checking ID uniqueness")
+                            print(row[id_value_index])
+                            print(ids_in_db)
+                            if data_id in ids_in_db:
+                                print("there is a conflicts in the id")
+                                print(data_id)
+                                conflicting_display_id_docs.append(data_id)
+                            else:
+                                print("creating a new document with id: " + str(data_id) + " and value: " + doc_value)
+                                document = create_new_document(data_id, doc_value)
+                                documents_to_import.append(document)
+                                ids_in_db.append(data_id)
+                        else:  # CASE 2: Generate display IDs
+                            start_index = len(docs) - 1
+                            id_counter = 1
+
+                            new_id = start_index + id_counter
+                            print("generate new id for the new doc")
+                            print(new_id)
+                            while new_id in ids_in_db:
+                                new_id += 1
+                                id_counter += 1
+
+                            document = create_new_document(new_id, doc_value)
                             documents_to_import.append(document)
-                            ids_in_db.append(data_id)
-                    else:  # CASE 2: Generate display IDs
-                        start_index = len(docs) - 1
-                        id_counter = 1
-
-                        new_id = start_index + id_counter
-                        print("generate new id for the new doc")
-                        print(new_id)
-                        while new_id in ids_in_db:
-                            new_id += 1
+                            ids_in_db.append(new_id)
                             id_counter += 1
-                        
-                        document = create_new_document(new_id, doc_value)
-                        documents_to_import.append(document)
-                        ids_in_db.append(new_id)
-                        id_counter += 1
 
-        # Delete file when done
-        os.remove(filelocation)
+            # Delete file when done
+            os.remove(filelocation)
 
-        if response == {'message': 'Incorrect filetype/format'}:
-            return make_response(response), 400
+    if 'encryptedData' in request.form:
+        response = {'message': 'Documents imported successfully'}
+        print('encrypted data is called')
+        encryptedData = json.loads(request.form['encryptedData'])
+        print(encryptedData)
+        print('len: ', len(docs))
+        if len(docs) == 0:
+            start_index = 0
         else:
-            # Insert docs
-            if len(documents_to_import) > 0:
-                print("about to insert data to the database")
-                add_documents_to_database(project, documents_to_import)
-                return make_response(response), 200 
+            start_index = len(docs) - 1
 
-            else:
-                if len(conflicting_display_id_docs) > 0 and len(ids_incorrectly_formatted) > 0:
-                    response = { 'message': 'Documents with IDs already in system: ' + str(conflicting_display_id_docs) +
-                                 ' Documents with incorrectly formatted IDs ' +  str(ids_incorrectly_formatted)}
-                elif len(conflicting_display_id_docs) > 0:
-                    response = {'message': 'Documents with IDs already in system: ' + str(conflicting_display_id_docs)}
-                elif len(ids_incorrectly_formatted) > 0:
-                    response = {'message': 'Documents with incorrectly formatted IDs: ' + str(ids_incorrectly_formatted)}
+        ids_in_db = []
+        documents_to_import = []
 
-                # error response
-                return make_response(response), 442
+        for doc_value in encryptedData:
+            print(doc_value)
+            id_counter = 1
+            new_id = start_index + id_counter
+            print("generate new id for the new doc")
+            print(new_id)
+            while new_id in ids_in_db:
+                new_id += 1
+                id_counter += 1
+
+            document = create_new_document(new_id, doc_value)
+            documents_to_import.append(document)
+            ids_in_db.append(new_id)
+            id_counter += 1
+
+    print(documents_to_import)
+    if response == {'message': 'Incorrect filetype/format'}:
+        return make_response(response), 400
+    else:
+        # Insert docs
+        if len(documents_to_import) > 0:
+            print("about to insert data to the database")
+            add_documents_to_database(project, documents_to_import)
+            return make_response(response), 200
+
+        else:
+            if len(conflicting_display_id_docs) > 0 and len(ids_incorrectly_formatted) > 0:
+                response = {
+                    'message': 'Documents with IDs already in system: ' + str(conflicting_display_id_docs) +
+                               ' Documents with incorrectly formatted IDs ' + str(ids_incorrectly_formatted)}
+            elif len(conflicting_display_id_docs) > 0:
+                response = {
+                    'message': 'Documents with IDs already in system: ' + str(conflicting_display_id_docs)}
+            elif len(ids_incorrectly_formatted) > 0:
+                response = {
+                    'message': 'Documents with incorrectly formatted IDs: ' + str(ids_incorrectly_formatted)}
+
+            # error response
+            return make_response(response), 442
+
+
 
 
 # # Endpoint for exporting documents with labels for project

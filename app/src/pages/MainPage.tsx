@@ -5,6 +5,7 @@ import {
   IonCardTitle,
   useIonViewWillEnter,
   IonTitle,
+  IonCardContent,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-component';
@@ -128,10 +129,11 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
                   routerLink={'/project/' + data._id + '/labelling'}
                 >
                   <IonCardTitle>{data.owner + ' / ' + data.name}</IonCardTitle>
-                  {/*<IonCardContent>*/}
-                  {/*  {progressProject(data)}*/}
-                  {/*  <p>{progressMessage}</p>*/}
-                  {/*</IonCardContent>*/}
+                  <IonCardContent>
+                    <IonTitle color='primary' size='small'>{
+                      data.encryption_state && 'Encrypted'
+                    } </IonTitle>
+                  </IonCardContent>
                 </IonCard>
               );
             })}

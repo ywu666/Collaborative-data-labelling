@@ -55,28 +55,47 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
       try {
         // if its first time create a encrypted project, generate the user key for the user
         if(encryptionStatus && firstTimeEncrypt) {
-          EncryptedHelpers.generateKeys(phrase).then((userKey) => {
-            EncryptionServices.storeCurrentUserkey(userKey, firebase).then(r=> {
-              setFirstTimeEncrypt(false);
-            })
-          })
-        }
+          EncryptedHelpers.generateKeys(phrase).then(userKey => {
+           EncryptionServices.storeCurrentUserkey(userKey, firebase).then(r => {
+             setFirstTimeEncrypt(false);
+             localStorage.setItem('public_key', userKey.public_key)
+             localStorage.setItem('en_private_key', userKey.en_private_key)
 
-        projectServices
-          .createProject(newProject, firebase, encryptionStatus)
-          .then((data) => {
-            if(props.handleCreateProject)
-              props.handleCreateProject(newProject)
-            // store the en_entry_key in an array in the localStorage
-            
-            setShowCreateProject(false)
+             projectServices
+               .createProject(newProject, firebase, encryptionStatus)
+               .then((data) => {
+                 if(props.handleCreateProject)
+                   props.handleCreateProject(newProject)
+                 // store the en_entry_key in an array in the localStorage
+
+                 setShowCreateProject(false)
+               })
+               .catch((reason) => {
+                 setError(true);
+                 setErrorMessage(reason);
+                 if(props.handleLoading)
+                   props.handleLoading(false);
+               });
+           })
           })
-          .catch((reason) => {
-            setError(true);
-            setErrorMessage(reason);
-            if(props.handleLoading)
-              props.handleLoading(false);
-          });
+        } else {
+          projectServices
+            .createProject(newProject, firebase, encryptionStatus)
+            .then((data) => {
+              if(props.handleCreateProject)
+                props.handleCreateProject(newProject)
+              // store the en_entry_key in an array in the localStorage
+
+              setShowCreateProject(false)
+            })
+            .catch((reason) => {
+              setError(true);
+              setErrorMessage(reason);
+              if(props.handleLoading)
+                props.handleLoading(false);
+            });
+
+        }
       } catch (err) {
         setError(true);
         setErrorMessage(err.message);
@@ -235,7 +254,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               </p>
             </IonItem> }
             <IonButton
-              disabled={projectName == null || projectName.length < 1}
+              disabled={projectName == null || projectName.length < 1 || ( encryptionStatus && phrase == null)}
               fill="outline"
               type="submit"
               expand="block"

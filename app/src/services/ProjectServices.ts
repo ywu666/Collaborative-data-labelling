@@ -56,7 +56,8 @@ async function getProjectNames(firebase: any) {
   const token = localStorage.getItem('user-token');
   const requestOptions = {
        method: 'GET',
-       headers: { 'Content-Type': 'application/json', 
+       headers: {
+         'Content-Type': 'application/json',
        "Access-Control-Allow-Origin": "*",
        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
@@ -71,17 +72,19 @@ async function getProjectNames(firebase: any) {
 }
 
 async function getProjectAgreementScore(projectName: any, firebase: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-    await handleAuthorization(firebase);
+  await handleAuthorization(firebase);
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization":"Bearer " + token
+    }};
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName
-        + '/agreement_score?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName, requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data
@@ -89,17 +92,23 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
  }
 
 function exportCsv(projectName: string) {
-    const requestOptions = {
+
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
+        headers: {
+        'Content-Type': 'application/json',
         'Content-Disposition': 'attachment; filename=' + projectName + '-export.csv',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+        "Authorization":"Bearer " + token
+        },
     };
+
     const exportFields = ['ID', 'DOCUMENT', 'LABEL', 'LABEL STATUS', 'CONTRIBUTOR 1 LABEL', 'CONTRIBUTOR 2 LABEL'];
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export?id_token=' + localStorage.getItem('user-token'), requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export', requestOptions)
     //return fetch('https://picsum.photos/list', requestOptions)
     .then(handleResponse)
     .then(downloadHelpers.collectionToCSV(exportFields))
@@ -113,10 +122,12 @@ async function getProjectUsers(project: string, firebase: any) {
 
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json',
+        headers: {
+        'Content-Type': 'application/json',
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" }, 
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+        },
     };
 
    await handleAuthorization(firebase)
@@ -131,19 +142,18 @@ async function getProjectUsers(project: string, firebase: any) {
  }
 
 async function getDescriptionOfAProject(firebase: any, project_id: any) {
-    const token = localStorage.getItem('user-token');
-    const requestOptions = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-            "Authorization": "Bearer " + token
-        }
-    };
-
-    await handleAuthorization(firebase);
+  await handleAuthorization(firebase);
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization": "Bearer " + token
+    }
+  };
 
     return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id, requestOptions)
         .then(handleResponse)
@@ -213,35 +223,38 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
         .then(handleResponse)
  }
 
- async function uploadDocuments(projectId : string, file : File, firebase: any, encryptStatus:boolean){
+ async function uploadDocuments(projectId : string, file : File, firebase: any) {
+  // check the encryption status of the project
+   const project = await getDescriptionOfAProject(firebase, projectId)
+   const encryptStatus = project.encryption_state
+   const formData = new FormData();
+   formData.append("projectId", projectId);
+
    if(encryptStatus) {
-     EncryptedHelpers.encryptData(file, firebase, projectId).then(
-       (r)  => {
-         console.log(r)
-       }
-     )
+     const encryptedArray = await EncryptedHelpers.encryptData(file, firebase, projectId)
+     console.log(JSON.stringify(encryptedArray))
+     formData.append('encryptedData', JSON.stringify(encryptedArray));
+
+   } else {
+     formData.append("inputFile", file);
    }
 
-    const formData = new FormData();
-    formData.append("inputFile", file);
-    formData.append("projectId", projectId);
+   await handleAuthorization(firebase)
+   const token = localStorage.getItem('user-token')
+   const requestOptions = {
+     method : "POST",
+     headers: {
+       "Authorization":"Bearer " + token
+     },
+     body : formData
+   }
 
-
-    const requestOptions = {
-        method : "POST",
-        headers: {
-            "Authorization":"Bearer " + localStorage.getItem('user-token')
-        },
-        body : formData
-    }
-    await handleAuthorization(firebase)
-
-     return fetch(process.env.REACT_APP_API_URL + '/projects/upload', requestOptions)
-         .then(handleResponse)
-         .then(data => {
-             return data
-         }
-    )
+   return fetch(process.env.REACT_APP_API_URL + '/projects/upload', requestOptions)
+     .then(handleResponse)
+     .then(data => {
+         return data
+       }
+     )
  }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {

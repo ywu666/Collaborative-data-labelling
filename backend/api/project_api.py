@@ -21,7 +21,8 @@ def get_projects():
         projects.append({
             '_id': str(p.id),
             'name': p.project_name,
-            'owner': get_owner_of_the_project(p).username
+            'owner': get_owner_of_the_project(p).username,
+            'encryption_state': p.encryption_state
         })
 
     # sort projects by owner
@@ -147,7 +148,6 @@ def create_project():
 def get_en_entry_key(project_id):
     project = Project.objects(id=project_id).get_or_404()
     owner = list(filter(lambda collaborator: collaborator.role.value == 'owner', project.collaborators))[0]
-    print(owner.entry_key)
     print(owner.entry_key)
     if owner.entry_key:
         en_entry_key = {'en_entry_key': owner.entry_key}
