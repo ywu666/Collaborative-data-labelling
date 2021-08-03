@@ -2,6 +2,7 @@ import * as crypto from 'crypto'
 import { EncryptionServices } from '../services/EncryptionService'
 import AES from 'crypto-js/aes'
 import Base64 from 'crypto-js/enc-base64'
+import  Utf8 from 'crypto-js/enc-utf8'
 
 const forge = require('node-forge')
   ,  pki = forge.pki;
@@ -166,30 +167,52 @@ function pem2pkcs8 (pem:string) {
 async function encryptData(file:File, firebase:any, projectId:string) {
   // get keys from local storage
   await getKeys(firebase)
-  
+  console.log('create encrypt')
+
+  // decrypt the encrypted entry key
+  const entry_key = await getEntryKey(projectId, firebase)
+  console.log(entry_key)
+
+  // get the text of the file, encrypt the data
+  const lines = await getDocument(file)
+  const encryptedDataArray = []
+  for (let x in lines) {
+    const value = lines[x];
+    const encrypted = AES.encrypt(value, entry_key);
+    encryptedDataArray.push(encrypted.toString());
+  }
+  console.log(encryptedDataArray)
+
+  return encryptedDataArray;
+}
+
+async function decryptData(projectId:string, phrase:string, encryptedData:[],firebase:any) {
+  await getKeys(firebase);
+  const entry_key = await getEntryKey(projectId, firebase);
+  const decryptData = []
+  for (let x in encryptedData) {
+     const decrypt = AES.decrypt(encryptedData[x], entry_key)
+     decryptData.push(decrypt)
+  }
+
+
+
+
+
+}
+
+async function getEntryKey(projectId:string, firebase:any) {
   // get these keys from local storage
   const en_private_key = localStorage.getItem('en_private_key')
   const hashPhrase = localStorage.getItem('hashPhrase')
   const en_entry_key = await EncryptionServices.getEncryptedEntryKey(projectId, firebase)
+ console.log(en_entry_key)
 
   const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, hashPhrase)
   const entry_key = await decryptEncryptedEntryKey(privateKey_pem, en_entry_key)
 
-  // get the text of the file
-  const lines = await getDocument(file)
-  const encryptedDataArray = []
-  for (let x in lines) {
-    const value = lines[x]
-    const encrypted = AES.encrypt(value, entry_key)
-    encryptedDataArray.push(encrypted.ciphertext.toString(Base64))
-  }
-  console.log(encryptedDataArray)
-
-  return encryptedDataArray
-}
-
-function decryptData(phrase:string, file:File) {
-
+  console.log(entry_key)
+  return entry_key
 }
 
 async function getKeys(firebase:any) {
@@ -199,6 +222,7 @@ async function getKeys(firebase:any) {
   if(en_private_key === null || hashPhrase === null) {
     const key = await EncryptionServices.getUserKeys(firebase)
     localStorage.setItem('en_private_key', key.en_private_key)
+
        // ask the user for the phrase
       // localStorage.setItem('hashPhrase', crypto.createHmac("sha256", key.salt).update(phrase).digest("base64").toString();)
   }

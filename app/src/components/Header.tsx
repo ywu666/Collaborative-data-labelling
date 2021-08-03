@@ -254,7 +254,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               </p>
             </IonItem> }
             <IonButton
-              disabled={projectName == null || projectName.length < 1 || ( encryptionStatus && phrase == null)}
+              disabled={projectName == null || projectName.length < 1}
               fill="outline"
               type="submit"
               expand="block"
