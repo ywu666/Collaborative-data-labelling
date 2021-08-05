@@ -163,10 +163,8 @@ def upload_file():
         encryptedData = json.loads(request.form['encryptedData'])
         print(encryptedData)
         print('len: ', len(docs))
-        if len(docs) == 0:
-            start_index = 0
-        else:
-            start_index = len(docs) - 1
+
+        start_index = len(docs) - 1
 
         ids_in_db = []
         documents_to_import = []
@@ -177,6 +175,7 @@ def upload_file():
             new_id = start_index + id_counter
             print("generate new id for the new doc")
             print(new_id)
+            print(ids_in_db)
             while new_id in ids_in_db:
                 new_id += 1
                 id_counter += 1
@@ -186,7 +185,7 @@ def upload_file():
             ids_in_db.append(new_id)
             id_counter += 1
 
-    print(documents_to_import)
+    print(response)
     if response == {'message': 'Incorrect filetype/format'}:
         return make_response(response), 400
     else:
