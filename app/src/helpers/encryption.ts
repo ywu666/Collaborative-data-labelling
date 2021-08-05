@@ -175,9 +175,11 @@ async function encryptData(file:File, firebase:any, projectId:string) {
 
   // get the text of the file, encrypt the data
   const lines = await getDocument(file)
+  console.log(lines)
   const encryptedDataArray = []
   for (let x in lines) {
     const value = lines[x];
+    console.log(value)
     const encrypted = AES.encrypt(value, entry_key);
     encryptedDataArray.push(encrypted.toString());
   }
@@ -186,19 +188,17 @@ async function encryptData(file:File, firebase:any, projectId:string) {
   return encryptedDataArray;
 }
 
-async function decryptData(projectId:string, phrase:string, encryptedData:[],firebase:any) {
+async function decryptData(projectId:string, encryptedData:any[], firebase:any) {
   await getKeys(firebase);
   const entry_key = await getEntryKey(projectId, firebase);
   const decryptData = []
   for (let x in encryptedData) {
+     console.log(x, encryptedData[x])
      const decrypt = AES.decrypt(encryptedData[x], entry_key)
-     decryptData.push(decrypt)
+     console.log(decrypt)
+     decryptData.push(decrypt.toString(Utf8))
   }
-
-
-
-
-
+  return decryptData
 }
 
 async function getEntryKey(projectId:string, firebase:any) {
@@ -230,18 +230,26 @@ async function getKeys(firebase:any) {
 
 async function getDocument(file:File) {
   let text = await file.text();
+  console.log(text)
   text = text.replace(/['"]+/g, '')
-  const lines = text.split("\r\n")
+  console.log(text)
+  let lines = text.split("\r\n")
+  console.log(lines)
   const firstLine = 'ID,DOCUMENT'
   const dataArray = []
+  // remove the first element
+  console.log(lines.shift())
+  //remove the last element
+  if(lines[lines.length -1] == '') {
+    lines.pop()
+  }
 
+
+  console.log(lines)
   for (let x in lines) {
-    if (lines[x].includes(firstLine)) { // remove the fist line
-      lines.shift()
-    } else {
-      const value = lines[x].split(',')[1]
-      dataArray.push(value)
-    }
+    const value = lines[x].split(',')[1]
+    dataArray.push(value)
+
   }
   return dataArray
 }
