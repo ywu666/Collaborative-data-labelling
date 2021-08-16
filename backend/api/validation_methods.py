@@ -8,12 +8,6 @@ def user_unauthorised_response():
     return response, 403
 
 
-# def invalid_label_response(project_name, label_id):
-#     response = None
-#     label_col = get_db_collection(project_name, "labels")
-#     label = label_col.find_one({'_id': ObjectId(label_id)})
-#     if label is None:
-#         response = {'message': "Invalid Label"}
-#         return make_response(response), 400
-#     else:
-#         return response
+def invalid_label_response():
+    response = {'message': "Invalid Label"}
+    return make_response(response), 400

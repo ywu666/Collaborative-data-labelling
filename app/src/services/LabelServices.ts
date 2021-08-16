@@ -9,14 +9,7 @@ export const labelServices = {
     updateConfirmedLabel
 }
 
-async function getLabels(project_name: any, firebase:any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
+async function getLabels(project_id: any, firebase:any) {
 
     const token = localStorage.getItem('user-token');
     if(firebase.auth.currentUser != null){
@@ -29,7 +22,17 @@ async function getLabels(project_name: any, firebase:any) {
      window.location.href = '/auth';
     }
     
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_name + '/labels/all' + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    const requestOptions = {
+        method: 'GET',
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id + '/labels/all', requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data.labels

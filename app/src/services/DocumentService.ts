@@ -15,35 +15,36 @@ export const documentServices = {
     getIfCurrentUserConfirmedLabel,
 }
 
-async function getDocument(project:any, document_id:any, firebase: any) {
+async function getDocument(projectId:any, documentIndex:any, firebase: any) {
+    const token = localStorage.getItem('user-token');
+    if(firebase.auth.currentUser != null){
+     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+         if(token !== idToken){
+             localStorage.setItem('user-token',idToken)
+         }
+        })
+    }else{
+     window.location.href = '/auth';
+    }
+
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
 
-    const token = localStorage.getItem('user-token');
-        if(firebase.auth.currentUser != null){
-         firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-             if(token !== idToken){
-                 localStorage.setItem('user-token',idToken)
-             }
-            })
-        }else{
-         window.location.href = '/auth';
-        }
-
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents/' + documentIndex, requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
-            return data.document
+            return data
         })
 }
 
 async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
-    console.log("get document ids called")
     const token = localStorage.getItem('user-token');
     if(firebase.auth.currentUser != null){
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -118,16 +119,7 @@ function getUnconfirmedDocuments(project: any, page: any, page_size: any) {
         })
 }
 
-async function postDocumentLabel(project: any, document_id: any, email:any, label_id: any, firebase:any) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-        body: JSON.stringify({ email, label_id })
-    };
-
+async function postDocumentLabel(project_id: any, document_index: any, email:any, label: any, firebase:any) {
     const token = localStorage.getItem('user-token');
     if(firebase.auth.currentUser != null){
      firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
@@ -139,8 +131,19 @@ async function postDocumentLabel(project: any, document_id: any, email:any, labe
      window.location.href = '/auth';
     }
     
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/documents/' + document_id + '/label'
-        + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+     const requestOptions = {
+        method: 'POST',
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+            body: JSON.stringify({ 'label': label })
+    };
+
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id 
+                + '/documents/' + document_index + '/label', requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data.docs;
@@ -204,28 +207,30 @@ async function postNewComment(project_name: string, document_id: string, email:a
         })
 }
 
-function getNumberOfUnlabelledDocs(project:any, firebase: any) {
+function getNumberOfUnlabelledDocs(projectId:any, firebase: any) {
+    const token = localStorage.getItem('user-token');
+    if(firebase.auth.currentUser != null){
+     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
+         if(token !== idToken){
+             localStorage.setItem('user-token',idToken)
+         }
+        })
+    }else{
+     window.location.href = '/auth';
+    }
+
     const requestOptions = {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json', 
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+        headers: { 
+            "Authorization":"Bearer " + token,
+            'Content-Type': 'application/json', 
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
-    
-    const token = localStorage.getItem('user-token');
-        if(firebase.auth.currentUser != null){
-         firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-             if(token !== idToken){
-                 localStorage.setItem('user-token',idToken)
-             }
-            })
-        }else{
-         window.location.href = '/auth';
-        }
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unlabelled/contributors'
-        + '?id_token=' + localStorage.getItem('user-token'), requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/unlabelled/contributors'
+        , requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data.contributors;
