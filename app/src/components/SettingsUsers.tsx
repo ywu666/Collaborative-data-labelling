@@ -8,9 +8,19 @@ import React, { useState, useEffect } from 'react';
 import SettingsUser from '../components/SettingsUser';
 import { projectServices } from '../services/ProjectServices'
 import { userService } from '../services/UserServices'
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  Table,
+  TableFooter,
+  TableRow, TablePagination,
+  TableContainer,
+  Paper
+}
+  from '@material-ui/core';
 
-import '../pages/SettingsPage.css';
+import './Project/ProjectSettings.css';
 
 interface ContainerProps {
   project: string;

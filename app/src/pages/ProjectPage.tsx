@@ -44,7 +44,7 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
           <ProjectInsight />
         </Route>
         <Route exact path={`/project/${id}/setting`}>
-          <ProjectSettings />
+          <ProjectSettings firebase={firebase}/>
         </Route>
       </Switch>
     </IonPage>
