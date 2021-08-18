@@ -1,4 +1,5 @@
 import { handleAuthorization } from './ProjectServices';
+import firebase from 'firebase';
 
 /**
  * The user service encapsulates all backend api calls for performing CRUD operations on user data
@@ -13,37 +14,38 @@ import { handleAuthorization } from './ProjectServices';
      getUser
  }
 
- function login(email: any, password: any) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-    };
+function login(email: any, password: any) {
+  const requestOptions = {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  };
 
-    return fetch(`/users/authenticate`, requestOptions) // TODO:config.apiUrl
-        .then(handleResponse)
-        .then(user => {
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('user', JSON.stringify(user));
+  return fetch(`/users/authenticate`, requestOptions) // TODO:config.apiUrl
+    .then(handleResponse)
+    .then(user => {
+      // store user details and jwt token in local storage to keep user logged in between page refreshes
+      localStorage.setItem('user', JSON.stringify(user));
 
-            return user;
-        });
+      return user;
+    });
 }
 
 function signup(username: string, email: string , token: string, ) {
-   const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json',
-          "Authorization":"Bearer " + localStorage.getItem('user-token')
-        },
-        body: JSON.stringify({username, email})
-    };
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization":"Bearer " + localStorage.getItem('user-token')
+    },
+    body: JSON.stringify({username, email})
+  };
 
-    return fetch(process.env.REACT_APP_API_URL + `/users/create`, requestOptions)
-        .then(handleResponse)
-        .then(data => {
-          console.log('sign up successful!')
-        })
+  return fetch(process.env.REACT_APP_API_URL + `/users/create`, requestOptions)
+    .then(handleResponse)
+    .then(data => {
+      console.log('sign up successful!')
+    })
 }
 
 async function getCurrentUser(email: any, firebase: any) {
@@ -65,36 +67,42 @@ async function getCurrentUser(email: any, firebase: any) {
   return fetch(process.env.REACT_APP_API_URL + "/users?email=" + email, requestOptions)
     .then(handleResponse)
 }
-function getAllUsersInDatabase() {
-     const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
- },
-    };
 
-    return fetch(process.env.REACT_APP_API_URL + '/user/all'
-        + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data.users
-        })
+
+function getAllUsersInDatabase() {
+  const token = localStorage.getItem('user-token')
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization": "Bearer " + token
+    },
+  };
+
+  return fetch(process.env.REACT_APP_API_URL + '/user/all', requestOptions)
+    .then(handleResponse)
+    .then(data => {
+      return data.users
+    })
 }
 
 function getAllUsers(page_num: any, page_size: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
- },
-    };
+  const token = localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization": "Bearer " + token
+    },
+  };
 
     return fetch(process.env.REACT_APP_API_URL + '/users/all'
-        + '?id_token=' + localStorage.getItem('user-token')
         + '&page=' + page_num
         + '&page_size=' + page_size, requestOptions)
         .then(handleResponse)
@@ -104,17 +112,19 @@ function getAllUsers(page_num: any, page_size: any) {
  }
 
  function getUser(email: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
- },
-    };
+   const token = localStorage.getItem('user-token');
+   const requestOptions = {
+     method: 'GET',
+     headers: {
+       'Content-Type': 'application/json',
+       "Access-Control-Allow-Origin": "*",
+       "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+       "Authorization": "Bearer " + token
+     },
+   };
     
     return fetch(process.env.REACT_APP_API_URL + '/users'
-        + '?id_token=' + localStorage.getItem('user-token')
         + '&email=' + email, requestOptions)
         .then(handleResponse)
         .then(data => {
@@ -123,22 +133,22 @@ function getAllUsers(page_num: any, page_size: any) {
  }
 
 function getCurrentProjectUser(project_id: any) {
-    const requestOptions = {
-        method: 'GET',
-        headers: { 
-            'Authorization': 'Bearer ' +  localStorage.getItem('user-token'),
-            'Content-Type': 'application/json',
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" 
-        },
-    };
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Authorization': 'Bearer ' +  localStorage.getItem('user-token'),
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
+    },
+  };
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/'+ project_id + '/user', requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data
-        })
+  return fetch(process.env.REACT_APP_API_URL + '/projects/'+ project_id + '/user', requestOptions)
+    .then(handleResponse)
+    .then(data => {
+      return data
+    })
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {

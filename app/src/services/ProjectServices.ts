@@ -119,27 +119,28 @@ function exportCsv(projectName: string) {
     .catch(console.error);
 }
 async function getProjectUsers(project: string, firebase: any) {
+  await handleAuthorization(firebase)
+  const token =  localStorage.getItem('user-token')
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization":"Bearer " + token
+    },
+  };
 
-    const requestOptions = {
-        method: 'GET',
-        headers: {
-        'Content-Type': 'application/json',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With"
-        },
-    };
+  return fetch(process.env.REACT_APP_API_URL +
+    '/projects/' + project + '/users&page=0&page_size=20',
+    requestOptions)
+    .then(handleResponse)
+    .then(data => {
+      return data.users
+    })
 
-   await handleAuthorization(firebase)
-
-    return fetch(process.env.REACT_APP_API_URL + 
-        '/projects/' + project + '/users' + '?id_token=' + localStorage.getItem('user-token') + '&page=0&page_size=20',
-        requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data.users
-        })
- }
+}
 
 async function getDescriptionOfAProject(firebase: any, project_id: any) {
   await handleAuthorization(firebase);
@@ -162,17 +163,21 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
         })
 }
 
- async function setProjectUsers(project: string, user: string, firebase:any) {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({ user })
-        };
-    
-    await handleAuthorization(firebase)
+async function setProjectUsers(project: string, user: string, firebase:any) {
+  await handleAuthorization(firebase)
+  const token =  localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization":"Bearer " + token
+    },
+    body: JSON.stringify({ user })
+  };
 
-    return fetch(process.env.REACT_APP_API_URL +
-        '/projects/' + project + '/users/add' + '?id_token=' + localStorage.getItem('user-token'), requestOptions)
+
+  return fetch(process.env.REACT_APP_API_URL +
+        '/projects/' + project + '/users/add', requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.users
