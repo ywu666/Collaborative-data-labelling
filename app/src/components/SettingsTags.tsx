@@ -4,7 +4,16 @@ import {
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { labelServices } from '../services/LabelServices';
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  Table,
+  TableFooter,
+  TableRow,
+  TablePagination,
+  TableContainer,
+  Paper } from '@material-ui/core';
 import './SettingsTags.css';
 
 interface ContainerProps {
@@ -48,7 +57,6 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     if(tag != undefined){
         tag.name = label_name;
     }
-
     labelServices.updateLabel(project, tagID, label_name, firebase);
   }
 
