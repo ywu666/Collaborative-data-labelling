@@ -36,12 +36,15 @@ const ProjectPage: React.FC<ProjectPageProps> = (props: ProjectPageProps) => {
     <IonPage className='ion-page-project-display'>
       <Header routerLink={"/"} name={currentDisplayName} />
       <ProjectHeader firebase={firebase}/>
-        <Route exact path={`/project/${id}/labelling`}
-               component={()=> <ProjectLabelling firebase={firebase} projectId={id}/>}/>
-        <Route exact path={`/project/${id}/insight`}
-               component={()=> <ProjectInsight />} />
-        <Route exact path={`/project/${id}/setting`}
-               component={()=> <ProjectSettings firebase={firebase}/>}/>
+        <Route exact path={`/project/${id}/labelling`}>
+          <ProjectLabelling firebase={firebase} projectId={id}/>
+        </Route>
+        <Route exact path={`/project/${id}/insight`}>
+          <ProjectInsight />
+        </Route>
+        <Route exact path={`/project/${id}/setting`} >
+          <ProjectSettings firebase={firebase}/>
+        </Route>
     </IonPage>
   );
 };
