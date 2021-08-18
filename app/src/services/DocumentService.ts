@@ -1,5 +1,6 @@
 import { DH_UNABLE_TO_CHECK_GENERATOR } from "constants";
-
+import { EncryptedHelpers } from '../helpers/encryption';
+import { projectServices } from '../services/ProjectServices'
 /**
  * The document service encapsulates all backend api calls for performing CRUD operations on document data
  */
@@ -43,15 +44,14 @@ async function getDocument(project:any, document_id:any, firebase: any) {
 }
 
 async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
-    console.log("get document ids called")
     const token = localStorage.getItem('user-token');
     if(firebase.auth.currentUser != null){
-     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-         if(token !== idToken){
+     firebase.auth.currentUser.getIdToken().then((idToken: string) => {
+         if(token !== idToken) {
              localStorage.setItem('user-token',idToken)
          }
-        })
-    }else{
+        } )
+    } else {
      window.location.href = '/auth';
     }
 
@@ -65,13 +65,34 @@ async function getDocumentIds(projectId:any, page:number, page_size:number ,fire
             "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents'
-        + '?page=' + page
-        + '&page_size=' + page_size, requestOptions) // TODO:config.apiUrl
-        .then(handleResponse)
-        .then(data => {
-            return data;
-        })
+  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, projectId)
+
+
+  const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents'
+      + '?page=' + page
+      + '&page_size=' + page_size, requestOptions);
+
+  const data = await handleResponse(response)
+  // decrypt the data if the data is encrypted
+  if(projectInfo.encryption_state && data.count > 0) {
+    let encryptedData = []
+    for (let x in data.docs) {
+      encryptedData.push(data.docs[x].data)
+    }
+    console.log(encryptedData)
+    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase).then();
+    console.log(decryptedData)
+
+    for (let x =0;x<data.count;x++) {
+      console.log(x, decryptedData[x])
+      data.docs[x].data = decryptedData[x]
+    }
+    console.log(data)
+    return data
+  } else {
+    console.log(data)
+    return data;
+  }
 }
 
 function getUnlabelledDocuments(project:any, page:number, page_size:number) {
@@ -261,6 +282,7 @@ function getIfCurrentUserConfirmedLabel(project: any, document_id: any, firebase
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
+  console.log(response)
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
        if (!response.ok) {
