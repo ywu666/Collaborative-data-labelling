@@ -91,7 +91,10 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         <TableHead className="user-table-head">
         <TableRow className="add-user">
             <TableCell colSpan={5}>
-              <IonInput value={newUser} type="text" placeholder="Enter user email..." onIonChange={e => setNewUser(e.detail.value!)}></IonInput>
+              <IonInput value={newUser}
+                        type="text"
+                        placeholder="Enter user email..."
+                        onIonChange={e => setNewUser(e.detail.value!)}/>
             </TableCell>
             <TableCell align="right">
               <IonButton disabled={newUser == "" || newUser == null} size="small" fill="clear" onClick={() => {
@@ -120,9 +123,13 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
           {(users.slice(page * 5, page * 5 + 5)
           ).map((user, i: number) => {
             return (
-              <SettingsUser key={i} project={project} user={user.email}
-                isAdmin={user.isAdmin} isContributor={user.isContributor} canEdit={canEdit}
-                firebase={firebase}></SettingsUser>
+              <SettingsUser key={i}
+                            project={project}
+                            user={user.email}
+                            isAdmin={user.isAdmin}
+                            isContributor={user.isContributor}
+                            canEdit={canEdit}
+                            firebase={firebase}/>
             );
           })}
         </TableBody>
