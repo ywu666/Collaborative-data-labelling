@@ -69,8 +69,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
              * idea brought up by Chuyang
              *
              * <Redirect from="/" to="/page/Inbox" exact />**/}
-            <Route path="/project/:project/settings" component={()=><ProjectSettings firebase={firebase} />} exact />
-            <Route path="/project/:project/document/:document_id" component={()=><DocumentPage firebase={firebase} />} exact />
+            <Route path="/project/:id/document/:document_id" component={()=><DocumentPage firebase={firebase} />} exact />
           </IonRouterOutlet>
       </IonReactRouter>
         }

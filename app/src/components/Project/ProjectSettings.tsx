@@ -13,41 +13,31 @@ import './ProjectSettings.css';
 
 
 interface ProjectSettingsProps {
-  firebase: any
+  firebase: any,
+  projectId:any,
 }
 
 const ProjectSettings: React.FC<ProjectSettingsProps> = (props: ProjectSettingsProps) => {
-  const { project } = useParams<{ project: string }>();
+  const { id } = useParams<{ id: string }>();
   const {
-    firebase
+    firebase,
+    projectId,
   } = props;
 
-  // const [currentDisplayName, setCurrentDisplayName] = useState("");
-  //
-  // useEffect(() => {
-  //   try{
-  //     userService.getCurrentUser(localStorage.getItem("email"), firebase)
-  //       .then(data => {
-  //         setCurrentDisplayName(data.username)
-  //       })
-  //   } catch (e) {
-  //   }
-  // }, [])
+  console.log('project setting projectId: ', projectId)
 
   return (
-
       <IonContent className="settings-page">
-
         <IonGrid className="settings-grid">
           <IonRow class="ion-justify-content-center">
-            <h1>{project} Settings</h1>
+            <h1>Settings</h1>
           </IonRow>
           <IonRow class="ion-justify-content-center">
             <IonCol size="12" size-md="10" size-lg="4" size-xl="4" class="settings-left">
-              <SettingsTags project={project} firebase={firebase} />
+              <SettingsTags projectId={projectId} firebase={firebase} />
             </IonCol>
             <IonCol size="12" size-md="10" size-lg="7" size-xl="7" class="settings-right">
-              <SettingsUsers project={project} firebase={firebase} />
+              <SettingsUsers project={projectId} firebase={firebase} />
             </IonCol>
           </IonRow>
         </IonGrid>

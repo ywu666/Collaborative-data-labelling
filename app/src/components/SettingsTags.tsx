@@ -17,7 +17,7 @@ import {
 import './SettingsTags.css';
 
 interface ContainerProps {
-  project: string;
+  projectId: string;
   firebase:any
 }
 
@@ -29,9 +29,11 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
   const [tagID, setTagID] = useState(0);
 
   const {
-    project,
+    projectId,
     firebase
   } = props;
+
+  console.log('Setting users projectId: ', projectId)
 
   const initialTags = [
     { _id: 0, name: '' }
@@ -40,7 +42,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
   const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
-      labelServices.getLabels(project, firebase)
+      labelServices.getLabels(projectId, firebase)
       .then(data => {
         setTags(data)
       })
@@ -48,7 +50,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
   }, [])
 
   function addTag(tag: string) {
-    labelServices.setLabels(project, tag, firebase);
+    labelServices.setLabels(projectId, tag, firebase);
     setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
@@ -57,7 +59,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     if(tag != undefined){
         tag.name = label_name;
     }
-    labelServices.updateLabel(project, tagID, label_name, firebase);
+    labelServices.updateLabel(projectId, tagID, label_name, firebase);
   }
 
   function updateButtonClick(_id: number){

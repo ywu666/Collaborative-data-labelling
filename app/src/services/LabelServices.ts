@@ -32,7 +32,7 @@ async function getLabels(project_id: any, firebase:any) {
     })
  }
 
-async function setLabels(project: string, label_name: string, firebase:any) {
+async function setLabels(project_id: string, label_name: string, firebase:any) {
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token');
   const requestOptions = {
@@ -45,14 +45,14 @@ async function setLabels(project: string, label_name: string, firebase:any) {
      };
 
   return fetch(process.env.REACT_APP_API_URL +
-    '/projects/' + project + '/labels/add', requestOptions)
+    '/projects/' + project_id + '/labels/add', requestOptions)
     .then(handleResponse)
     .then(data => {
       return data.users
     })
  }
 
-async function updateLabel(project: string, label_id: number, label_name: string, firebase: any){
+async function updateLabel(project_id: string, label_id: number, label_name: string, firebase: any){
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token');
   const requestOptions = {
@@ -66,7 +66,7 @@ async function updateLabel(project: string, label_id: number, label_name: string
 
 
   return fetch(process.env.REACT_APP_API_URL +
-    '/projects/' + project + '/labels/' + label_id + '/update', requestOptions)
+    '/projects/' + project_id + '/labels/' + label_id + '/update', requestOptions)
     .then(handleResponse)
     .then(data => {
       return data.users
@@ -74,7 +74,7 @@ async function updateLabel(project: string, label_id: number, label_name: string
 }
 
 
-async function updateConfirmedLabel(project: string, document_id: string, label_id: number,  firebase: any){
+async function updateConfirmedLabel(project_id: string, document_id: string, label_id: number,  firebase: any){
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token');
   const requestOptions = {
@@ -87,7 +87,7 @@ async function updateConfirmedLabel(project: string, document_id: string, label_
      };
 
   return fetch(process.env.REACT_APP_API_URL +
-    '/projects/' + project + '/documents/' + document_id + '/label-confirmation', requestOptions)
+    '/projects/' + project_id + '/documents/' + document_id + '/label-confirmation', requestOptions)
     .then(handleResponse)
     .then(data => {
       return data
