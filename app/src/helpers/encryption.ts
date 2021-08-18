@@ -240,10 +240,7 @@ async function getDocument(file:File) {
   // remove the first element
   console.log(lines.shift())
   //remove the last element
-  if(lines[lines.length -1] == '') {
-    lines.pop()
-  }
-
+  lines.pop()
 
   console.log(lines)
   for (let x in lines) {

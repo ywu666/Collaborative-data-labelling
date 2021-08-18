@@ -1,8 +1,9 @@
 from flask.json import jsonify
-from database.project_dao import get_document_of_a_project
+from database.project_dao import get_document_of_a_project, is_valid_label, is_label_confirmed, \
+    get_all_label_result_for_a_data, update_confirmed_label_for_data, update_user_document_label
 from database.user_dao import does_user_belong_to_a_project, get_user_from_database_by_email
 from middleware.auth import check_token
-from api.validation_methods import user_unauthorised_response
+from api.validation_methods import user_unauthorised_response, invalid_label_response
 from flask import Blueprint, request, make_response, g
 
 document_label_api = Blueprint('document_label_api', __name__)
@@ -177,64 +178,45 @@ def get_documents_with_unconfirmed_labels_for_user(project_id):
 #     return make_response(response), 200
 
 
-# # Endpoint to allow adding of labels to a document
-# @document_label_api.route('/projects/<project_name>/documents/<document_id>/label', methods=['Post'])
-# def set_label_for_user(project_name, document_id):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+# Endpoint to allow adding of labels to a document
+@document_label_api.route('/projects/<project_id>/documents/<document_index>/label', methods=['Post'])
+@check_token
+def set_label_for_user(project_id, document_index):
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    if 'label' in request.json:
+        label = request.json['label'] if request.json['label'] != "" else None
+    else:
+        response = {'message': "Missing label"}
+        return make_response(response), 400
 
-#     if 'label_id' in request.json:
-#         label_id = request.json['label_id']
-#     else:
-#         response = {'message': "Missing label"}
-#         return make_response(response), 400
+    # get user obj
+    requestor_email = g.requestor_email
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
 
-#     # get user obj
-#     user_col = get_db_collection(project_name, "users")
-#     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
-#     if requestor is None:
-#         return user_unauthorised_response()
+    if not is_valid_label(project_id, label) and label != None:
+        return invalid_label_response()
 
-#     invalid_label = invalid_label_response(project_name, label_id)
-#     if invalid_label is not None:
-#         return invalid_label
+    # If labels are confirmed, prevent any further changes 
+    if is_label_confirmed(project_id, document_index):
+        response = {'message': "Label already confirmed"}
+        return make_response(response), 400
+    
+    # Check if all other contributor use the same label for this data
+    label_results = get_all_label_result_for_a_data(project_id, document_index)
+    confirm = True if label_results else False
+    for label_result in label_results:
+        if label_result.label != label:
+            confirm = False
+            break
+    
+    if confirm:
+        update_confirmed_label_for_data(project_id, document_index, label)
 
-#     col = get_db_collection(project_name, "documents")
-#     document = col.find_one({'_id': ObjectId(document_id)})
+    # update the label for the user
+    update_user_document_label(project_id, document_index, label, requestor_email)
 
-#     # If labels are already the same, prevent any further changes
-#     if check_all_labels_for_document_match(document):
-#         response = {'message': "Label already confirmed"}
-#         return make_response(response), 400
-
-#     # Check if other contributor has labelled document
-#     contributors_labelled = len(document['user_and_labels'])
-#     labels_are_match = False
-#     current_user_label = col.find_one(
-#         {'_id': ObjectId(document_id), "user_and_labels": {'$elemMatch': {"email": requestor_email}}})
-
-#     if contributors_labelled == 2 or (contributors_labelled == 1 and not current_user_label):
-#         for item in document['user_and_labels']:
-#             # If label assignments match, set confirmed
-#             if item['email'] != requestor_email and item['label'] == ObjectId(label_id):
-#                 labels_are_match = True
-
-#                 # Update other contributor
-#                 update_user_document_label(col, item['email'], document_id, label_id, labels_are_match)
-#                 break
-
-#     # if the label already exists for the user
-#     if current_user_label is not None:
-#         update_user_document_label(col, requestor_email, document_id, label_id, labels_are_match)
-#     else:
-#         # if the label assignment does not exist for the user
-#         create_user_document_label(col, requestor_email, document_id, label_id, labels_are_match)
-
-#     return '', 204
+    return '', 204
 
 
 # @document_label_api.route('/projects/<project_name>/documents/<document_id>/label-confirmation', methods=['PUT'])

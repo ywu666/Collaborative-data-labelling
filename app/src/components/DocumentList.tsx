@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper, Select, FormControl, InputLabel } from '@material-ui/core';
 
 import './DocumentList.css'
 
@@ -36,8 +36,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const [documents, setDocuments] = useState<any[]>([]);
 	const [count, setCount] = useState(0);
 	const [labels, setLabels] = useState<any[]>([]);
-	const [documentIndex, setDocumentIndex] = useState("");
-	const [showModal, setShowModal] = useState(false);
 	const [newDocument, setNewDocument] = useState<any>();
 	const [docError, setDocError] = useState<any[]>([]);
 	const [contributor, setContributor] = useState<any[]>([]);
@@ -95,16 +93,11 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	useEffect(() => {
 		setDocuments(
 			documents.map((e) => {
-				if (e._id === newDocument._id) return newDocument
+				if (e.display_id === newDocument.display_id) return newDocument
 				else return e 
 			})
 		)
 	}, [newDocument])
-
-	const renderLabelModal = (id:string) => {
-		setShowModal(true)
-		setDocumentIndex(id)
-	}
 
 	let total_unlabelled = 0
 
@@ -113,13 +106,10 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		})
 
 	const changeTag = (documentIndex:any, label:any) => {
-		let doc = documents.find(e => e._id === documentIndex)
+		let doc = documents.find(e => e.display_id === documentIndex)
 		let email = localStorage.getItem("email")
 
-		if (doc.user_and_labels.some((e: { email: string | null; }) => e.email === email))
-			doc.user_and_labels.find((e: { email: string | null; }) => e.email === email).label = label._id 
-
-		else doc.user_and_labels.push({'email': email, 'label':label._id})
+		doc.label = label
 		
 		setNewDocument(doc)
 
@@ -130,7 +120,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			setContributor(contributor_temp)
 		}
 
-		documentServices.postDocumentLabel(projectId, documentIndex, localStorage.getItem("email"), label._id, firebase)
+		documentServices.postDocumentLabel(projectId, documentIndex, localStorage.getItem("email"), label, firebase)
 		.then(() => { 
 			documentServices.getNumberOfUnlabelledDocs(projectId, firebase)
 			.then(data => {
@@ -139,7 +129,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			return documentServices.getDocument(projectId, documentIndex, firebase)
 		})
 		.then(data => {
-			data.id = documentIndex
 			setNewDocument(data)
 			setDocError(err => err.filter(e => e.doc_id !== documentIndex))
 
@@ -154,14 +143,13 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			}
 			setDocError(err => [...err, error])
 		})
-		setShowModal(false)
 	}
 
 	const documentItem = (doc: any, index: any) => {
 		let email = localStorage.getItem("email")
 		let error = docError?.find(e => e.doc_id === doc._id)
-		let user_label = labels?.find(e => e._id === doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label)
-		let user_label_confirmed = doc.user_and_labels?.find((e: { email: any | null; }) => e.email === email)?.label_confirmed
+		let user_label = doc.label
+		let user_label_confirmed = doc.label_confirmed
 		
 		return (
 			<TableRow key = {index} >
@@ -179,16 +167,25 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				</TableCell>
 				<TableCell colSpan={2}>
-					{isNullOrUndefined(email)
-						? <div/>
-						: currentUser.isAdmin
-							? isNullOrUndefined(user_label)
-								? <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}><IonIcon icon={add}/></IonButton>
-								: user_label_confirmed
-									? <IonButton disabled={true} color="success" fill="outline" slot="end">{user_label.name} </IonButton> 
-									: <IonButton fill="outline" slot="end" onClick={() => renderLabelModal(doc._id)}>{user_label.name}</IonButton>
-							: <div/>	
-					}
+					<FormControl>
+						<InputLabel htmlFor="age-native-helper">Label</InputLabel>
+						{isNullOrUndefined(email)
+							? <div />
+							: currentUser.isAdmin
+								? <Select
+									native
+									value={user_label}
+									onChange={(e) => changeTag(doc.display_id, e.target.value)}
+									inputProps={{ readOnly: user_label_confirmed }}
+								>
+									<option aria-label="None" value="" />
+									{labels.map((label, i) =>
+										<option key={i} value={label}>{label}</option>
+									)}
+								</Select>
+								: <div />
+						}
+					</FormControl>
 				</TableCell>
 			</TableRow>
 		)
@@ -231,13 +228,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					</IonSegmentButton>
 				</IonSegment>
 			</div>
-			<IonModal cssClass="auto-height" isOpen={showModal} onDidDismiss={e => setShowModal(false)}>
-				<div className="inner-content">
-					{labels.map((label, i) =>
-						<IonButton fill="outline" key={i} slot="start" onClick={() => changeTag(documentIndex, label)}>{label.name}</IonButton>
-					)}
-				</div>
-			</IonModal>
 			<TableContainer component={Paper} style={{ maxHeight: 300 }}>
 				<Table stickyHeader size="small">
         			<TableHead className="user-table-head">

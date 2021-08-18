@@ -1,36 +1,29 @@
-# from api.methods import JSONEncoder
-# from api.validation_methods import check_id_token, user_unauthorised_response
-# from bson import ObjectId
-# from firebase_auth import get_email
-# from flask import Blueprint, request, make_response
-# from model.document import get_db_collection
-# from mongoDBInterface import get_col
+from flask.json import jsonify
+from database.project_dao import get_all_labels_of_a_project
+from database.user_dao import get_user_from_database_by_email, does_user_belong_to_a_project
+from middleware.auth import check_token
+from api.validation_methods import user_unauthorised_response
+from flask import Blueprint, g
 
-# label_api = Blueprint('label_api', __name__)
+label_api = Blueprint('label_api', __name__)
 
 
-# @label_api.route('/projects/<project_name>/labels/all', methods=['Get'])
-# def get_preset_labels(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+@label_api.route('/projects/<project_id>/labels/all', methods=['Get'])
+@check_token
+def get_preset_labels(project_id):
+    requestor_email = g.requestor_email
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
+    
+    labels = get_all_labels_of_a_project(project_id)
+    labels_list = [label.value for label in labels]
 
-#     user_col = get_db_collection(project_name, "users")
-#     requestor = user_col.find_one({'email': requestor_email})
-#     if requestor is None:
-#         return user_unauthorised_response()
+    labels_dict = {
+        'labels': labels_list
+    }
 
-#     labels_col = get_col(project_name, "labels")
-#     labels = labels_col.find({})
-#     labels_list = list(labels)
-#     labels_dict = {
-#         'labels': labels_list
-#     }
-#     labels_out = JSONEncoder().encode(labels_dict)
-#     return labels_out, 200
+    return jsonify(labels_dict), 200
 
 
 # @label_api.route('/projects/<project_name>/labels/add', methods=['Post'])
