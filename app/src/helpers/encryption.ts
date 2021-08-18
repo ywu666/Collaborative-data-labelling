@@ -60,7 +60,6 @@ function exportCryptoKeyToPKCS(exported:ArrayBuffer, isPublic:boolean) {
 async function generateEncryptedEntryKey(publicKey_pkcs:any) {
   const entry_key = window.crypto.getRandomValues(new Uint8Array(32));
 
-  console.log(entry_key)
   // convert
   const publicKey = await importPublicKey(publicKey_pkcs)
   const arrayBuffer = await window.crypto.subtle.encrypt(
@@ -70,7 +69,6 @@ async function generateEncryptedEntryKey(publicKey_pkcs:any) {
     publicKey,
     entry_key
   );
-  console.log(ab2Str(arrayBuffer))
   // const entry_key_x = await decryptEncryptedEntryKey('', ab2Str(arrayBuffer))
   return ab2Str(arrayBuffer)
 }
@@ -121,9 +119,10 @@ async function importPublicKey(publicKey_pkcs:string) {
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----";
   const pemContents = publicKey_pkcs.substring(pemHeader.length, publicKey_pkcs.length - pemFooter.length);
+
   // base64 decode the string to get the binary data
-  console.log(pemContents)
   const binaryDerString = window.atob(pemContents);
+
   // convert from a binary string to an ArrayBuffer
   const binaryDer = str2ab(binaryDerString);
 
@@ -167,11 +166,9 @@ function pem2pkcs8 (pem:string) {
 async function encryptData(file:File, firebase:any, projectId:string) {
   // get keys from local storage
   await getKeys(firebase)
-  console.log('create encrypt')
 
   // decrypt the encrypted entry key
   const entry_key = await getEntryKey(projectId, firebase)
-  console.log(entry_key)
 
   // get the text of the file, encrypt the data
   const lines = await getDocument(file)
@@ -181,24 +178,19 @@ async function encryptData(file:File, firebase:any, projectId:string) {
     const encrypted = AES.encrypt(value, entry_key);
     encryptedDataArray.push(encrypted.toString());
   }
-  console.log(encryptedDataArray)
 
   return encryptedDataArray;
 }
 
-async function decryptData(projectId:string, phrase:string, encryptedData:[],firebase:any) {
+async function decryptData(projectId:string, encryptedData:any[], firebase:any) {
   await getKeys(firebase);
   const entry_key = await getEntryKey(projectId, firebase);
   const decryptData = []
   for (let x in encryptedData) {
      const decrypt = AES.decrypt(encryptedData[x], entry_key)
-     decryptData.push(decrypt)
+     decryptData.push(decrypt.toString(Utf8))
   }
-
-
-
-
-
+  return decryptData
 }
 
 async function getEntryKey(projectId:string, firebase:any) {
@@ -206,12 +198,10 @@ async function getEntryKey(projectId:string, firebase:any) {
   const en_private_key = localStorage.getItem('en_private_key')
   const hashPhrase = localStorage.getItem('hashPhrase')
   const en_entry_key = await EncryptionServices.getEncryptedEntryKey(projectId, firebase)
- console.log(en_entry_key)
 
   const privateKey_pem = decryptEncryptedPrivateKey(en_private_key, hashPhrase)
   const entry_key = await decryptEncryptedEntryKey(privateKey_pem, en_entry_key)
 
-  console.log(entry_key)
   return entry_key
 }
 
@@ -231,17 +221,16 @@ async function getKeys(firebase:any) {
 async function getDocument(file:File) {
   let text = await file.text();
   text = text.replace(/['"]+/g, '')
-  const lines = text.split("\r\n")
+  let lines = text.split("\r\n")
   const firstLine = 'ID,DOCUMENT'
   const dataArray = []
-
+  // remove the first element
+  //remove the last element
+  lines.pop()
   for (let x in lines) {
-    if (lines[x].includes(firstLine)) { // remove the fist line
-      lines.shift()
-    } else {
-      const value = lines[x].split(',')[1]
-      dataArray.push(value)
-    }
+    const value = lines[x].split(',')[1]
+    dataArray.push(value)
+
   }
   return dataArray
 }
