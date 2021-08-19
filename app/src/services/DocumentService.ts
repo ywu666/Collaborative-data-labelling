@@ -1,6 +1,7 @@
 import { DH_UNABLE_TO_CHECK_GENERATOR } from "constants";
 import { EncryptedHelpers } from '../helpers/encryption';
-import { projectServices } from '../services/ProjectServices'
+import { handleAuthorization, projectServices } from '../services/ProjectServices';
+import firebase from 'firebase';
 /**
  * The document service encapsulates all backend api calls for performing CRUD operations on document data
  */
@@ -17,16 +18,8 @@ export const documentServices = {
 }
 
 async function getDocument(projectId:any, documentIndex:any, firebase: any) {
-    const token = localStorage.getItem('user-token');
-    if(firebase.auth.currentUser != null){
-     firebase.auth.currentUser.getIdToken().then((idToken: string) =>{
-         if(token !== idToken){
-             localStorage.setItem('user-token',idToken)
-         }
-        })
-    }else{
-     window.location.href = '/auth';
-    }
+  await handleAuthorization(firebase)
+  const token = localStorage.getItem('user-token');
 
     const requestOptions = {
         method: 'GET',
@@ -46,17 +39,8 @@ async function getDocument(projectId:any, documentIndex:any, firebase: any) {
 }
 
 async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
-    const token = localStorage.getItem('user-token');
-    if(firebase.auth.currentUser != null){
-     firebase.auth.currentUser.getIdToken().then((idToken: string) => {
-         if(token !== idToken) {
-             localStorage.setItem('user-token',idToken)
-         }
-        } )
-    } else {
-     window.location.href = '/auth';
-    }
-
+   await handleAuthorization(firebase)
+  const token = localStorage.getItem('user-token');
     const requestOptions = {
         method: 'GET',
         headers: { 
@@ -66,79 +50,68 @@ async function getDocumentIds(projectId:any, page:number, page_size:number ,fire
             "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
             "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
     };
-
-  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, projectId)
-
 
   const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents'
       + '?page=' + page
       + '&page_size=' + page_size, requestOptions);
 
   const data = await handleResponse(response)
+
   // decrypt the data if the data is encrypted
-  if(projectInfo.encryption_state && data.count > 0) {
-    let encryptedData = []
-    for (let x in data.docs) {
-      encryptedData.push(data.docs[x].data)
-    }
-    console.log(encryptedData)
-    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase).then();
-    console.log(decryptedData)
+  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, projectId)
+  const result = await decryptProjectData(projectInfo,data,projectId,firebase);
+  return result
 
-    for (let x =0;x<data.count;x++) {
-      console.log(x, decryptedData[x])
-      data.docs[x].data = decryptedData[x]
-    }
-    console.log(data)
-    return data
-  } else {
-    console.log(data)
-    return data;
-  }
 }
 
-function getUnlabelledDocuments(project:any, page:number, page_size:number) {
-    const token = localStorage.getItem('user-token');
+async function getUnlabelledDocuments(project_id:any, page:number, page_size:number) {
+  const token = localStorage.getItem('user-token');
 
-    const requestOptions = {
-        method: 'GET',
-        headers: { 
-            "Authorization":"Bearer " + token,
-            'Content-Type': 'application/json', 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-    
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unlabelled/documents'
-        + '?page=' + page
-        + '&page_size=' + page_size, requestOptions) // TODO:config.apiUrl
-        .then(handleResponse)
-        .then(data => {
-            return data;
-        })
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      "Authorization":"Bearer " + token,
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+  };
+
+  const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id + '/unlabelled/documents'
+    + '?page=' + page
+    + '&page_size=' + page_size, requestOptions)
+
+  const data = await handleResponse(response)
+
+  // decrypt the data if the data is encrypted
+  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, project_id)
+  const result = await decryptProjectData(projectInfo,data,project_id,firebase);
+  return result
 }
 
-function getUnconfirmedDocuments(project: any, page: any, page_size: any) {
-    const token = localStorage.getItem('user-token');
+async function getUnconfirmedDocuments(project_id: any, page: any, page_size: any) {
+  const token = localStorage.getItem('user-token');
 
-    const requestOptions = {
-        method: 'GET',
-        headers: { 
-            "Authorization":"Bearer " + token,
-            'Content-Type': 'application/json', 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
-    
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/unconfirmed/documents'
-        + '?page=' + page
-        + '&page_size=' + page_size, requestOptions)
-        .then(handleResponse)
-        .then(data => {
-            return data;
-        })
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      "Authorization":"Bearer " + token,
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+  };
+
+  const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id + '/unconfirmed/documents'
+    + '?page=' + page
+    + '&page_size=' + page_size, requestOptions)
+
+  const data = await handleResponse(response)
+
+  // decrypt the data if the data is encrypted
+  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, project_id)
+  const result = await decryptProjectData(projectInfo,data,project_id,firebase);
+  return result
 }
 
 async function postDocumentLabel(project_id: any, document_index: any, email:any, label: any, firebase:any) {
@@ -288,7 +261,6 @@ function getIfCurrentUserConfirmedLabel(project: any, document_id: any, firebase
 }
 
 function handleResponse(response: { text: () => Promise<any>; ok: any; status: number; statusText: any; }) {
-  console.log(response)
    return response.text().then((text: string) => {
        const data = text && JSON.parse(text);
        if (!response.ok) {
@@ -297,4 +269,26 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
        }
        return data;
    });
+}
+
+async function decryptProjectData(projectInfo:any,data:any,projectId:string,firebase:any) {
+  if(projectInfo.encryption_state && data.count > 0) {
+    let encryptedData = []
+    for (let x in data.docs) {
+      encryptedData.push(data.docs[x].data)
+    }
+    console.log(encryptedData)
+    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase).then();
+    console.log(decryptedData)
+
+    for (let x =0;x<data.count;x++) {
+      console.log(x, decryptedData[x])
+      data.docs[x].data = decryptedData[x]
+    }
+    console.log(data)
+    return data
+  } else {
+    console.log(data)
+    return data;
+  }
 }
