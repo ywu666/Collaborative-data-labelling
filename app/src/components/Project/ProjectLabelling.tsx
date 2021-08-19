@@ -13,7 +13,8 @@ import Upload from '../Upload';
 
 interface ProjectLabellingProps {
     firebase: any,
-    projectId: any
+    projectId: any,
+    encryptStatus:boolean,
 }
 
 const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabellingProps) => {
@@ -25,7 +26,10 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
     const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState(false);
     const [uploadErrorMsg, setUploadErrorMsg] = useState("");
-    const { firebase, projectId } = props;
+    const { firebase,
+        projectId,
+        encryptStatus
+    } = props;
 
     function isUploading(val: boolean) {
         setUploading(val);
@@ -79,7 +83,10 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                         </IonToolbar>
                         <br />
                         <IonSpinner class="spinner" name="crescent" color="primary" /></div>
-                    : <DocumentList projectId={projectId} firebase={firebase} currentUser={currentUser} />}
+                    : <DocumentList projectId={projectId}
+                                    firebase={firebase}
+                                    currentUser={currentUser}
+                                    encryptStatus={encryptStatus}/>}
             </div>
         </div>
     );

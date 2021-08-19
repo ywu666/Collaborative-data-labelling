@@ -22,7 +22,8 @@ import './DocumentList.css'
 interface DocumentListProps {
   projectId: string,
   currentUser: any,
-  firebase: any
+  firebase: any,
+	encryptStatus:boolean,
 }
 
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
@@ -30,6 +31,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		projectId,
 		currentUser,
 		firebase,
+		encryptStatus
 	} = props;
 	const [page, setPage] = useState(0);
 	const [page_size, setPageSize] = useState(10);
@@ -58,7 +60,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 
 	const documentUpdate = () => {
 		if (filter === "unlabelled") {
-			documentServices.getUnlabelledDocuments(projectId, page, page_size)
+			documentServices.getUnlabelledDocuments(projectId, page, page_size, encryptStatus, firebase)
 			.then(data => {
 				setDocuments(data.docs)
 				setCount(data.count)
@@ -66,7 +68,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 			})
 		}
 		else if (filter === "unconfirmed") {
-			documentServices.getUnconfirmedDocuments(projectId, page, page_size)
+			documentServices.getUnconfirmedDocuments(projectId, page, page_size,encryptStatus, firebase)
 			.then(data => {
 				setDocuments(data.docs)
 				setCount(data.count)

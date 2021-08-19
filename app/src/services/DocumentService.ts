@@ -39,33 +39,34 @@ async function getDocument(projectId:any, documentIndex:any, firebase: any) {
 }
 
 async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
-   await handleAuthorization(firebase)
+  await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token');
-    const requestOptions = {
-        method: 'GET',
-        headers: { 
-            "Authorization":"Bearer " + token,
-            'Content-Type': 'application/json', 
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
-    };
+  const requestOptions = {
+    method: 'GET',
+    headers: {
+      "Authorization":"Bearer " + token,
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "DELETE, POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
+  };
 
   const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents'
-      + '?page=' + page
-      + '&page_size=' + page_size, requestOptions);
+    + '?page=' + page
+    + '&page_size=' + page_size, requestOptions);
 
   const data = await handleResponse(response)
 
   // decrypt the data if the data is encrypted
   const projectInfo = await projectServices.getDescriptionOfAProject(firebase, projectId)
-  const result = await decryptProjectData(projectInfo,data,projectId,firebase);
+  const result = await decryptProjectData(projectInfo.encryption_state,data,projectId,firebase);
   return result
 
 }
 
-async function getUnlabelledDocuments(project_id:any, page:number, page_size:number) {
+async function getUnlabelledDocuments(project_id:any, page:number, page_size:number, encryptStatus:boolean,firebase:any) {
   const token = localStorage.getItem('user-token');
+  console.log(encryptStatus)
 
   const requestOptions = {
     method: 'GET',
@@ -78,19 +79,20 @@ async function getUnlabelledDocuments(project_id:any, page:number, page_size:num
   };
 
   const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + project_id + '/unlabelled/documents'
-    + '?page=' + page
-    + '&page_size=' + page_size, requestOptions)
+  + '?page=' + page
+  + '&page_size=' + page_size, requestOptions) // TODO:config.apiUrl
 
-  const data = await handleResponse(response)
+  const data = await handleResponse(response);
 
   // decrypt the data if the data is encrypted
-  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, project_id)
-  const result = await decryptProjectData(projectInfo,data,project_id,firebase);
+ // const projectInfo = await projectServices.getDescriptionOfAProject(firebase, project_id)
+  const result = await decryptProjectData(encryptStatus,data,project_id,firebase);
   return result
 }
 
-async function getUnconfirmedDocuments(project_id: any, page: any, page_size: any) {
+async function getUnconfirmedDocuments(project_id: any, page: any, page_size: any, encryptStatus:boolean, firebase:any) {
   const token = localStorage.getItem('user-token');
+  console.log(encryptStatus)
 
   const requestOptions = {
     method: 'GET',
@@ -109,9 +111,9 @@ async function getUnconfirmedDocuments(project_id: any, page: any, page_size: an
   const data = await handleResponse(response)
 
   // decrypt the data if the data is encrypted
-  const projectInfo = await projectServices.getDescriptionOfAProject(firebase, project_id)
-  const result = await decryptProjectData(projectInfo,data,project_id,firebase);
+  const result = await decryptProjectData(encryptStatus,data,project_id,firebase);
   return result
+  //return data
 }
 
 async function postDocumentLabel(project_id: any, document_index: any, email:any, label: any, firebase:any) {
@@ -271,14 +273,14 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
    });
 }
 
-async function decryptProjectData(projectInfo:any,data:any,projectId:string,firebase:any) {
-  if(projectInfo.encryption_state && data.count > 0) {
+async function decryptProjectData(encryptStatus:boolean,data:any,projectId:string,firebase:any) {
+  if(encryptStatus && data.count > 0) {
     let encryptedData = []
     for (let x in data.docs) {
       encryptedData.push(data.docs[x].data)
     }
     console.log(encryptedData)
-    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase).then();
+    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase);
     console.log(decryptedData)
 
     for (let x =0;x<data.count;x++) {
