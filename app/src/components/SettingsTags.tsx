@@ -44,7 +44,16 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     try {
       labelServices.getLabels(projectId, firebase)
       .then(data => {
-        setTags(data)
+        let result = [];
+        for(let x=0;x<data.length;x++) {
+          const label = {
+            '_id': x,
+            'name':data[x]
+          }
+          result.push(label)
+        }
+        console.log(result)
+        setTags(result)
       })
     } catch (e) {}
   }, [])
@@ -59,6 +68,7 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     if(tag != undefined){
         tag.name = label_name;
     }
+    console.log('tag id:', tagID)
     labelServices.updateLabel(projectId, tagID, label_name, firebase);
   }
 

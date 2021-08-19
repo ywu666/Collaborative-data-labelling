@@ -1,3 +1,4 @@
+from bson import ObjectId
 from flask.json import jsonify
 
 from database.model import Label
@@ -58,30 +59,33 @@ def add_preset_labels(project_id):
 
     return "", 204
 
-# @label_api.route('/projects/<project_id>/labels/<label_id>/update', methods=['Put'])
-# def update_preset_labels(project_name, label_id):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+@label_api.route('/projects/<project_id>/labels/<label_id>/update', methods=['Put'])
+@check_token
+def update_preset_labels(project_id, label_id):
+    project = get_project_by_id(project_id)
+    requestor = get_owner_of_the_project(project)
 
-#     user_col = get_db_collection(project_name, "users")
-#     requestor = user_col.find_one({'email': requestor_email, 'isAdmin': True})
-#     if requestor is None:
-#         return user_unauthorised_response()
+    if requestor is None:
+        return user_unauthorised_response()
 
-#     if 'label_name' in request.json:
-#         label_name = request.json['label_name']
-#     else:
-#         response = {'message': "Missing label to add"}
-#         return make_response(response), 400
+    if 'label_name' in request.json:
+        label_name = request.json['label_name']
+    else:
+        response = {'message': "Missing label to add"}
+        return make_response(response), 400
 
-#     labels_col = get_col(project_name, "labels")
-#     labels_col.update_one({"_id": ObjectId(label_id)}, {'$set': {'name': label_name}})
-#     return "", 204
+    # check if the label is already in the db
+    label_in_database = project.labels.filter(value=label_name)
 
+    if len(label_in_database) > 0:
+        response = {'message': "That label already exists"}
+        return make_response(response), 400
+
+    # update the label
+    project.labels[int(label_id)].value = label_name
+    project.save()
+    return "", 204
 
 # @label_api.route('/projects/<project_name>/labels/<label_id>/delete', methods=['Delete'])
 # def delete_preset_labels(project_name, label_id):
