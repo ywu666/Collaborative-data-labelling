@@ -267,18 +267,14 @@ async function decryptProjectData(encryptStatus:boolean,data:any,projectId:strin
     for (let x in data.docs) {
       encryptedData.push(data.docs[x].data)
     }
-    console.log(encryptedData)
-    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase);
-    console.log(decryptedData)
 
+    const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase);
     for (let x =0;x<data.count;x++) {
       console.log(x, decryptedData[x])
       data.docs[x].data = decryptedData[x]
     }
-    console.log(data)
     return data
   } else {
-    console.log(data)
     return data;
   }
 }
