@@ -1,7 +1,7 @@
 from os import terminal_size
 from enums.user_role import UserRole
 from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project, get_owner_of_the_project, get_project_by_id, \
-    add_collaborator_to_project
+    add_collaborator_to_project, change_collaborator_permission
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
@@ -219,54 +219,49 @@ def add_user_to_project(project_id):
         return make_response(response), 400
 
 
-# @user_api.route("/projects/<project_name>/users/update", methods=["Put"])
-# # Updating user permissions in a particular project
-# def update_user(project_name):
-#     # inputs: id_token of requestor, project name, email of user to be changed, and changes to be applied
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+@user_api.route("/projects/<project_id>/users/update", methods=["Put"])
+@check_token
+# Updating user permissions in a particular project
+def update_user(project_id):
+    # inputs: id_token of requestor, project name, email of user to be changed, and changes to be applied
+    requestor_email = g.requestor_email
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    if 'user' in request.json:
+        email = request.json['user']
+    else:
+        response = {'message': "Missing user"}
+        return make_response(response), 400
+    if 'permissions' in request.json:
+        permissions = request.json['permissions']
+    else:
+        response = {'message': "Missing permissions"}
+        return make_response(response), 400
 
-#     if 'user' in request.json:
-#         email = request.json['user']
-#     else:
-#         response = {'message': "Missing user"}
-#         return make_response(response), 400
-#     if 'permissions' in request.json:
-#         permissions = request.json['permissions']
-#     else:
-#         response = {'message': "Missing permissions"}
-#         return make_response(response), 400
+     # check if requestor is in the project
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        response = {'message': "Not authorised to perform this action"}
+        return make_response(response), 401
 
-#     project_user_col = get_col(project_name, "users")
-#     if project_user_col.find_one(
-#             {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
-#         response = {'message': "Not authorised to perform this action"}
-#         return make_response(response), 401
+    # check if requestor is admin
+    if get_owner_of_the_project(get_project_by_id(project_id)).email != requestor_email:
+        response = {'message': "Forbidden to perform this action"}
+        return make_response(response), 403
 
-#     if not project_user_col.find_one({'email': requestor_email})[
-#         'isAdmin']:  # if the requestor is not an admin, return forbidden
-#         response = {'message': "Forbidden to perform this action"}
-#         return make_response(response), 403
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    if len(list(filter(lambda collaborator: collaborator.user.email == email, collaborators))) == 0:
+        response = {'message': "That user does not exist in the project, add them to the project first"}
+        return make_response(response), 400
 
-#     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
-#         response = {'message': "That user does not exist in the project, add them to the project first"}
-#         return make_response(response), 400
+    count = len(list(filter(lambda collaborator: collaborator.role == UserRole.COLLABORATOR, collaborators)))
+    if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
+        response = {'message': "There are already two contributors within this project, and you cannot add more"}
+        return make_response(response), 400
 
-#     count = project_user_col.count_documents({'isContributor': True})
-
-#     if 'isContributor' in permissions and permissions['isContributor'] and count >= 2:
-#         response = {'message': "There are already two contributors within this project, and you cannot add more"}
-#         return make_response(response), 400
-#     # if user is going to not be a contributor, remove that the labels assigned by that contributor
-#     elif not permissions['isContributor']:
-#         remove_all_labels_of_user(email, project_name)
-
-#     project_user_col.update_one({'email': email}, {'$set': permissions})
-#     return "", 204
+    # if user is going to not be a contributor, remove that the labels assigned by that contributor
+    # assuming user can only change permission from viewer to admin or collaborator, and cannot change back to viewer again 
+    user_role = UserRole.OWNER if permissions['isAdmin'] else UserRole.COLLABORATOR
+    change_collaborator_permission(project_id, email, user_role)
+    return "", 204
 
 
 # @user_api.route("/projects/<project_name>/users/delete", methods=["Put"])

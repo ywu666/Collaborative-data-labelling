@@ -57,6 +57,13 @@ def add_collaborator_to_project(project_id, db_collaborator):
     db_collaborator.save()
 
 
+def change_collaborator_permission(project_id, email, permission):
+    project = Project.objects(id=project_id).get()
+    collaborator = list(filter(lambda collaborator: collaborator.user.email == email, project.collaborators))[0]
+    collaborator.role = permission
+    project.save()
+
+
 def get_all_projects_of_a_user(requestor_email):
     db_user = get_user_from_database_by_email(requestor_email)
     return db_user.projects

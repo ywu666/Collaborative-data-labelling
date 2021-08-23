@@ -202,29 +202,23 @@ async function setProjectUsers(project: string, user: string, firebase:any) {
  }
 
  async function setUserPermissions(project: string, user: string, isAdmin: boolean, isContributor: boolean, firebase:any) {
+    await handleAuthorization(firebase)
+    const token = localStorage.getItem('user-token');
+
     const requestOptions = {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json', 
+          "Authorization":"Bearer " + token
+        },
         body: JSON.stringify(
             {
                 "user": user,
                 "permissions": { "isAdmin": isAdmin, "isContributor": isContributor }
             })
     };
-
-    const token = localStorage.getItem('user-token');
-     if (firebase.auth.currentUser != null) {
-         firebase.auth.currentUser.getIdToken().then((idToken: string) => {
-             if (token !== idToken) {
-                 localStorage.setItem('user-token', idToken)
-             }
-         })
-     } else {
-         window.location.href = '/auth';
-     }
     
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/users/update?id_token=' 
-                    + localStorage.getItem('user-token'), requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + project + '/users/update', requestOptions)
         .then(handleResponse)
  }
 
