@@ -1,6 +1,7 @@
 from os import terminal_size
 from enums.user_role import UserRole
-from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project
+from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project, get_owner_of_the_project, get_project_by_id, \
+    add_collaborator_to_project
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
@@ -9,13 +10,6 @@ from database.user_dao import get_user_from_database_by_email, get_user_from_dat
     save_user_key, get_all_user_email_from_database, does_user_belong_to_a_project
 
 user_api = Blueprint('user_api', __name__)
-
-'''
-get information of a single user
-request format: /users?email=email
-FIXME email is also passed in as parameter, I don't quite understand why we allow users to get information of another user, maybe we need to change it. But requires 
-analysing of frontend first 
-'''
 
 
 @user_api.route("/users", methods=["GET"])
@@ -186,48 +180,43 @@ def store_user_key():
 
     return '', 204
 
-# @user_api.route("/projects/<project_name>/users/add", methods=["Post"])
-# # Adding a new user to a project
-# def add_user_to_project(project_name):
-#     # inputs: id_token of requestor, project name, email of user to be added to project
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+@user_api.route("/projects/<project_id>/users/add", methods=["Post"])
+@check_token
+# Adding a new user to a project
+def add_user_to_project(project_id):
+    # inputs: id_token of requestor, project name, email of user to be added to project
+  
+    if 'user' in request.json:
+        email = request.json['user']
+    else:
+        response = {'message': "Missing user"}
+        return make_response(response), 400
 
-#     if 'user' in request.json:
-#         email = request.json['user']
-#     else:
-#         response = {'message': "Missing user"}
-#         return make_response(response), 400
+    requestor_email = g.requestor_email
+    user_to_add_db = get_user_from_database_by_email(email)
 
-#     # check if the new user is already in the "users" collection in the "users" database
-#     user_to_add = get_col("users", "users").find_one({'email': email})
+    if user_to_add_db is None:
+        response = {'message': "User does not exist/does not have an account"}
+        return make_response(response), 400
 
-#     if user_to_add is None:
-#         response = {'message': "User does not exist/does not have an account"}
-#         return make_response(response), 400
+    # check if requestor is in the project
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        response = {'message': "Not authorised to perform this action"}
+        return make_response(response), 401
 
-#     project_user_col = get_col(project_name, "users")
-#     if project_user_col.find_one(
-#             {'email': requestor_email}) is None:  # if requestor is not in project, return unauthorised
-#         response = {'message': "Not authorised to perform this action"}
-#         return make_response(response), 401
+    # check if requestor is admin
+    if get_owner_of_the_project(get_project_by_id(project_id)).email != requestor_email:
+        response = {'message': "Forbidden to perform this action"}
+        return make_response(response), 403
 
-#     if not project_user_col.find_one({'email': requestor_email})[
-#         'isAdmin']:  # if the requestor is not an admin, return forbidden
-#         response = {'message': "Forbidden to perform this action"}
-#         return make_response(response), 403
-
-#     if project_user_col.find_one({'email': email}) is None:  # if cannot find an existing user for that email
-#         project_user_col.insert_one({'email': email, 'isAdmin': False, 'isContributor': False})
-#         add_project_to_user(email, project_name)
-#         return "", 204
-#     else:
-#         response = {'message': "That user is already in the provided project"}
-#         return make_response(response), 400
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    if len(list(filter(lambda collaborator: collaborator.user.email == email, collaborators))) == 0:
+        add_collaborator_to_project(project_id, user_to_add_db)
+        return "", 204
+    else:
+        response = {'message': "That user is already in the provided project"}
+        return make_response(response), 400
 
 
 # @user_api.route("/projects/<project_name>/users/update", methods=["Put"])

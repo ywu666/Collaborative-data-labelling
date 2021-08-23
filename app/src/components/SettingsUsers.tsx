@@ -64,6 +64,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
         setNewUser("")
       })
       .catch(e => {
+        // TODO: handle the situation when the collaborator does not have account
         setErrorMessage(e);
         setShowAlert(true);
       })
