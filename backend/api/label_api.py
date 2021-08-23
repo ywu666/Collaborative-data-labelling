@@ -32,11 +32,11 @@ def get_preset_labels(project_id):
 @check_token
 @label_api.route('/projects/<project_id>/labels/add', methods=['Post'])
 def add_preset_labels(project_id):
-    # requestor_email = g.requestor_email
+    requestor_email = g.requestor_email
     project = get_project_by_id(project_id)
-    print(project.labels)
     requestor = get_owner_of_the_project(project)
-    if requestor is None:
+
+    if requestor is None or requestor_email != requestor.email:
         return user_unauthorised_response()
 
     if 'label_name' in request.json:
@@ -63,6 +63,7 @@ def add_preset_labels(project_id):
 @label_api.route('/projects/<project_id>/labels/<label_id>/update', methods=['Put'])
 @check_token
 def update_preset_labels(project_id, label_id):
+    requestor_email = g.reqe
     project = get_project_by_id(project_id)
     requestor = get_owner_of_the_project(project)
 
