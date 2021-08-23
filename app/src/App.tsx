@@ -1,5 +1,5 @@
 import ProjectPage from './pages/ProjectPage';
-import SettingsPage from './pages/SettingsPage';
+import ProjectSettings from './components/Project/ProjectSettings';
 import MainPage from './pages/MainPage';
 import DocumentPage from './pages/DocumentPage';
 import React from 'react';
@@ -69,8 +69,7 @@ const App: React.FC<AppProps> = (props: AppProps) => {
              * idea brought up by Chuyang
              *
              * <Redirect from="/" to="/page/Inbox" exact />**/}
-            <Route path="/project/:project/settings" component={()=><SettingsPage firebase={firebase} />} exact />
-            <Route path="/project/:project/document/:document_id" component={()=><DocumentPage firebase={firebase} />} exact />
+            <Route path="/project/:id/document/:document_id" component={()=><DocumentPage firebase={firebase} />} exact />
           </IonRouterOutlet>
       </IonReactRouter>
         }

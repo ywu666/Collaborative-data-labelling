@@ -9,7 +9,9 @@ import {
   IonLabel,
   IonInput,
   IonModal,
-  IonCheckbox, IonTitle, IonText, IonContent,
+  IonCheckbox,
+  IonTitle,
+  IonText,
 } from '@ionic/react';
 import { add, addOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';

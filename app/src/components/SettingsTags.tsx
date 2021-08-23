@@ -4,11 +4,20 @@ import {
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { labelServices } from '../services/LabelServices';
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper } from '@material-ui/core';
+import {
+  TableBody,
+  TableCell,
+  TableHead,
+  Table,
+  TableFooter,
+  TableRow,
+  TablePagination,
+  TableContainer,
+  Paper } from '@material-ui/core';
 import './SettingsTags.css';
 
 interface ContainerProps {
-  project: string;
+  projectId: string;
   firebase:any
 }
 
@@ -20,9 +29,11 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
   const [tagID, setTagID] = useState(0);
 
   const {
-    project,
+    projectId,
     firebase
   } = props;
+
+  console.log('Setting users projectId: ', projectId)
 
   const initialTags = [
     { _id: 0, name: '' }
@@ -31,15 +42,24 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
   const [tags, setTags] = useState(initialTags);
   useEffect(() => {
     try {
-      labelServices.getLabels(project, firebase)
+      labelServices.getLabels(projectId, firebase)
       .then(data => {
-        setTags(data)
+        let result = [];
+        for(let x=0;x<data.length;x++) {
+          const label = {
+            '_id': x,
+            'name':data[x]
+          }
+          result.push(label)
+        }
+        console.log(result)
+        setTags(result)
       })
     } catch (e) {}
   }, [])
 
   function addTag(tag: string) {
-    labelServices.setLabels(project, tag, firebase);
+    labelServices.setLabels(projectId, tag, firebase);
     setTags(tags => [...tags, { _id: 0, name: tag }])
   }
 
@@ -48,8 +68,8 @@ const SettingsTags: React.FC<ContainerProps> = (props: ContainerProps) => {
     if(tag != undefined){
         tag.name = label_name;
     }
-
-    labelServices.updateLabel(project, tagID, label_name, firebase);
+    console.log('tag id:', tagID)
+    labelServices.updateLabel(projectId, tagID, label_name, firebase);
   }
 
   function updateButtonClick(_id: number){

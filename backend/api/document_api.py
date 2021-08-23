@@ -7,7 +7,9 @@ from database.project_dao import get_document_of_a_project, count_number_of_unla
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
 import re
+
 document_api = Blueprint('document_api', __name__)
+
 
 @document_api.route('/projects/<project_id>/documents', methods=['Get'])
 @check_token
@@ -18,7 +20,7 @@ def get_document_ids(project_id):
     except (ValueError, TypeError):
         response = {'message': "page and page_size must be integers"}
         return make_response(response), 400
-    
+
     requestor_email = g.requestor_email
     userId = get_user_from_database_by_email(requestor_email).id
 
@@ -58,10 +60,9 @@ def get_document(project_id, document_index):
     # check the user is one of the collaborators
     if not does_user_belong_to_a_project(requestor_email, project_id):
         return user_unauthorised_response()
-    
+
     data = get_single_document_of_a_project(project_id, document_index)
     labelByUser = next((labelResult for labelResult in data.labels if labelResult.user.id == userId), None)
-
 
     doc = {
         'display_id': data.display_id,
@@ -119,7 +120,6 @@ def get_number_of_unlabelled_docs_for_contributors(project_id):
 
     output_dict = {'contributors': output}
     return output_dict, 200
-
 
 # @document_api.route('/projects/<project_name>/documents', methods=['Post'])
 # # Creating a new document!
