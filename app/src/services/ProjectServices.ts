@@ -118,7 +118,7 @@ function exportCsv(projectName: string) {
     })
     .catch(console.error);
 }
-async function getProjectUsers(project: string, firebase: any) {
+async function getProjectUsers(project: string, firebase: any, page: number, page_size: number) {
   await handleAuthorization(firebase)
   const token =  localStorage.getItem('user-token')
   const requestOptions = {
@@ -133,7 +133,7 @@ async function getProjectUsers(project: string, firebase: any) {
   };
 
   return fetch(process.env.REACT_APP_API_URL +
-    '/projects/' + project + '/users&page=0&page_size=20',
+    '/projects/' + project + '/users?page=' + page + '&page_size=' + page_size,
     requestOptions)
     .then(handleResponse)
     .then(data => {

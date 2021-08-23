@@ -100,12 +100,17 @@ def get_user_infos_for_project(project_id):
     for collaborator in collaborators:
         user = collaborator.user
         dict = {
-            '_id': str(user.id),
+            'id': str(user.id),
             'email': user.email,
-            'role': collaborator.role.name
+            'isAdmin': True if collaborator.role == UserRole.OWNER else False,
+            'isContributor': True if collaborator.role == UserRole.COLLABORATOR else False
         }
         users.append(dict)
-    return jsonify(users), 200
+
+    result = {
+        'users': users
+    }
+    return jsonify(result), 200
 
 
 # @user_api.route("/user", methods=["Get"])

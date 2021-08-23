@@ -43,7 +43,7 @@ def get_all_users_associated_with_a_project(project_id):
 
 
 def get_users_associated_with_a_project(project_id, page, page_limite):
-    collaborators = Project.objects(id=project_id).fields(slice__collaborators=[page * page_limite, page_limite]).get()
+    collaborators = Project.objects(id=project_id).fields(slice__collaborators=[page * page_limite, page_limite]).get().collaborators
     return collaborators
 
 

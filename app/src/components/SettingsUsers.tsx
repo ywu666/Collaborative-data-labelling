@@ -32,6 +32,11 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [newUser, setNewUser] = useState<string>();
 
+  const [page, setPage] = React.useState(0);
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage);
+  };
+  
     var canEdit = true; // can the current user edit permissions?
 
     const initialUsers = [
@@ -41,23 +46,11 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     const [users, setUsers] = useState(initialUsers);
     useEffect(() => {
       try {
-        projectServices.getProjectUsers(project, firebase)
+        projectServices.getProjectUsers(project, firebase, page, 5)
         .then(data => {
           setUsers(data)
         })
     } catch (e) {
-    }
-  }, [])
-
-    const [allUsers, setAllUsers] = useState(initialUsers);
-    useEffect(() => {
-      try {
-        userService.getAllUsersInDatabase() //change when creating tables of user
-        .then(data => {
-            setAllUsers(data)
-        })
-    } catch (e) {
-
     }
   }, [])
 
@@ -78,11 +71,6 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     } catch (e) {
     }
   }
-
-  const [page, setPage] = React.useState(0);
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage);
-  };
 
   return (
     <TableContainer component={Paper}>
