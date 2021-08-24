@@ -43,8 +43,25 @@ def get_all_users_associated_with_a_project(project_id):
 
 
 def get_users_associated_with_a_project(project_id, page, page_limite):
-    collaborators = Project.objects(id=project_id).fields(slice__collaborators=[page * page_limite, page_limite]).get()
+    collaborators = Project.objects(id=project_id).fields(slice__collaborators=[page * page_limite, page_limite]).get().collaborators
     return collaborators
+
+
+def add_collaborator_to_project(project_id, db_collaborator):
+    project = Project.objects(id=project_id).get()
+    collaborator = Collaborator(user=db_collaborator, role=UserRole.READER)
+    project.collaborators.append(collaborator)
+    project.save()
+
+    db_collaborator.projects.append(project)
+    db_collaborator.save()
+
+
+def change_collaborator_permission(project_id, email, permission):
+    project = Project.objects(id=project_id).get()
+    collaborator = list(filter(lambda collaborator: collaborator.user.email == email, project.collaborators))[0]
+    collaborator.role = permission
+    project.save()
 
 
 def get_all_projects_of_a_user(requestor_email):
@@ -131,14 +148,12 @@ def count_number_of_unlabelled_docs(project_id, requestor_email):
     db_data = Project.objects(id=project_id).only('data__labels').get().data
     count = 0
     for data in db_data:
-        print("check data")
         labelled = False
 
         # check if this user labelled this data 
         label_results = data.labels
         for label_result in label_results:
             if label_result.user.email == requestor_email:
-                print("labelled")
                 labelled = True
                 break
 

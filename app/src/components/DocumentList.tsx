@@ -87,7 +87,6 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	useEffect(() => {
 		documentServices.getNumberOfUnlabelledDocs(projectId, firebase)
 		.then(data => {
-			console.log(data)
 		  setContributor(data)
 		})
 	}, [])
@@ -173,7 +172,7 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 						<InputLabel htmlFor="age-native-helper">Label</InputLabel>
 						{isNullOrUndefined(email)
 							? <div />
-							: currentUser.isAdmin
+							: currentUser.isContributor || currentUser.isAdmin
 								? <Select
 									native
 									value={user_label}

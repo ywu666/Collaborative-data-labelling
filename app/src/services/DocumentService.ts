@@ -177,7 +177,7 @@ async function postNewComment(project_name: string, document_id: string, email:a
     })
 }
 
-function getNumberOfUnlabelledDocs(projectId:any, firebase: any) {
+async function getNumberOfUnlabelledDocs(projectId:any, firebase: any) {
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token');
 

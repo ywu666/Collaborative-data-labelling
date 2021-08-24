@@ -40,7 +40,6 @@ def does_user_belong_to_a_project(email, project_id):
         return False
     return True
 
-
 def get_user_public_key(requestor_email):
     db_user = get_user_from_database_by_email(requestor_email)
     return db_user.key.public_key

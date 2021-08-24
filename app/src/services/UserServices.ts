@@ -125,7 +125,7 @@ function getAllUsers(page_num: any, page_size: any) {
    };
     
     return fetch(process.env.REACT_APP_API_URL + '/users'
-        + '&email=' + email, requestOptions)
+        + '?email=' + email, requestOptions)
         .then(handleResponse)
         .then(data => {
             return data.user

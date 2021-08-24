@@ -1,8 +1,9 @@
-import { IonTabBar, IonTabButton, IonIcon, IonLabel, IonText } from '@ionic/react';
+import { IonTabBar, IonTabButton, IonIcon, IonLabel, IonText, useIonViewWillEnter } from '@ionic/react';
 import { analytics, folderOpen, pricetags, settings } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { projectServices } from '../../services/ProjectServices';
+import { userService } from '../../services/UserServices';
 import styles from './ProjectHeader.module.css';
 
 interface ProjectHeaderProps {
@@ -20,6 +21,12 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
         'state': '',
         'encryption_state': ''
     });
+    
+    const [currentUser, setCurrentUser] = useState<any>({
+        '_id': '',
+        'isAdmin': false,
+        'isContributor': false
+    });
 
     useEffect(() => {
         try {
@@ -31,6 +38,13 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
             console.log(e);
         }
     }, [])
+
+    useIonViewWillEnter(() => {
+        userService.getCurrentProjectUser(id)
+            .then(data => {
+                setCurrentUser(data)
+            })
+    }, []);
     
     return (
         <div className={styles.projectDiv}>
@@ -50,7 +64,11 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
                     <IonIcon icon={analytics} className={styles.tabIcon}/>
                     <IonLabel className={styles.tabLabel}>Insight</IonLabel>
                 </IonTabButton>
-                <IonTabButton tab="tab3" href={`/project/${id}/setting`} className={styles.tabButton}>
+                <IonTabButton 
+                    tab="tab3" href={`/project/${id}/setting`} 
+                    className={styles.tabButton}
+                    disabled={!currentUser.isAdmin}
+                >
                     <IonIcon icon={settings} className={styles.tabIcon}/>
                     <IonLabel className={styles.tabLabel}>Settings</IonLabel>
                 </IonTabButton>
