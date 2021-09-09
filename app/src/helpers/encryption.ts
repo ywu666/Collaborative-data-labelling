@@ -225,12 +225,11 @@ async function getDocument(file:File) {
   const firstLine = 'ID,DOCUMENT'
   const dataArray = []
   // remove the first element
-  //remove the last element
-  lines.pop()
+  lines.shift();
+  // remove the last element 
+  lines.pop();
   for (let x in lines) {
-    const value = lines[x].split(',')[1]
-    dataArray.push(value)
-
+    dataArray.push(lines[x]);
   }
   return dataArray
 }
