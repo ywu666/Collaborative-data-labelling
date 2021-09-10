@@ -10,8 +10,10 @@ const forge = require('node-forge')
 export const EncryptedHelpers = {
   generateKeys,
   generateEncryptedEntryKey,
+  encryptEntryKey,
   encryptData,
   decryptData,
+  getEntryKey
 }
 
 async function generateKeys(phrase: string) {
@@ -76,6 +78,21 @@ async function generateEncryptedEntryKey(publicKey_pkcs:any) {
 function decryptEncryptedPrivateKey(en_private_key:any, hashPhrase:any) {
   // decrypt the private key in the pem format
   return pki.privateKeyToPem(pki.decryptRsaPrivateKey(en_private_key, hashPhrase))
+}
+
+async function encryptEntryKey(publicKey_pkcs:string, entry_key:any) {
+  // convert
+  const publicKey = await importPublicKey(publicKey_pkcs)
+  const derData = window.atob(entry_key)
+  const arrayBuffer = await window.crypto.subtle.encrypt(
+    {
+      name: "RSA-OAEP"
+    },
+    publicKey,
+    str2ab(derData)
+  );
+  // const entry_key_x = await decryptEncryptedEntryKey('', ab2Str(arrayBuffer))
+  return ab2Str(arrayBuffer)
 }
 
 async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:any) {

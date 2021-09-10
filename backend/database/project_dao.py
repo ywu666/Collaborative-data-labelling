@@ -47,6 +47,17 @@ def get_users_associated_with_a_project(project_id, page, page_limite):
     return collaborators
 
 
+def add_collaborator_to_encrypt_project(project_id, db_collaborator, en_entry_key):
+    project = Project.objects(id=project_id).get()
+    collaborator = Collaborator(
+        user=db_collaborator, role=UserRole.READER, entry_key=en_entry_key)
+    project.collaborators.append(collaborator)
+    project.save()
+
+    db_collaborator.projects.append(project)
+    db_collaborator.save()
+
+
 def add_collaborator_to_project(project_id, db_collaborator):
     project = Project.objects(id=project_id).get()
     collaborator = Collaborator(user=db_collaborator, role=UserRole.READER)

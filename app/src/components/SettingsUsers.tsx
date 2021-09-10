@@ -21,6 +21,7 @@ import {
   from '@material-ui/core';
 
 import './Project/ProjectSettings.css';
+import { EncryptionServices } from '../services/EncryptionService';
 
 interface ContainerProps {
   project: string;
@@ -58,13 +59,23 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     try {
       // check if user exists
       userService.getUser(user)
-      .then(() => {
-        projectServices.setProjectUsers(project, user, firebase);
+      .then(async () => {
+        const isEncrypted = await projectServices.isProjectEncrypted(project, firebase);
+        if (isEncrypted) {
+          // get public key for the collaborator, this will throw exception if collaborator does 
+          // not have a key 
+          const collaboratorKey = await EncryptionServices.getUserKeys(firebase, user)
+          projectServices.setProjectUsers(project, user, firebase, collaboratorKey.public_key);
+        }
+        else {
+          projectServices.setProjectUsers(project, user, firebase);
+        }
         setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
         setNewUser("")
       })
       .catch(e => {
         // TODO: handle the situation when the collaborator does not have account
+        // TODO: handle the situation when collaborator does not have key 
         setErrorMessage(e);
         setShowAlert(true);
       })

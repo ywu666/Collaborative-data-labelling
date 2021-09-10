@@ -1,7 +1,7 @@
 from os import terminal_size
 from enums.user_role import UserRole
 from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project, get_owner_of_the_project, get_project_by_id, \
-    add_collaborator_to_project, change_collaborator_permission
+    add_collaborator_to_project, change_collaborator_permission, add_collaborator_to_encrypt_project
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
@@ -31,9 +31,13 @@ def get_user_info_from_email():
 @user_api.route("/user/user_key", methods=['GET'])
 @check_token
 def get_current_user_key():
-    requestor_email = g.requestor_email
-    print(requestor_email)
-    user = get_user_from_database_by_email(requestor_email)
+    email = request.args.get('email')
+    user_email = g.requestor_email
+
+    if email is not None:
+        user_email = email
+
+    user = get_user_from_database_by_email(user_email)
     if user.key:
         print(user.key)
         return jsonify(user.key), 200
@@ -89,7 +93,8 @@ def get_user_infos_for_project(project_id):
         response = make_response(response)
         return response, 403
 
-    collaborators = get_users_associated_with_a_project(project_id, page, page_size)
+    collaborators = get_users_associated_with_a_project(
+        project_id, page, page_size)
     users = []
     for collaborator in collaborators:
         user = collaborator.user
@@ -212,7 +217,15 @@ def add_user_to_project(project_id):
 
     collaborators = get_all_users_associated_with_a_project(project_id)
     if len(list(filter(lambda collaborator: collaborator.user.email == email, collaborators))) == 0:
-        add_collaborator_to_project(project_id, user_to_add_db)
+        if 'en_entry_key' in request.json:
+            en_entry_key = request.json['en_entry_key']
+            print("about to add user to encrypted project")
+            print(en_entry_key)
+            add_collaborator_to_encrypt_project(
+                project_id, user_to_add_db, en_entry_key)
+        else:
+            add_collaborator_to_project(project_id, user_to_add_db)
+
         return "", 204
     else:
         response = {'message': "That user is already in the provided project"}
