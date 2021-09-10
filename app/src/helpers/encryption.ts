@@ -102,7 +102,8 @@ async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:any)
   const entry_key = await window.crypto.subtle.decrypt(
       { name: 'RSA-OAEP' },
       privateKey,
-      str2ab(derData));
+      str2ab(derData)
+  );
 
   return ab2Str(entry_key)
 }

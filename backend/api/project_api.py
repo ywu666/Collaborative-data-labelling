@@ -1,7 +1,7 @@
 from api.validation_methods import user_unauthorised_response
 from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
 from database.project_dao import create_new_project, get_all_projects_of_a_user, get_owner_of_the_project, \
-    get_project_by_id
+    get_project_by_id, get_all_users_associated_with_a_project
 from middleware.auth import check_token
 from database.model import Project
 from flask import Blueprint, request, make_response, g, jsonify
@@ -146,14 +146,17 @@ def create_project():
 @project_api.route("/projects/<project_id>/en_entry_key", methods=['GET'])
 @check_token
 def get_en_entry_key(project_id):
-    project = Project.objects(id=project_id).get_or_404()
-    owner = list(filter(lambda collaborator: collaborator.role.value == 'owner', project.collaborators))[0]
-    print(owner.entry_key)
-    if owner.entry_key:
-        en_entry_key = {'en_entry_key': owner.entry_key}
+    requestor_email = g.requestor_email
+
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    collaborator = list(filter(lambda collaborator: collaborator.user.email ==
+                               requestor_email, collaborators))[0]
+    if collaborator.entry_key:
+        en_entry_key = {'en_entry_key': collaborator.entry_key}
         return en_entry_key, 200
     else:
-        response = {'message': "The owner of the project did not have entry_key"}
+        response = {
+            'message': "The current user does not have a entry key for this project"}
         return make_response(response), 400
 
 # @project_api.route("/projects/<project_name>/delete", methods=['DELETE'])
