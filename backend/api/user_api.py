@@ -93,6 +93,8 @@ def get_user_infos_for_project(project_id):
         response = make_response(response)
         return response, 403
 
+    encryption_state = get_project_by_id(project_id).encryption_state
+
     collaborators = get_users_associated_with_a_project(
         project_id, page, page_size)
     users = []
@@ -102,7 +104,9 @@ def get_user_infos_for_project(project_id):
             'id': str(user.id),
             'email': user.email,
             'isAdmin': True if collaborator.role == UserRole.OWNER else False,
-            'isContributor': True if collaborator.role == UserRole.COLLABORATOR else False
+            'isContributor': True if collaborator.role == UserRole.COLLABORATOR else False,
+            'needPublicKey': True if encryption_state and user.key == None else False,
+            'needEntryKey': True if encryption_state and user.key != None and collaborator.entry_key == None else False
         }
         users.append(dict)
 
@@ -217,10 +221,8 @@ def add_user_to_project(project_id):
 
     collaborators = get_all_users_associated_with_a_project(project_id)
     if len(list(filter(lambda collaborator: collaborator.user.email == email, collaborators))) == 0:
-        if 'en_entry_key' in request.json:
+        if 'en_entry_key' in request.json and request.json['en_entry_key'] != "":
             en_entry_key = request.json['en_entry_key']
-            print("about to add user to encrypted project")
-            print(en_entry_key)
             add_collaborator_to_encrypt_project(
                 project_id, user_to_add_db, en_entry_key)
         else:

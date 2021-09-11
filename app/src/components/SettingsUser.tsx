@@ -16,11 +16,13 @@ interface ContainerProps {
   isContributor: boolean;
   isAdmin: boolean;
   canEdit: boolean;
-  firebase:any
+  firebase:any;
+  needPublicKey: boolean;
+  needEntryKey: boolean;
 }
 
 
-const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase }) => {
+const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase, needPublicKey, needEntryKey }) => {
 
   const [showPermissions, setShowPermissions] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -133,10 +135,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
             <IonIcon title="" icon={eyeOutline} hidden={localIsAdmin || localIsContributor}></IonIcon>
           </Tooltip>
       </TableCell>
-      <TableCell align="right" style={ {width: '60px'} }>
-        <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
-          Edit
-        </IonButton>
+      <TableCell align="right" style={{ width: '60px' }}>
+        {
+          needPublicKey ? <div style={{ color: 'red' }}>Waiting for collaborator to provide key phrase to decrypt the project</div> :
+            <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
+              Edit
+            </IonButton>
+        }
       </TableCell>
       {alert}
       {errorAlert}
