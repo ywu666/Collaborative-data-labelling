@@ -40,6 +40,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   const [phrase, setPhrase] = useState<any>("");
   const [userKey, setUerKey] = useState<any>("");
   const [selectedId, setSelectedId] = useState<any>("");
+  const [errorMsg, setErrorMsg] = useState<String>("");
 
   let history = useHistory();
 
@@ -151,6 +152,21 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
 
     if (userKey) {
       // user has the key, check if the given phrase is the same as the previous one 
+      const hashPhrase = EncryptedHelpers.generateHashPhrase(phrase, userKey.salt);
+
+      try {
+        EncryptedHelpers.decryptEncryptedPrivateKey(userKey.en_private_key, hashPhrase);
+
+        // correct hash phrase provided 
+        localStorage.setItem('public_key', userKey.public_key);
+        localStorage.setItem('en_private_key', userKey.en_private_key);
+        localStorage.setItem('hashPhrase', hashPhrase);
+        setShowKeyPhrasePopup(false);
+        history.push('/project/' + selectedId + '/labelling');
+
+      } catch {
+        setErrorMsg("Incorrect key phrase");
+      }
     }
     else {
       // generate all the required keys for the user using the new phrase 
@@ -158,6 +174,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
         EncryptionServices.storeCurrentUserkey(userKey, firebase).then(r => {
           localStorage.setItem('public_key', userKey.public_key);
           localStorage.setItem('en_private_key', userKey.en_private_key);
+          setShowKeyPhrasePopup(false);
           history.push('/project/' + selectedId + '/labelling');
         })
       })
@@ -214,7 +231,9 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
         isOpen={showKeyPhrasePopup}
         cssClass='createProject'
         onDidDismiss={() => {
-          setShowKeyPhrasePopup(false)
+          setShowKeyPhrasePopup(false);
+          setErrorMsg("");
+          setPhrase("");
         }}
         backdropDismiss
       >
@@ -254,8 +273,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
             type="submit"
             expand="block"
           >CREATE</IonButton>
-          {/* shows error messages when the key phrase is incorrect */}
-          {/* {error && <p style={{ color: 'red' }}>{errorMessage}</p>} */}
+          {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
         </form>
       </IonModal>
 
