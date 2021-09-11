@@ -6,6 +6,13 @@ import {
   useIonViewWillEnter,
   IonTitle,
   IonCardContent,
+  IonModal,
+  IonButton,
+  IonCheckbox,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonText,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import Masonry from 'react-masonry-component';
@@ -15,6 +22,10 @@ import 'firebase/auth';
 import { projectServices } from '../services/ProjectServices';
 import Header from '../components/Header';
 import { userService } from '../services/UserServices';
+import { useHistory } from "react-router-dom";
+import { error } from 'console';
+import { EncryptionServices } from '../services/EncryptionService';
+import { EncryptedHelpers } from '../helpers/encryption';
 
 interface MainPageProps {
   firebase: any;
@@ -25,6 +36,12 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
   const [loading, setLoading] = useState(true);
   const [currentDisplayName, setCurrentDisplayName] = useState('');
   const [newProjectName, setNewProjectName] = useState('');
+  const [showKeyPhrasePopup, setShowKeyPhrasePopup] = useState<boolean>(false);
+  const [phrase, setPhrase] = useState<any>("");
+  const [userKey, setUerKey] = useState<any>("");
+  const [selectedId, setSelectedId] = useState<any>("");
+
+  let history = useHistory();
 
   const {
     firebase
@@ -104,6 +121,49 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     setLoading(load)
   }
 
+  async function handleProjectClick(data: any) {
+    // check if public key exists 
+    if ((localStorage.getItem('public_key') && localStorage.getItem('en_private_key') &&
+         localStorage.getItem('hashPhrase') && data.encryption_state) || (!data.encryption_state)) {
+      // change page 
+      history.push('/project/' + data._id + '/labelling')
+    }
+    else {
+      // key phrase not exists in local storage
+      try {
+        const userKey = await EncryptionServices.getUserKeys(firebase)
+        if (userKey) {
+          // ask for the same key phrase 
+          setUerKey(userKey);
+        }
+        setSelectedId(data._id);
+        setShowKeyPhrasePopup(true);
+      }
+      catch {
+        setSelectedId(data._id);
+        setShowKeyPhrasePopup(true);
+      }
+    }
+  }
+
+  function handleProvideKeyPhrase(e: any) {
+    e.preventDefault();
+
+    if (userKey) {
+      // user has the key, check if the given phrase is the same as the previous one 
+    }
+    else {
+      // generate all the required keys for the user using the new phrase 
+      EncryptedHelpers.generateKeys(phrase).then(userKey => {
+        EncryptionServices.storeCurrentUserkey(userKey, firebase).then(r => {
+          localStorage.setItem('public_key', userKey.public_key);
+          localStorage.setItem('en_private_key', userKey.en_private_key);
+          history.push('/project/' + selectedId + '/labelling');
+        })
+      })
+    }
+  }
+
   return (
     <IonPage>
       <Header
@@ -126,7 +186,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
                 <IonCard
                   key={index}
                   className="projectCard"
-                  routerLink={'/project/' + data._id + '/labelling'}
+                  onClick={() => handleProjectClick(data)}
                 >
                   <IonCardTitle>{data.owner + ' / ' + data.name}</IonCardTitle>
                   <IonCardContent>
@@ -148,6 +208,58 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
           )}
         </div>
       </IonContent>
+
+      {/*Create project window */}
+      <IonModal
+        isOpen={showKeyPhrasePopup}
+        cssClass='createProject'
+        onDidDismiss={() => {
+          setShowKeyPhrasePopup(false)
+        }}
+        backdropDismiss
+      >
+        <form
+          onSubmit={(e: React.FormEvent) => {
+            handleProvideKeyPhrase(e)
+          }}
+          style={{ 'margin': '50px', 'height': '100%' }}
+        >
+          <IonItem>
+            <p className='encryption' >Please provide the key phrase used to encrypt and decrypt the project.
+            </p>
+          </IonItem>
+          <IonItem>
+            {
+              userKey ? <p>Please enter the key phrase that you previously provided.</p> : 
+              <p>
+                Encryption is used to ensure the data is kept private from the tool maintainers.
+                <IonText color="danger"><a>You must remember the encryption phrase.</a></IonText>
+              </p>
+            }
+          </IonItem>
+          <IonItem>
+            <IonInput
+              placeholder="Enter the phrase to encrypt data"
+              value={phrase}
+              name="encryptPhrase"
+              id="encryptPhrase"
+              onIonChange={(e) =>
+                setPhrase(e.detail.value)
+              }
+              type="password"
+            />
+          </IonItem>
+          <IonButton
+            fill="outline"
+            type="submit"
+            expand="block"
+          >CREATE</IonButton>
+          {/* shows error messages when the key phrase is incorrect */}
+          {/* {error && <p style={{ color: 'red' }}>{errorMessage}</p>} */}
+        </form>
+      </IonModal>
+
+      
     </IonPage>
   );
 };

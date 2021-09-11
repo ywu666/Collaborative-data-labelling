@@ -7,6 +7,10 @@
     width:20%;
   }
 
+  .projectCard :hover {
+    cursor: pointer;
+  }
+
   .container {
     text-align: center;
     position: relative;
