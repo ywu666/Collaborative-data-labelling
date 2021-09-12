@@ -167,29 +167,29 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 					</IonLabel>
 					{!isNullOrUndefined(error) && <IonLabel color="danger" slot="end">{error.error}</IonLabel>}
 				</TableCell>
-				<TableCell colSpan={2}>
-					<FormControl>
-						<InputLabel htmlFor="age-native-helper">Label</InputLabel>
-						{isNullOrUndefined(email)
-							? <div />
-							: currentUser.isContributor || currentUser.isAdmin
-								? <Select
-									native
-									value={user_label}
-									onChange={(e) => changeTag(doc.display_id, e.target.value)}
-									inputProps={{ readOnly: user_label_confirmed }}
-								>
-									<option aria-label="None" value="" />
-									{labels.map((label, i) =>
-										<option key={i} value={label}>{label}</option>
-									)}
-								</Select>
-								: <div />
-						}
-					</FormControl>
-				</TableCell>
-			</TableRow>
-		)
+        {currentUser.isContributor || currentUser.isAdmin ?
+          <TableCell colSpan={2}>
+            <FormControl>
+              <InputLabel htmlFor="age-native-helper">Label</InputLabel>
+              <Select
+                native
+                value={user_label}
+                onChange={(e) => changeTag(doc.display_id, e.target.value)}
+                inputProps={{ readOnly: user_label_confirmed }}
+              >
+                <option aria-label="None" value="" />
+                {labels.map((label, i) => (
+                  <option key={i} value={label}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+          </TableCell>
+          : <div />
+        }
+      </TableRow>
+    )
 	}
 
 	const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {

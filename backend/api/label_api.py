@@ -29,8 +29,8 @@ def get_preset_labels(project_id):
     return jsonify(labels_dict), 200
 
 
-@check_token
 @label_api.route('/projects/<project_id>/labels/add', methods=['Post'])
+@check_token
 def add_preset_labels(project_id):
     requestor_email = g.requestor_email
     project = get_project_by_id(project_id)

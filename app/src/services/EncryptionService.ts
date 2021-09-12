@@ -6,7 +6,7 @@ export const EncryptionServices = {
   storeCurrentUserkey,
 }
 
-async function getUserKeys(firebase: any) {
+async function getUserKeys(firebase: any, email?: string) {
   await handleAuthorization(firebase)
   const token = localStorage.getItem('user-token')
   const requestOptions = {
@@ -19,7 +19,10 @@ async function getUserKeys(firebase: any) {
       "Authorization":"Bearer " + token
     }};
 
-  return fetch(process.env.REACT_APP_API_URL + '/user/user_key', requestOptions) // TODO:config.apiUrl
+  let url = process.env.REACT_APP_API_URL + '/user/user_key';
+  url = email ? url + '?email=' + email : url;
+
+  return fetch(url, requestOptions) // TODO:config.apiUrl
     .then(handleResponse)
     .then(data => {
       return data

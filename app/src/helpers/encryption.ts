@@ -10,8 +10,10 @@ const forge = require('node-forge')
 export const EncryptedHelpers = {
   generateKeys,
   generateEncryptedEntryKey,
+  encryptEntryKey,
   encryptData,
   decryptData,
+  getEntryKey
 }
 
 async function generateKeys(phrase: string) {
@@ -78,6 +80,21 @@ function decryptEncryptedPrivateKey(en_private_key:any, hashPhrase:any) {
   return pki.privateKeyToPem(pki.decryptRsaPrivateKey(en_private_key, hashPhrase))
 }
 
+async function encryptEntryKey(publicKey_pkcs:string, entry_key:any) {
+  // convert
+  const publicKey = await importPublicKey(publicKey_pkcs)
+  const derData = window.atob(entry_key)
+  const arrayBuffer = await window.crypto.subtle.encrypt(
+    {
+      name: "RSA-OAEP"
+    },
+    publicKey,
+    str2ab(derData)
+  );
+  // const entry_key_x = await decryptEncryptedEntryKey('', ab2Str(arrayBuffer))
+  return ab2Str(arrayBuffer)
+}
+
 async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:any) {
   const derData = window.atob(en_entry_key)
   const privateKey = await importPrivateKey(privateKey_pem);
@@ -85,7 +102,8 @@ async function decryptEncryptedEntryKey(privateKey_pem:string, en_entry_key:any)
   const entry_key = await window.crypto.subtle.decrypt(
       { name: 'RSA-OAEP' },
       privateKey,
-      str2ab(derData));
+      str2ab(derData)
+  );
 
   return ab2Str(entry_key)
 }
@@ -225,12 +243,11 @@ async function getDocument(file:File) {
   const firstLine = 'ID,DOCUMENT'
   const dataArray = []
   // remove the first element
-  //remove the last element
-  lines.pop()
+  lines.shift();
+  // remove the last element 
+  lines.pop();
   for (let x in lines) {
-    const value = lines[x].split(',')[1]
-    dataArray.push(value)
-
+    dataArray.push(lines[x]);
   }
   return dataArray
 }

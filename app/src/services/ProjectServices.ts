@@ -9,6 +9,7 @@ export const projectServices = {
     exportCsv,
     getProjectUsers,
     getDescriptionOfAProject,
+    isProjectEncrypted,
     setProjectUsers,
     setProjectTags,
     setUserPermissions,
@@ -163,7 +164,21 @@ async function getDescriptionOfAProject(firebase: any, project_id: any) {
         })
 }
 
-async function setProjectUsers(project: string, user: string, firebase:any) {
+async function isProjectEncrypted(projectId: string, firebase: any) {
+  const projectInfo = await getDescriptionOfAProject(firebase, projectId);
+  const encryptStatus = projectInfo.encryption_state;
+  return encryptStatus;
+}
+
+async function setProjectUsers(project: string, user: string, firebase:any, public_key?: string) {
+  let en_entry_key = "";
+
+  if (public_key) {
+    // create a new encrypted project entry key for the collaborator 
+    const entry_key = await EncryptedHelpers.getEntryKey(project, firebase);
+    en_entry_key = await EncryptedHelpers.encryptEntryKey(public_key, entry_key);
+  }
+
   await handleAuthorization(firebase)
   const token =  localStorage.getItem('user-token');
   const requestOptions = {
@@ -172,9 +187,12 @@ async function setProjectUsers(project: string, user: string, firebase:any) {
       'Content-Type': 'application/json',
       "Authorization":"Bearer " + token
     },
-    body: JSON.stringify({ user })
+    body: JSON.stringify(
+      {
+          "user": user,
+          "en_entry_key": en_entry_key
+      })
   };
-
 
   return fetch(process.env.REACT_APP_API_URL +
         '/projects/' + project + '/users/add', requestOptions)
