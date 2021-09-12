@@ -58,6 +58,12 @@ def add_collaborator_to_encrypt_project(project_id, db_collaborator, en_entry_ke
     db_collaborator.save()
 
 
+def add_entry_key_for_collaborator_in_encrypt_project(project_id, db_collaborator, en_entry_key):
+    db_project = Project.objects(id=project_id).get()
+    db_project.collaborators[db_project.collaborators.index(db_collaborator)].entry_key = en_entry_key
+    db_project.save()
+
+
 def add_collaborator_to_project(project_id, db_collaborator):
     project = Project.objects(id=project_id).get()
     collaborator = Collaborator(user=db_collaborator, role=UserRole.READER)

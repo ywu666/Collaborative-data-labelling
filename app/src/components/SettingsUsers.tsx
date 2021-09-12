@@ -89,6 +89,14 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     }
   }
 
+  async function handleAssignDataToCollaborator(collaborator_email: string) {
+    await projectServices.addEntryKeyToCollaborator(project, collaborator_email, firebase);
+    projectServices.getProjectUsers(project, firebase, page, 5)
+      .then(data => {
+        setUsers(data)
+      })
+  }
+
   return (
     <TableContainer component={Paper}>
 
@@ -137,6 +145,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
                             firebase={firebase}
                             needPublicKey={user.needPublicKey}
                             needEntryKey={user.needEntryKey}
+                            handleAssignData={handleAssignDataToCollaborator}
               />
             );
           })}

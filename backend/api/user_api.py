@@ -1,7 +1,7 @@
 from os import terminal_size
 from enums.user_role import UserRole
 from database.project_dao import get_all_users_associated_with_a_project, get_users_associated_with_a_project, get_owner_of_the_project, get_project_by_id, \
-    add_collaborator_to_project, change_collaborator_permission, add_collaborator_to_encrypt_project
+    add_collaborator_to_project, change_collaborator_permission, add_collaborator_to_encrypt_project, add_entry_key_for_collaborator_in_encrypt_project
 from middleware.auth import check_token
 # from api.methods import JSONEncoder, add_project_to_user, remove_project_from_user, remove_all_labels_of_user
 from flask import Blueprint, request, make_response, jsonify, g
@@ -188,6 +188,51 @@ def store_user_key():
         return make_response(response), 400
 
     return '', 204
+
+
+@user_api.route("/projects/<project_id>/users/entry_key/add", methods=["Post"])
+@check_token
+def add_entry_key_to_user(project_id):
+    if 'collaborator' in request.json:
+        email = request.json['collaborator']
+    else:
+        response = {'message': "Missing collaborator"}
+        return make_response(response), 400
+
+    if 'en_entry_key' in request.json:
+        en_entry_key = request.json['en_entry_key']
+    else:
+        response = {'message': "Missing encrypted entry"}
+        return make_response(response), 400
+
+    requestor_email = g.requestor_email
+    collaborator = get_user_from_database_by_email(email)
+
+    if collaborator is None:
+        response = {'message': "User does not exist/does not have an account"}
+        return make_response(response), 400
+
+    # check if requestor is in the project
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        response = {'message': "Not authorised to perform this action"}
+        return make_response(response), 401
+
+    # check if requestor is admin
+    if get_owner_of_the_project(get_project_by_id(project_id)).email != requestor_email:
+        response = {'message': "Forbidden to perform this action"}
+        return make_response(response), 403
+
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    collaborator_db_array = list(filter(lambda collaborator: collaborator.user.email == email, collaborators))
+    if len(list(filter(lambda collaborator: collaborator.user.email == email, collaborators))) == 1:
+        # add entry key to the collaborator
+        print("about to add entry key for collaborator") 
+        add_entry_key_for_collaborator_in_encrypt_project(project_id, collaborator_db_array[0], en_entry_key)
+
+        return "", 204
+    else:
+        response = {'message': "That user is not in the provided project"}
+        return make_response(response), 400
 
 
 @user_api.route("/projects/<project_id>/users/add", methods=["Post"])

@@ -19,10 +19,11 @@ interface ContainerProps {
   firebase:any;
   needPublicKey: boolean;
   needEntryKey: boolean;
+  handleAssignData: any;
 }
 
 
-const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase, needPublicKey, needEntryKey }) => {
+const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, isAdmin, canEdit, firebase, needPublicKey, needEntryKey, handleAssignData }) => {
 
   const [showPermissions, setShowPermissions] = useState(false);
   const [showError, setShowError] = useState(false);
@@ -138,9 +139,13 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
       <TableCell align="right" style={{ width: '60px' }}>
         {
           needPublicKey ? <div style={{ color: 'red' }}>Waiting for collaborator to provide key phrase to decrypt the project</div> :
-            <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
-              Edit
-            </IonButton>
+            needEntryKey ?
+              <IonButton style={{ color: 'red' }} fill="clear" onClick={() => handleAssignData(user)}>
+                Assign data
+              </IonButton> :
+              <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
+                Edit
+              </IonButton>
         }
       </TableCell>
       {alert}
