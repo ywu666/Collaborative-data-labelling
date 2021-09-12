@@ -4,8 +4,9 @@ import {
     IonSpinner,
     useIonViewWillEnter
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../../pages/ProjectPage.css';
+import { EncryptionServices } from '../../services/EncryptionService';
 import { userService } from '../../services/UserServices';
 import DocumentList from '../DocumentList';
 import Download from '../Download';
@@ -26,6 +27,8 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
     const [uploading, setUploading] = useState(false)
     const [uploadError, setUploadError] = useState(false);
     const [uploadErrorMsg, setUploadErrorMsg] = useState("");
+    const [encryptErrorMsg, setEncryptErrorMsg] = useState("");
+
     const { firebase,
         projectId,
         encryptStatus
@@ -48,6 +51,18 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                 setCurrentUser(data)
             })
     }, []);
+
+    useEffect(() => {
+        if (encryptStatus) {
+            EncryptionServices.getEncryptedEntryKey(projectId, firebase)
+            .then(() => {
+                setEncryptErrorMsg("");
+            })
+            .catch(msg => {
+                setEncryptErrorMsg(msg);
+            })
+        }
+    }, [encryptStatus]);
 
     return (
         <div>
@@ -82,11 +97,20 @@ const ProjectLabelling: React.FC<ProjectLabellingProps> = (props: ProjectLabelli
                             <IonTitle>Uploading...</IonTitle>
                         </IonToolbar>
                         <br />
-                        <IonSpinner class="spinner" name="crescent" color="primary" /></div>
-                    : <DocumentList projectId={projectId}
-                                    firebase={firebase}
-                                    currentUser={currentUser}
-                                    encryptStatus={encryptStatus}/>}
+                        <IonSpinner class="spinner" name="crescent" color="primary" /></div> :
+                    encryptErrorMsg ?
+                        <div className="container">
+                            <IonToolbar>
+                                <IonTitle>Waiting for the owner to share project data...</IonTitle>
+                            </IonToolbar>
+                            <br />
+                            <IonSpinner class="spinner" name="crescent" color="primary" />
+                        </div> :
+                        <DocumentList projectId={projectId}
+                            firebase={firebase}
+                            currentUser={currentUser}
+                            encryptStatus={encryptStatus} />
+                }
             </div>
         </div>
     );
