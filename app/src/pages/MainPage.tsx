@@ -226,7 +226,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
         </div>
       </IonContent>
 
-      {/*Create project window */}
+      {/*Asking for key phrase window */}
       <IonModal
         isOpen={showKeyPhrasePopup}
         cssClass='createProject'
