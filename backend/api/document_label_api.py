@@ -28,7 +28,7 @@ def get_unlabelled_document_ids(project_id):
     docs = []
     # for each data, only look for label given by the current user
     for d in data:
-        labelByUser = next((item for item in d.labels if item.user.id == userId), None)
+        labelByUser = next((item for item in d.labels if ((item.user.id == userId) & (item.label != None))), None)
 
         # append result if the current user did not label it 
         if not labelByUser:
