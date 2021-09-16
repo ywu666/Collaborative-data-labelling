@@ -41,7 +41,7 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
     var canEdit = true; // can the current user edit permissions?
 
     const initialUsers = [
-        { id: 0, email: 'No users', isAdmin: false, isContributor: false }
+        { id: 0, email: 'No users', isAdmin: false, isContributor: false, needPublicKey: false, needEntryKey: false }
     ]
 
     const [users, setUsers] = useState(initialUsers);
@@ -60,17 +60,22 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
       // check if user exists
       userService.getUser(user)
       .then(async () => {
+        var needPublicKey = false;
         const isEncrypted = await projectServices.isProjectEncrypted(project, firebase);
         if (isEncrypted) {
-          // get public key for the collaborator, this will throw exception if collaborator does 
-          // not have a key 
-          const collaboratorKey = await EncryptionServices.getUserKeys(firebase, user)
-          projectServices.setProjectUsers(project, user, firebase, collaboratorKey.public_key);
+          try {
+            const collaboratorKey = await EncryptionServices.getUserKeys(firebase, user);                      
+            projectServices.setProjectUsers(project, user, firebase, collaboratorKey.public_key);
+          } catch {
+            // handle situation when collaborator does not have user key 
+            projectServices.setProjectUsers(project, user, firebase);
+            needPublicKey = true;
+          }
         }
         else {
           projectServices.setProjectUsers(project, user, firebase);
         }
-        setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false}])
+        setUsers([...users, {id: 0, email: user, isAdmin: false, isContributor: false, needPublicKey: needPublicKey, needEntryKey: false}])
         setNewUser("")
       })
       .catch(e => {
@@ -82,6 +87,14 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
 
     } catch (e) {
     }
+  }
+
+  async function handleAssignDataToCollaborator(collaborator_email: string) {
+    await projectServices.addEntryKeyToCollaborator(project, collaborator_email, firebase);
+    projectServices.getProjectUsers(project, firebase, page, 5)
+      .then(data => {
+        setUsers(data)
+      })
   }
 
   return (
@@ -129,7 +142,11 @@ const SettingsUsers: React.FC<ContainerProps> = ({ project, firebase }) => {
                             isAdmin={user.isAdmin}
                             isContributor={user.isContributor}
                             canEdit={canEdit}
-                            firebase={firebase}/>
+                            firebase={firebase}
+                            needPublicKey={user.needPublicKey}
+                            needEntryKey={user.needEntryKey}
+                            handleAssignData={handleAssignDataToCollaborator}
+              />
             );
           })}
         </TableBody>

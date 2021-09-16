@@ -16,6 +16,7 @@ export const projectServices = {
     uploadDocuments,
     createProject,
     getProjectAgreementScore,
+    addEntryKeyToCollaborator
 }
 
 async function createProject(project_name: any, firebase: any, encryption_state:boolean){
@@ -199,6 +200,35 @@ async function setProjectUsers(project: string, user: string, firebase:any, publ
         .then(handleResponse)
         .then(data => {
             return data.users
+        })
+ }
+
+async function addEntryKeyToCollaborator(project: string, collaboratorEmail: string, firebase:any) {
+  const userKey = await EncryptionServices.getUserKeys(firebase, collaboratorEmail);
+
+  const entryKey = await EncryptedHelpers.getEntryKey(project, firebase);
+  const enEntryKey = await EncryptedHelpers.encryptEntryKey(userKey.public_key, entryKey);
+
+  await handleAuthorization(firebase)
+  const token =  localStorage.getItem('user-token');
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Authorization":"Bearer " + token
+    },
+    body: JSON.stringify(
+      {
+          "collaborator": collaboratorEmail,
+          "en_entry_key": enEntryKey
+      })
+  };
+
+  return fetch(process.env.REACT_APP_API_URL +
+        '/projects/' + project + '/users/entry_key/add', requestOptions)
+        .then(handleResponse)
+        .then(data => {
+            return data
         })
  }
 

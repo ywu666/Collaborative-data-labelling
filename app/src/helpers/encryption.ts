@@ -8,12 +8,19 @@ const forge = require('node-forge')
   ,  pki = forge.pki;
 
 export const EncryptedHelpers = {
+  generateHashPhrase,
   generateKeys,
   generateEncryptedEntryKey,
   encryptEntryKey,
+  decryptEncryptedPrivateKey,
   encryptData,
   decryptData,
   getEntryKey
+}
+
+function generateHashPhrase(phrase: string, salt: string) {
+  const hashPhrase = crypto.createHmac("sha256", salt).update(phrase).digest("base64").toString();
+  return hashPhrase;
 }
 
 async function generateKeys(phrase: string) {
