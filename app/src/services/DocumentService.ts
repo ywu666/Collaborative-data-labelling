@@ -32,11 +32,9 @@ async function getDocument(projectId:any, documentIndex:any, firebase: any) {
       "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With" },
   };
 
-  return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents/' + documentIndex, requestOptions) // TODO:config.apiUrl
-    .then(handleResponse)
-    .then(data => {
-      return data
-    })
+  const response = await fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/documents/' + documentIndex, requestOptions) // TODO:config.apiUrl
+  const res= handleResponse(response);
+  return await EncryptedHelpers.decryptOneData(projectId, res.data,firebase);
 }
 
 async function getDocumentIds(projectId:any, page:number, page_size:number ,firebase: any) {
