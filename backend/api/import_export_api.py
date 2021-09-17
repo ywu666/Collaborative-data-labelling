@@ -1,6 +1,10 @@
+from json import JSONEncoder
+
+from database.user_dao import does_user_belong_to_a_project
 from middleware.auth import check_token
 from enums.user_role import UserRole
-from database.project_dao import get_project_by_id, add_documents_to_database, create_new_document
+from database.project_dao import get_project_by_id, add_documents_to_database, create_new_document, \
+    get_all_labels_of_a_project, get_all_users_associated_with_a_project, get_all_document_of_a_project
 import csv
 import os
 import json
@@ -19,8 +23,6 @@ import_export_api = Blueprint('import_export_api', __name__)
 @import_export_api.route('/projects/upload', methods=['POST'])
 @check_token
 def upload_file():
-    print("upload files endpoint called")
-
     if 'projectId' in request.form:
         project_id = str(request.form['projectId'])
     else:
@@ -42,7 +44,6 @@ def upload_file():
         return make_response(response), 400
 
     if 'inputFile' in request.files:
-        print('file')
         file = request.files['inputFile']
         # Check file name
         if file.filename == '':
@@ -76,12 +77,10 @@ def upload_file():
             docs = project.data
 
             # get all ids in the database - import is adding more data into the database
-            print("getting all current ids in the database")
             ids_in_db = []
             ids_incorrectly_formatted = []
             for doc in docs:
-                print("id currently in the database")
-                print(doc.display_id)
+
                 ids_in_db.append(doc.display_id)
 
             for row in csv_reader:
@@ -159,10 +158,7 @@ def upload_file():
 
     if 'encryptedData' in request.form:
         response = {'message': 'Documents imported successfully'}
-        print('encrypted data is called')
         encryptedData = json.loads(request.form['encryptedData'])
-        print(encryptedData)
-        print('len: ', len(docs))
 
         start_index = len(docs) - 1
 
@@ -170,12 +166,8 @@ def upload_file():
         documents_to_import = []
 
         for doc_value in encryptedData:
-            print(doc_value)
             id_counter = 1
             new_id = start_index + id_counter
-            print("generate new id for the new doc")
-            print(new_id)
-            print(ids_in_db)
             while new_id in ids_in_db:
                 new_id += 1
                 id_counter += 1
@@ -185,13 +177,11 @@ def upload_file():
             ids_in_db.append(new_id)
             id_counter += 1
 
-    print(response)
     if response == {'message': 'Incorrect filetype/format'}:
         return make_response(response), 400
     else:
         # Insert docs
         if len(documents_to_import) > 0:
-            print("about to insert data to the database")
             add_documents_to_database(project, documents_to_import)
             return make_response(response), 200
 
@@ -211,79 +201,58 @@ def upload_file():
             return make_response(response), 442
 
 
+# Endpoint for exporting documents with labels for project
+@import_export_api.route('/projects/<project_id>/export', methods=['GET'])
+@check_token
+def export_documents(project_id):
+    requestor_email = g.requestor_email
+    project = get_project_by_id(project_id)
+    print(does_user_belong_to_a_project(requestor_email, project_id))
+
+    if does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
+
+    # get all documents and labels
+    label_col = get_all_labels_of_a_project(project_id)
+    documents = get_all_document_of_a_project(project_id)
+
+    # Get contributors of project?
+    users = get_all_users_associated_with_a_project(project_id)
+    collaborators = list(filter(lambda collaborator: collaborator.role.value == 'owner' or collaborators.role.value == 'collaborator', project.collaborators))[0]
+    # print(collaborators)
 
 
-# # Endpoint for exporting documents with labels for project
-# @import_export_api.route('/projects/<project_name>/export', methods=['GET'])
-# def export_documents(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+    docs_to_write = []
+    # Generate data in correct format for export
+    for d in documents:
+        final_label = d.final_label
+        doc_label_status = "INCOMPLETE"
+        labels = d.labels
+        print(labels)
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+        num_contributors_labelled = len(d.labels)
 
-#     user_col = get_col(project_name, "users")
-#     requestor = user_col.find_one({'email': requestor_email, 'isContributor': True})
+        if final_label is not None:
+            doc_label_status = "AGREED AND CONFIRMED"
 
-#     if requestor is None:
-#         return user_unauthorised_response()
+        else:
+            if num_contributors_labelled > 1:
+                final_label = ""
+                doc_label_status = "LABELLED BUT UNCONFIRMED"
+            if num_contributors_labelled == 0:
+                final_label = ""
+                doc_label_status = "NO LABELLED YET"
 
-#     # get all documents and labels
-#     label_col = get_db_collection(project_name, 'labels')
-#     doc_col = get_db_collection(project_name, "documents")
-#     documents = doc_col.find(projection={'comments': 0})
+        res = {'ID': d.display_id, 'DOCUMENT': d.valul,
+                              'LABEL': final_label, 'LABEL STATUS': doc_label_status}
 
-#     # Get contributors of project?
-#     user_col = get_db_collection(project_name, "users")
-#     contributor_emails = user_col.find({'isContributor': True}, {'_id': 0, 'email': 1})
-#     if len(list(contributor_emails)) == 2:
-#         contributor_one_index = 0
-#         contributor_two_index = 1
-#     elif len(list(contributor_emails)) == 1:
-#         contributor_one_index = 0
-
-#     docs_to_write = []
-#     # Generate data in correct format for export
-#     for d in documents:
-#         final_label_id = d['final_label']
-#         doc_label_status = "INCOMPLETE"
-
-#         num_contributors_labelled = len(d['user_and_labels'])
-#         contributor_one_label = ""
-#         contributor_two_label = ""
-
-#         if final_label_id is not None:
-#             final_label = get_label_name_by_label_id(label_col, final_label_id)
-#             doc_label_status = "AGREED AND CONFIRMED"
-
-#             contributor_one_label = get_label_name_by_label_id(label_col,
-#                                                                d['user_and_labels'][contributor_one_index]['label'])
-#             contributor_two_label = contributor_one_label
-#         elif num_contributors_labelled == 2:
-#             if d['user_and_labels'][contributor_one_index]['label_confirmed'] and \
-#                     d['user_and_labels'][contributor_two_index]['label_confirmed']:
-#                 final_label = "DOCUMENT REDACTED"
-#                 doc_label_status = "NO AGREEMENT AND CONFIRMED"
-#             else:
-#                 final_label = ""
-#                 doc_label_status = "LABELLED BUT UNCONFIRMED"
-
-#             contributor_one_label = get_label_name_by_label_id(label_col,
-#                                                                d['user_and_labels'][contributor_one_index]['label'])
-#             contributor_two_label = get_label_name_by_label_id(label_col,
-#                                                                d['user_and_labels'][contributor_two_index]['label'])
-#         else:
-#             final_label = ""
-#             if num_contributors_labelled == 1:
-#                 # Handle ordering of contributors if there is only one contributor
-#                 contributor_one_label = get_label_name_by_label_id(label_col,
-#                                                                    d['user_and_labels'][contributor_one_index]['label'])
-
-#         # make dictionary
-#         docs_to_write.append({'ID': d['display_id'], 'DOCUMENT': d['data'],
-#                               'LABEL': final_label, 'LABEL STATUS': doc_label_status,
-#                               'CONTRIBUTOR 1 LABEL': contributor_one_label,
-#                               'CONTRIBUTOR 2 LABEL': contributor_two_label})
-#     docs = JSONEncoder().encode(docs_to_write)
-#     return docs, 200
+        # make dictionary
+        idx = 1
+        for l in labels:
+            idx = labels.index('l')
+            str = 'CONTRIBUTOR' + str(idx) + ' LABEL'
+            res[str] = l
+        print(res)
+        docs_to_write.append(res)
+    docs = JSONEncoder().encode(docs_to_write)
+    return docs, 200
