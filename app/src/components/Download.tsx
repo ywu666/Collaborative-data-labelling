@@ -12,6 +12,8 @@ import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 interface DownloadProps {
     name: string,
     enable: boolean;
+    projectId: string,
+    firebase: any
 }
 
 const theme = createMuiTheme({
@@ -32,6 +34,8 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
   const {
     name,
     enable,
+    projectId,
+    firebase
   } = props;
   const [downloadError, setDownloadError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +43,7 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
   const downloadCSV = (projectName: string) => {
     setIsLoading(true)
     try {
-      projectServices.exportCsv(projectName)
+      projectServices.exportCsv(projectName, projectId)
       setIsLoading(false)
     } catch(e) {
       setDownloadError("Downloading Error")

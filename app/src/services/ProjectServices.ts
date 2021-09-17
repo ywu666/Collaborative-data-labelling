@@ -1,6 +1,7 @@
 import { downloadHelpers } from '../helpers/download'
 import { EncryptedHelpers} from '../helpers/encryption'
 import { EncryptionServices } from './EncryptionService';
+import firebase from 'firebase';
 /**
  * The project service encapsulates all backend api calls for performing CRUD operations on project data
  */
@@ -93,8 +94,7 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
         })
  }
 
-function exportCsv(projectName: string) {
-
+function exportCsv(projectName: string, projectId:string) {
   const token = localStorage.getItem('user-token');
   const requestOptions = {
         method: 'GET',
@@ -108,15 +108,19 @@ function exportCsv(projectName: string) {
         },
     };
 
-    const exportFields = ['ID', 'DOCUMENT', 'LABEL', 'LABEL STATUS', 'CONTRIBUTOR 1 LABEL', 'CONTRIBUTOR 2 LABEL'];
-
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName +  '/export', requestOptions)
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId +  '/export', requestOptions)
     //return fetch('https://picsum.photos/list', requestOptions)
     .then(handleResponse)
-    .then(downloadHelpers.collectionToCSV(exportFields))
-    .then(csv => {
+      .then(data => {
+        let exportFields = Object.keys(data['0'])
+        console.log('fields:',exportFields);
+        return downloadHelpers.collectionToCSV(exportFields,data)
+        })
+      .then(csv => {
+        console.log('xsc: ',csv)
         const blob = new Blob([csv], {type: 'text/csv'});
         downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
+
     })
     .catch(console.error);
 }
@@ -311,6 +315,7 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);
        }
+       console.log('data: ',data);
        return data;
    });
 }

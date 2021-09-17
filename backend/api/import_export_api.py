@@ -206,10 +206,11 @@ def upload_file():
 @check_token
 def export_documents(project_id):
     requestor_email = g.requestor_email
+
     project = get_project_by_id(project_id)
     print(does_user_belong_to_a_project(requestor_email, project_id))
 
-    if does_user_belong_to_a_project(requestor_email, project_id):
+    if not does_user_belong_to_a_project(requestor_email, project_id) :
         return user_unauthorised_response()
 
     # get all documents and labels
@@ -219,8 +220,6 @@ def export_documents(project_id):
     # Get contributors of project?
     users = get_all_users_associated_with_a_project(project_id)
     collaborators = list(filter(lambda collaborator: collaborator.role.value == 'owner' or collaborators.role.value == 'collaborator', project.collaborators))[0]
-    # print(collaborators)
-
 
     docs_to_write = []
     # Generate data in correct format for export
@@ -228,7 +227,6 @@ def export_documents(project_id):
         final_label = d.final_label
         doc_label_status = "INCOMPLETE"
         labels = d.labels
-        print(labels)
 
         num_contributors_labelled = len(d.labels)
 
@@ -243,7 +241,7 @@ def export_documents(project_id):
                 final_label = ""
                 doc_label_status = "NO LABELLED YET"
 
-        res = {'ID': d.display_id, 'DOCUMENT': d.valul,
+        res = {'ID': d.display_id, 'DOCUMENT': d.value,
                               'LABEL': final_label, 'LABEL STATUS': doc_label_status}
 
         # make dictionary
