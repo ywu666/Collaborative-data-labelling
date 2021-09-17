@@ -94,35 +94,43 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
         })
  }
 
-function exportCsv(projectName: string, projectId:string) {
+async function exportCsv(projectName: string, projectId:string, firebase:any,encryptStatus:boolean) {
   const token = localStorage.getItem('user-token');
   const requestOptions = {
-        method: 'GET',
-        headers: {
-        'Content-Type': 'application/json',
-        'Content-Disposition': 'attachment; filename=' + projectName + '-export.csv',
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET",
-        "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-        "Authorization":"Bearer " + token
-        },
-    };
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Disposition': 'attachment; filename=' + projectName + '-export.csv',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "Content-Type, Content-Disposition, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+      "Authorization":"Bearer " + token
+    },
+  };
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId +  '/export', requestOptions)
-    //return fetch('https://picsum.photos/list', requestOptions)
-    .then(handleResponse)
-      .then(data => {
-        let exportFields = Object.keys(data['0'])
-        console.log('fields:',exportFields);
-        return downloadHelpers.collectionToCSV(exportFields,data)
-        })
-      .then(csv => {
-        console.log('xsc: ',csv)
-        const blob = new Blob([csv], {type: 'text/csv'});
-        downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
+  const response = fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId +  '/export', requestOptions);
+  const data = await handleResponse(await response)
+  console.log(data)
 
-    })
-    .catch(console.error);
+  let exportFields = Object.keys(data['0']);
+  console.log(encryptStatus)
+
+  if(encryptStatus) {
+    for(let i in data) {
+      console.log('data:', data[i].DOCUMENT);
+      const decryptData = await EncryptedHelpers.decryptOneData(projectId, data[i].DOCUMENT, firebase);
+      data[i].DOCUMENT = decryptData;
+      console.log('after decrypt',data[i])
+    }
+  }
+
+  const csv = downloadHelpers.collectionToCSV(exportFields, data)
+
+  const blob = new Blob([csv], {type: 'text/csv'});
+  downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
+
+
+
 }
 async function getProjectUsers(project: string, firebase: any, page: number, page_size: number) {
   await handleAuthorization(firebase)
@@ -333,3 +341,4 @@ export async function handleAuthorization(firebaseAuth: any) {
      window.location.href = '/auth';
     }
 }
+

@@ -13,7 +13,8 @@ interface DownloadProps {
     name: string,
     enable: boolean;
     projectId: string,
-    firebase: any
+    firebase: any,
+    encryptStatus:boolean
 }
 
 const theme = createMuiTheme({
@@ -35,7 +36,8 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
     name,
     enable,
     projectId,
-    firebase
+    firebase,
+    encryptStatus
   } = props;
   const [downloadError, setDownloadError] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +45,7 @@ const Download: React.FC<DownloadProps> = (props:DownloadProps) => {
   const downloadCSV = (projectName: string) => {
     setIsLoading(true)
     try {
-      projectServices.exportCsv(projectName, projectId)
+      projectServices.exportCsv(projectName, projectId,firebase,encryptStatus).then()
       setIsLoading(false)
     } catch(e) {
       setDownloadError("Downloading Error")
