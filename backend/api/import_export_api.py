@@ -247,9 +247,8 @@ def export_documents(project_id):
         # make dictionary
         idx = 1
         for l in labels:
-            idx = labels.index('l')
-            str = 'CONTRIBUTOR' + str(idx) + ' LABEL'
-            res[str] = l
+            str = l.user.username
+            res[str] = l.label
         print(res)
         docs_to_write.append(res)
     docs = JSONEncoder().encode(docs_to_write)
