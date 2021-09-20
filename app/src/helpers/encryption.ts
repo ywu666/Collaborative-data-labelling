@@ -15,7 +15,8 @@ export const EncryptedHelpers = {
   decryptEncryptedPrivateKey,
   encryptData,
   decryptData,
-  getEntryKey
+  getEntryKey,
+  decryptOneData
 }
 
 function generateHashPhrase(phrase: string, salt: string) {
@@ -216,6 +217,14 @@ async function decryptData(projectId:string, encryptedData:any[], firebase:any) 
      decryptData.push(decrypt.toString(Utf8))
   }
   return decryptData
+}
+
+async function decryptOneData(projectId:string, encryptedData:string, firebase:any) {
+  await getKeys(firebase);
+  const entry_key = await getEntryKey(projectId, firebase);
+  const decrypt = AES.decrypt(encryptedData, entry_key);
+  return decrypt.toString(Utf8)
+
 }
 
 async function getEntryKey(projectId:string, firebase:any) {

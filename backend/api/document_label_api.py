@@ -8,6 +8,7 @@ from flask import Blueprint, request, make_response, g
 
 document_label_api = Blueprint('document_label_api', __name__)
 
+
 @document_label_api.route('/projects/<project_id>/unlabelled/documents', methods=['Get'])
 @check_token
 def get_unlabelled_document_ids(project_id):
