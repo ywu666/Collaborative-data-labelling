@@ -233,14 +233,14 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
 }
 
 async function decryptProjectData(encryptStatus:boolean,data:any,projectId:string,firebase:any) {
-  if(encryptStatus && data.count > 0) {
+  if(encryptStatus && data.docs.length > 0) {
     let encryptedData = []
     for (let x in data.docs) {
       encryptedData.push(data.docs[x].data)
     }
 
     const decryptedData = await EncryptedHelpers.decryptData(projectId, encryptedData,firebase);
-    for (let x =0;x<data.count;x++) {
+    for (let x =0;x<data.docs.length;x++) {
       data.docs[x].data = decryptedData[x]
     }
     return data
