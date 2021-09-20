@@ -1,6 +1,6 @@
 from flask.json import jsonify
 from database.project_dao import get_document_of_a_project, is_valid_label, is_label_confirmed, \
-    get_all_label_result_for_a_data, update_confirmed_label_for_data, update_user_document_label
+    get_all_label_result_for_a_data, update_confirmed_label_for_data, update_user_document_label, get_project_by_id
 from database.user_dao import does_user_belong_to_a_project, get_user_from_database_by_email
 from middleware.auth import check_token
 from api.validation_methods import user_unauthorised_response, invalid_label_response
@@ -24,24 +24,29 @@ def get_unlabelled_document_ids(project_id):
     if not does_user_belong_to_a_project(requestor_email, project_id):
         return user_unauthorised_response()
 
-    data = get_document_of_a_project(project_id, page, page_size)
+    data = get_project_by_id(project_id).data
+    unlabell_data = []
     docs = []
     # for each data, only look for label given by the current user
-    for d in data:
+    for i in range(len(data)):
+        d = data[i]
         labelByUser = next((item for item in d.labels if ((item.user.id == userId) & (item.label != None))), None)
-
-        # append result if the current user did not label it 
+        
         if not labelByUser:
-            result = {
-                'display_id': d.display_id,
-                'label': None,
-                'data': d.value
-            }
-            docs.append(result)
+            print(d.value)
+            unlabell_data.append(d)
 
+    for d in unlabell_data[page * page_size: (page + 1) * page_size]:
+        result = {
+            'display_id': d.display_id,
+            'label': None,
+            'data': d.value
+        }
+        docs.append(result)
+        
     result = {
         'docs': docs,
-        'count': len(docs)
+        'count': len(unlabell_data)
     }
 
     return jsonify(result), 200
@@ -113,23 +118,26 @@ def get_documents_with_unconfirmed_labels_for_user(project_id):
     if not does_user_belong_to_a_project(requestor_email, project_id):
         return user_unauthorised_response()
 
-    data = get_document_of_a_project(project_id, page, page_size)
+    data = get_project_by_id(project_id).data
+    unconfirmed_data = []
     docs = []
-
     # for each data, only look for label given by the current user
-    for d in data:
-        # append result if the current user did not label it 
+    for i in range(len(data)):
+        d = data[i]
         if not d.final_label:
-            result = {
-                'display_id': d.display_id,
-                'label': None,
-                'data': d.value
-            }
-            docs.append(result)
+            unconfirmed_data.append(d)
+
+    for d in unconfirmed_data[page * page_size: (page + 1) * page_size]:
+        result = {
+            'display_id': d.display_id,
+            'label': None,
+            'data': d.value
+        }
+        docs.append(result)
 
     result = {
         'docs': docs,
-        'count': len(docs)
+        'count': len(unconfirmed_data)
     }
   
     return jsonify(result), 200
