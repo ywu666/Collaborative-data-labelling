@@ -110,27 +110,18 @@ async function exportCsv(projectName: string, projectId:string, firebase:any,enc
 
   const response = fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId +  '/export', requestOptions);
   const data = await handleResponse(await response)
-  console.log(data)
 
   let exportFields = Object.keys(data['0']);
-  console.log(encryptStatus)
-
   if(encryptStatus) {
     for(let i in data) {
-      console.log('data:', data[i].DOCUMENT);
       const decryptData = await EncryptedHelpers.decryptOneData(projectId, data[i].DOCUMENT, firebase);
       data[i].DOCUMENT = decryptData;
-      console.log('after decrypt',data[i])
     }
   }
 
   const csv = downloadHelpers.collectionToCSV(exportFields, data)
-
   const blob = new Blob([csv], {type: 'text/csv'});
   downloadHelpers.downloadBlob(blob, projectName + '-export.csv');
-
-
-
 }
 async function getProjectUsers(project: string, firebase: any, page: number, page_size: number) {
   await handleAuthorization(firebase)
@@ -291,7 +282,6 @@ async function addEntryKeyToCollaborator(project: string, collaboratorEmail: str
 
    if(encryptStatus) {
      const encryptedArray = await EncryptedHelpers.encryptData(file, firebase, projectId)
-     console.log(JSON.stringify(encryptedArray))
      formData.append('encryptedData', JSON.stringify(encryptedArray));
 
    } else {
@@ -323,7 +313,6 @@ function handleResponse(response: { text: () => Promise<any>; ok: any; status: n
            const error = (data && data.message) || response.statusText;
            return Promise.reject(error);
        }
-       console.log('data: ',data);
        return data;
    });
 }
