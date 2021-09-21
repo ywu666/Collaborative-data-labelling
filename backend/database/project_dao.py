@@ -102,6 +102,11 @@ def get_document_of_a_project(project_id, page, page_limite):
     return project.data
 
 
+def get_all_document_of_a_project(project_id):
+    project = Project.objects(id=project_id).only('data').get()
+    return project.data
+
+
 def create_new_document(display_id, value):
     document = Data(display_id=display_id, value=value)
     return document

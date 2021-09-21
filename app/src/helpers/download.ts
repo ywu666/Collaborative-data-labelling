@@ -4,7 +4,6 @@ export const downloadHelpers = {
 }
 
 function collectionToCSV(keys : string[] = [], data:JSON[] =[]) {
-  console.log(data);
   let replacer = function(key:any, value:any) { return value === null ? '' : value }
   let csv = data.map(function(row:any){
     return keys.map(function(fieldName:any){
@@ -17,7 +16,6 @@ function collectionToCSV(keys : string[] = [], data:JSON[] =[]) {
 
 
 function downloadBlob(blob: Blob, filename: string) {
-  console.log(blob)
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
   link.setAttribute('href', url);
