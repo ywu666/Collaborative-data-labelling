@@ -214,7 +214,7 @@ def export_documents(project_id):
         return user_unauthorised_response()
 
     # get all documents and labels
-    label_col = get_all_labels_of_a_project(project_id)
+    # label_col = get_all_labels_of_a_project(project_id)
     documents = get_all_document_of_a_project(project_id)
 
     # Get contributors of project?
