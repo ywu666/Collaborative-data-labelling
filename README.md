@@ -9,21 +9,20 @@ ENVIRONMENT FILES:
 - Backend should also have the file for firebase configurations
 - Please contact cche381@aucklanduni.ac.nz for the environment files required to run the project if you are having trouble
 
-TO RUN (DOCKER):  
-You must have Docker Desktop installed (With educational license): https://www.docker.com/  
-Or you must have Docker toolbox: https://docs.docker.com/toolbox/toolbox_install_windows/  
-Then run:  
-
-"docker-compose up"
-
-If you do not have docker, run each component individually (backend/main.py, and "npm run start" in app/):
-
-To run the frontend, run 'npm install' then 'npm start' within the 'app' directory: https://www.npmjs.com/   
-To run the backend, run "pip install -r requirements.txt" then 'python main.py' within the 'backend' directory   
-You must have the following installed:
+BEFORE RUN:
+You must have the following installed
 - Python 3
 - pip
 - npm
+
+TO RUN IN HTTPS:  
+run each component individually (backend/main.py, and "npm run start" in app/):
+To run the frontend
+- confige the file to run https https://flaviocopes.com/react-how-to-configure-https-localhost/
+- run 'npm install' then 'npm start' within the 'app' directory: https://www.npmjs.com/   
+To run the backend
+- run "pip install -r requirements.txt" then 'python main.py' within the 'backend' directory   
+
 
 ## Project Requirements
 Web based tool to label text documents, for machine learning tasks. Supervised machine learning with text requires manual labels to be assigned to many documents by human coders. This tool will facilitate human coders to privately (still online) assign predefined labels to a set of documents and then compare their labels with other coders to give an agreed label. 
@@ -32,11 +31,11 @@ Technologies: Web based. Accessible from windows and MacOS
 
 Lanuages: 
 
-front end - HTML CSS Javascript, ionic, material ui
+- front end - HTML CSS Javascript, ionic, material ui
 
-back end - optional (maybe python)
+- back end - python
 
-database - MongoDB: please note that there must be a database named "users" with a collection named "users" existing within the database before running the project
+- database - MongoDB: please note that there must be a database named "users" with a collection named "users" existing within the database before running the project
 
 
 ### Desired Features
@@ -53,4 +52,3 @@ database - MongoDB: please note that there must be a database named "users" with
 - modified labels should be automatically propagated
 - user edit access levels-> creating labels etc
 - Update db often
-
