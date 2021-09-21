@@ -141,7 +141,7 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
           needPublicKey ? <div style={{ color: 'red' }}>Waiting for collaborator to provide key phrase to decrypt the project</div> :
             needEntryKey ?
               <IonButton style={{ color: 'red' }} fill="clear" onClick={() => handleAssignData(user)}>
-                Assign data
+                Share encrypt project data to collaborators 
               </IonButton> :
               <IonButton fill="clear" onClick={() => setShowPermissions(true)} disabled={!canEdit}>
                 Edit

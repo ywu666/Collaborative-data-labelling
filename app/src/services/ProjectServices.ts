@@ -74,7 +74,7 @@ async function getProjectNames(firebase: any) {
        })
 }
 
-async function getProjectAgreementScore(projectName: any, firebase: any) {
+async function getProjectAgreementScore(projectId: any, firebase: any) {
   await handleAuthorization(firebase);
   const token = localStorage.getItem('user-token');
   const requestOptions = {
@@ -87,7 +87,7 @@ async function getProjectAgreementScore(projectName: any, firebase: any) {
       "Authorization":"Bearer " + token
     }};
 
-    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectName, requestOptions) // TODO:config.apiUrl
+    return fetch(process.env.REACT_APP_API_URL + '/projects/' + projectId + '/agreement_score', requestOptions) // TODO:config.apiUrl
         .then(handleResponse)
         .then(data => {
             return data
