@@ -3,7 +3,7 @@ from flask.json import jsonify
 from database.user_dao import does_user_belong_to_a_project, get_user_from_database_by_email
 from api.validation_methods import user_unauthorised_response
 from database.project_dao import get_document_of_a_project, count_number_of_unlabelled_docs, \
-    get_all_users_associated_with_a_project, get_single_document_of_a_project
+    get_all_users_associated_with_a_project, get_single_document_of_a_project, get_project_by_id
 from middleware.auth import check_token
 from flask import Blueprint, request, make_response, g
 import re
@@ -44,7 +44,7 @@ def get_document_ids(project_id):
 
     result = {
         'docs': docs,
-        'count': len(docs)
+        'count': len(get_project_by_id(project_id).data)
     }
 
     return jsonify(result), 200

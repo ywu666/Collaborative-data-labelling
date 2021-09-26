@@ -1,8 +1,5 @@
 import {
-	IonModal,
-	IonButton,
 	IonLabel,
-	IonIcon,
 	IonSkeletonText,
 	IonRouterLink,
 	IonSegment,
@@ -10,12 +7,11 @@ import {
 	IonAlert,
   useIonViewWillEnter,
 } from '@ionic/react';
-import { add } from 'ionicons/icons' 
 import React, { useState, useEffect } from 'react';
 import { documentServices } from '../services/DocumentService'
 import { labelServices } from '../services/LabelServices'
 import { isNullOrUndefined } from 'util';
-import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper, Select, FormControl, InputLabel } from '@material-ui/core';
+import { TableBody, TableCell, TableHead, Table, TableFooter, TableRow, TablePagination, TableContainer, Paper, Select, FormControl, InputLabel, createStyles, makeStyles, Theme } from '@material-ui/core';
 
 import './DocumentList.css'
 
@@ -26,6 +22,14 @@ interface DocumentListProps {
 	encryptStatus:boolean,
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    selectStyle: {
+      backgroundColor: '#039487'
+    },
+  }),
+);
+
 const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 	const {
 		projectId,
@@ -33,6 +37,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
 		firebase,
 		encryptStatus
 	} = props;
+	const classes = useStyles();
+
 	const [page, setPage] = useState(0);
 	const [page_size, setPageSize] = useState(10);
 	const [documents, setDocuments] = useState<any[]>([]);
@@ -175,7 +181,8 @@ const DocumentList: React.FC<DocumentListProps> = (props:DocumentListProps) => {
                 native
                 value={user_label}
                 onChange={(e) => changeTag(doc.display_id, e.target.value)}
-                inputProps={{ readOnly: user_label_confirmed }}
+				disabled={user_label_confirmed}
+				className={user_label_confirmed ? classes.selectStyle : ""}
               >
                 <option aria-label="None" value="" />
                 {labels.map((label, i) => (
