@@ -21,6 +21,12 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
         'state': '',
         'encryption_state': ''
     });
+    const [labellingSituation, setLabellingSituation] = useState({
+        "agreed_number": 0,
+        "not_agreed_number": 0,
+        "analysed_number": 0,
+        "total_number": 0
+    });
     
     const [currentUser, setCurrentUser] = useState<any>({
         '_id': '',
@@ -39,19 +45,44 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
         }
     }, [])
 
+    useEffect(() => {
+        try {
+            console.log("use effect called")
+            projectServices.getProjectAgreementScore(id, firebase)
+                .then(data => {
+                    setLabellingSituation(data);
+                })
+        } catch (e) {
+            console.log(e);
+        }
+    }, []);
+
     useIonViewWillEnter(() => {
         userService.getCurrentProjectUser(id)
             .then(data => {
                 setCurrentUser(data)
             })
     }, []);
+
+    const getProjectAgreementScore = () => {
+        let agreed_number = (labellingSituation.agreed_number / labellingSituation.analysed_number) * 100;
+        if (labellingSituation.total_number != labellingSituation.analysed_number) {
+            return "labelling is not finished";
+        } else if (agreed_number < 1) {
+            return 'Agreement score: ~0%';
+        } else if (agreed_number > 99) {
+            return 'Agreement score: ~100%';
+        } else {
+            return 'Agreement score: ' + Math.round(agreed_number).toString() + '%';
+        }
+    }
     
     return (
         <div className={styles.projectDiv}>
             <div className={styles.headerDiv}>
                 <IonIcon icon={folderOpen} className={styles.folderIcon}/>
                 <IonText className={styles.projectName}>
-                    {project.owner + "/" + project.name}
+                    {project.owner + "/" + project.name + " (" + getProjectAgreementScore() + ") "}
                 </IonText>
             </div>
 
@@ -59,10 +90,6 @@ const ProjectHeader: React.FC<ProjectHeaderProps> = (props: ProjectHeaderProps) 
                 <IonTabButton tab="tab1" href={`/project/${id}/labelling`} className={styles.tabButton}>
                     <IonIcon icon={pricetags} className={styles.tabIcon}/>
                     <IonLabel className={styles.tabLabel}>Labelling</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="tab2" href={`/project/${id}/insight`} className={styles.tabButton}>
-                    <IonIcon icon={analytics} className={styles.tabIcon}/>
-                    <IonLabel className={styles.tabLabel}>Insight</IonLabel>
                 </IonTabButton>
                 <IonTabButton 
                     tab="tab3" href={`/project/${id}/setting`} 

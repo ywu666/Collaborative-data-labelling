@@ -1,8 +1,9 @@
 from api.validation_methods import user_unauthorised_response
 from database.user_dao import does_user_belong_to_a_project, get_user_public_key, get_user_from_database_by_email
 from database.project_dao import create_new_project, get_all_projects_of_a_user, get_owner_of_the_project, \
-    get_project_by_id, get_all_users_associated_with_a_project
+    get_project_by_id, get_all_users_associated_with_a_project, get_all_document_of_a_project
 from middleware.auth import check_token
+from enums.user_role import UserRole
 from database.model import Project
 from flask import Blueprint, request, make_response, g, jsonify
 import re
@@ -55,44 +56,42 @@ def get_project_description(project_id):
     return make_response(response), 200
 
 
-# @project_api.route('/projects/<project_name>/agreement_score', methods=['GET'])
-# def get_agreement_score(project_name):
-#     id_token = request.args.get('id_token')
-#     requestor_email = get_email(id_token)
+@project_api.route('/projects/<project_id>/agreement_score', methods=['GET'])
+@check_token
+def get_agreement_score(project_id):
+    requestor_email = g.requestor_email
 
-#     invalid_token = check_id_token(id_token, requestor_email)
-#     if invalid_token is not None:
-#         return make_response(invalid_token), 400
+    if not does_user_belong_to_a_project(requestor_email, project_id):
+        return user_unauthorised_response()
 
-#     user_col = get_col(project_name, "users")
-#     requestor = user_col.find_one({'email': requestor_email})
-#     if requestor is None:
-#         return user_unauthorised_response()
+    all_docs = get_all_document_of_a_project(project_id)
+    agreed = 0
+    not_agreed = 0
+    collaborators = get_all_users_associated_with_a_project(project_id)
+    collaborators_without_viewer = list(filter(lambda collaborator: collaborator.role != UserRole.READER, collaborators))
+    if len(collaborators_without_viewer) == 2:
+        for d in all_docs:
+            collaborator_1 = collaborators_without_viewer[0].user.id
+            collaborator_2 = collaborators_without_viewer[1].user.id
+            labelByUser1 = next((item for item in d.labels if ((item.user.id == collaborator_1) & (item.label != None))), None)
+            labelByUser2 = next((item for item in d.labels if ((item.user.id == collaborator_2) & (item.label != None))), None)
 
-#     doc_col = get_col(project_name, "documents")
+            if labelByUser1 != None and labelByUser2 != None:
+                if labelByUser1.label == labelByUser2.label:
+                    agreed = agreed + 1
+                else:
+                    not_agreed = not_agreed + 1
 
-#     all_docs = doc_col.find({})
-#     agreed = 0
-#     not_agreed = 0
-#     for doc in all_docs:
-#         if len(doc['user_and_labels']) == 2:
-#             label_1 = doc['user_and_labels'][0]['label']
-#             label_2 = doc['user_and_labels'][1]['label']
-#             if label_1 == label_2:
-#                 agreed = agreed + 1
-#             else:
-#                 not_agreed = not_agreed + 1
+    analysed = agreed + not_agreed
 
-#     analysed = agreed + not_agreed
+    return_dict = {
+        "agreed_number": agreed,
+        "not_agreed_number": not_agreed,
+        "analysed_number": analysed,
+        "total_number": len(all_docs)
+    }
 
-#     return_dict = {
-#         "agreed_number": agreed,
-#         "not_agreed_number": not_agreed,
-#         "analysed_number": analysed,
-#         "total_number": doc_col.count_documents({})
-#     }
-
-#     return return_dict, 200
+    return return_dict, 200
 
 '''
 Create a new project for the current user

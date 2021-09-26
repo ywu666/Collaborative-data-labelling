@@ -80,31 +80,7 @@ const MainPage: React.FC<MainPageProps> = (props: MainPageProps) => {
     setLoading(projectLoading.some((e) => e.loading === true));
   }, [projectLoading]);
 
-  // const progressProject = (data: any) => {
-  //   let agreed_number = (data.agreed_number / data.analysed_number) * 100;
-  //   if (data.total_number === 0) {
-  //     return 'No documents in the project';
-  //   } else if (
-  //     isNullOrUndefined(data.unlabelled) &&
-  //     data.analysed_number === 0
-  //   ) {
-  //     //You are not contributor when unlabelled is undefined
-  //     return 'Labeling is incomplete by contributor(s)';
-  //   } else if (!isNullOrUndefined(data.unlabelled) && data.unlabelled !== 0) {
-  //     //contributor but still has labelling to do
-  //     return 'Labeling not finished';
-  //   } else if (data.analysed_number === 0) {
-  //     // You are contributor but documents not analysed
-  //     return 'Labeling is incomplete by other contributor';
-  //   } else if (agreed_number < 1) {
-  //     return 'Agreement score: ~0%';
-  //   } else if (agreed_number > 99) {
-  //     return 'Agreement score: ~100%';
-  //   } else {
-  //     return 'Agreement score: ' + Math.round(agreed_number).toString() + '%';
-  //   }
-  // }
-
+  
   useEffect(() => {
     try {
       userService.getCurrentUser(localStorage.getItem("email"), firebase)
