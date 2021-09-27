@@ -218,8 +218,8 @@ def export_documents(project_id):
     documents = get_all_document_of_a_project(project_id)
 
     # Get contributors of project?
-    users = get_all_users_associated_with_a_project(project_id)
-    collaborators = list(filter(lambda collaborator: collaborator.role.value == 'owner' or collaborators.role.value == 'collaborator', project.collaborators))[0]
+    collaborators = list(filter(lambda collaborator: collaborator.role.value ==
+                                'owner' or collaborator.role.value == 'collaborator', project.collaborators))[0]
 
     docs_to_write = []
     # Generate data in correct format for export
