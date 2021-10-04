@@ -235,8 +235,14 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
                 checked={encryptionStatus}
                 onIonChange={e => setEncryptionStatus(e.detail.checked)}
                 name='encryptionStatus'/>
+          </IonItem>
+          {
+            encryptionStatus && firstTimeEncrypt &&
+            <IonItem>
+              <p style={{ color: 'red' }}>Please enter a key phrase to encrypt your data *</p>
             </IonItem>
-            { encryptionStatus && firstTimeEncrypt &&
+          }
+          { encryptionStatus && firstTimeEncrypt &&
             <IonItem>
               <IonInput
                 placeholder="Enter the phrase to encrypt data"
@@ -255,11 +261,11 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
                 <IonText color="danger"><a>You must remember the encryption phrase.</a></IonText>
               </p>
             </IonItem> }
-            <IonButton
-              disabled={projectName == null || projectName.length < 1}
-              fill="outline"
-              type="submit"
-              expand="block"
+          <IonButton
+            disabled={projectName == null || projectName.length < 1 || (firstTimeEncrypt && encryptionStatus && !phrase)}
+            fill="outline"
+            type="submit"
+            expand="block"
             >CREATE</IonButton>
             { error && <p style={{color:'red'}}>{errorMessage}</p>}
           </form>
