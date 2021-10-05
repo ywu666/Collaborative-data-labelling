@@ -229,7 +229,7 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
               />
             </IonItem>
             <IonItem lines='none'>
-              <IonLabel>Encryption the project</IonLabel>
+              <IonLabel>Encrypt the project</IonLabel>
               <IonCheckbox
                 slot='start'
                 checked={encryptionStatus}
