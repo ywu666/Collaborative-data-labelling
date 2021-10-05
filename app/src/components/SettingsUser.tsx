@@ -138,7 +138,7 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
       </TableCell>
       <TableCell align="right" style={{ width: '60px' }}>
         {
-          needPublicKey ? <div style={{ color: 'red' }}>Waiting for collaborator to process</div> :
+          needPublicKey ? <div style={{ color: 'red' }}>Waiting for collaborator to join</div> :
             needEntryKey ?
               <IonButton style={{ color: 'red' }} fill="clear" onClick={() => handleAssignData(user)}>
                 Share data to collaborator
