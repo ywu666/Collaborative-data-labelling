@@ -19,9 +19,9 @@ Backend Status: [![Build Status](https://travis-ci.org/zyan225/Collaborative_con
 
 #### 2. Installatoin
 You must have the following installed
-- Python 3
-- pip
-- npm
+- Python Version: 3.9
+- pip Version: 21
+- npm Version: 14
 
 ## TO RUN LOCALLY
 ### Mac OS
