@@ -56,8 +56,6 @@ Web based tool to label text documents, for machine learning tasks. Supervised m
   - **Frontend:** HTML, CSS, Typescript, Ionic UI, Material ui
   - **Backend:** Python, Flask
   - **Database:** MongoDB
-    - please note that there must be a database named "users" with a collection named "users" existing within the database before running the project
-
 
 ## General Features
 - User accounts (sign in/out)
