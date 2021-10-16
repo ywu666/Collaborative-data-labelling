@@ -27,8 +27,8 @@ You must have the following installed
 ### Mac OS
 - Run each component individually:
   - To run the frontend
-    - Follow the Steps in the tutorial to consif the file to run app on https
-    - The encryption algorithm is only work on https
+    - Follow the steps in the tutorial to config the file and run app on https
+    - The encryption algorithm only works on https
     - https://flaviocopes.com/react-how-to-configure-https-localhost/
     - then: 
     ```
