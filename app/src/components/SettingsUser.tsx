@@ -42,12 +42,15 @@ const SettingsUser: React.FC<ContainerProps> = ({ project, user, isContributor, 
   }, [isAdmin])
 
   useEffect(() => {
-    try{
-      userService.getCurrentUser(user, firebase)
-      .then(data => {
-        setCurrentDisplayName(data.username)
-      })
-    } catch (e) {
+    if (user != "No users") {
+      try {
+        userService.getCurrentUser(user, firebase)
+          .then(data => {
+            setCurrentDisplayName(data.username)
+          })
+      } catch (e) {
+        console.log(e);
+      }
     }
   }, [user])
   
