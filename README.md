@@ -14,7 +14,8 @@ Backend Status: [![Build Status](https://travis-ci.org/zyan225/Collaborative_con
 You must have the following installed
 - Python Version: 3.9
 - pip Version: 21
-- npm Version: 14
+- node Version: 16
+- npm Version: 7^
 
 # Setup instructions for Markers 
 Application is ready to run as all keys, firebase config and env files are included in the source code
