@@ -56,8 +56,7 @@ const Upload: React.FC<UploadProps> = (props:UploadProps) => {
   }, [upload])
 
   return (
-    <Tooltip title={<h5>The uploaded file should be CSV formatted. If there are preset IDs, there should be two
-              'columns' in the following order: ID and DOCUMENT, where ID only consists of integers. Otherwise,there should
+    <Tooltip title={<h5>The uploaded file should be CSV formatted. There should
                only be one column, DOCUMENT.</h5>} placement="top">
       <label htmlFor="upload-button">
         <input
