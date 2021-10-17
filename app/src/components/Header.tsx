@@ -110,11 +110,11 @@ const Header: React.FC<HeaderProps> = (props:HeaderProps) => {
   useEffect(() => {
     // check if its first time encrypted
     const checkFirstTime = async () => {
-      if(firebase) {
-        const userKey = await EncryptionServices.getUserKeys(firebase)
-        if(userKey) {
+      if (firebase) {
+        try {
+          await EncryptionServices.getUserKeys(firebase)
           setFirstTimeEncrypt(false)
-        }else {
+        } catch {
           setFirstTimeEncrypt(true)
         }
       }
