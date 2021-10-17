@@ -31,6 +31,7 @@ Application is ready to run as all keys, firebase config and env files are inclu
 
 ```
 cd app  // move into app directory
+npm install // installing dependencies
 npm run start-mac   // run the project   
 ```
 Once running, you will see the browser showing a invalid certificate warning.   
@@ -44,6 +45,7 @@ Then click "Proceed to localhost (unsafe)"
 ***You must have Firefox installed to run this website locally***
 ```
 cd app  // move into app directory
+npm install // installing dependencies
 npm run start-windows   // run the project   
 ```
 Open the frontend url in Firefox, and you will see the security warning as below:
