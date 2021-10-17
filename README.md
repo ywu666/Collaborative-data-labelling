@@ -54,7 +54,7 @@ Open the frontend url in Firefox, and you will see the security warning as below
 Click "Advanced", then click "Accept the Risk and Continue".    
 
 ## Upload data
-A sample csv file, "simple_csv_without_id.csv" is included under the root folder. This file can be used to test the upload functionality. 
+A sample csv file, "sample_labelling_data.csv" is included under the root folder. This file can be used to test the upload functionality. 
 
 # Setup instructions for Developers 
 ## 1. Set envrionment files
