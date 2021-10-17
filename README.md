@@ -35,7 +35,7 @@ Application is ready to run as all keys, firebase config and env files are inclu
   Following the steps in the tutorial below to solve that error:
   https://flaviocopes.com/macos-install-ssl-local/
 
-### Windows OS
+### Windows
 ***You must have Firefox installed to run this website locally***
 ```
 cd app  // move into app directory
