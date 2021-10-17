@@ -27,13 +27,18 @@ Application is ready to run as all keys, firebase config and env files are inclu
 
 ## frontend
 ### Mac OS
-  ```
-  cd app  // move into app directory
-  npm run start-mac   // run the project   
-  ```
-  Once running, you will see the browser showing a invalid certificate warning.   
-  Following the steps in the tutorial below to solve that error:
-  https://flaviocopes.com/macos-install-ssl-local/
+***You must have Chrome installed to run this website locally***
+
+```
+cd app  // move into app directory
+npm run start-mac   // run the project   
+```
+Once running, you will see the browser showing a invalid certificate warning.   
+![Chrome invalid certificate warning](./images/mac-1.png)
+
+Click "Advanced" button.
+![Chrome invalid certificate warning](./images/mac-2.png)
+Then click "Proceed to localhost (unsafe)" 
 
 ### Windows
 ***You must have Firefox installed to run this website locally***
@@ -42,7 +47,7 @@ cd app  // move into app directory
 npm run start-windows   // run the project   
 ```
 Open the frontend url in Firefox, and you will see the security warning as below:
-![Firebox invalid certificate warning](./images/firefox.png)
+![Firefox invalid certificate warning](./images/firefox.png)
 
 Click "Advanced", then click "Accept the Risk and Continue".    
 
